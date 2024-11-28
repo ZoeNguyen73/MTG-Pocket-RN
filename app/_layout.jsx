@@ -14,7 +14,11 @@ import {
   Poppins_700Bold_Italic
 } from "@expo-google-fonts/poppins";
 
+import "../global.css";
+
 SplashScreen.preventAutoHideAsync();
+
+import ThemeProvider from "../context/ThemeProvider";
 
 const RootLayout = () => {
 
@@ -40,9 +44,11 @@ const RootLayout = () => {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-    </Stack>
+    <ThemeProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+      </Stack>
+    </ThemeProvider>
   )
 };
 
