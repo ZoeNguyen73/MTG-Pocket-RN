@@ -14,6 +14,8 @@ import {
   Poppins_700Bold_Italic
 } from "@expo-google-fonts/poppins";
 
+import "../global.css";
+
 SplashScreen.preventAutoHideAsync();
 
 import ThemeProvider from "../context/ThemeProvider";
