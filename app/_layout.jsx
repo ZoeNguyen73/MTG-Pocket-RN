@@ -16,6 +16,8 @@ import {
 
 SplashScreen.preventAutoHideAsync();
 
+import ThemeProvider from "../context/ThemeProvider";
+
 const RootLayout = () => {
 
   const [loaded, error] = useFonts({
@@ -40,9 +42,11 @@ const RootLayout = () => {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-    </Stack>
+    <ThemeProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+      </Stack>
+    </ThemeProvider>
   )
 };
 
