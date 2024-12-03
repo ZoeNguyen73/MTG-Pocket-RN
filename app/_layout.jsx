@@ -20,6 +20,7 @@ SplashScreen.preventAutoHideAsync();
 
 import ThemeProvider from "../context/ThemeProvider";
 import { AuthProvider } from "../context/AuthProvider";
+import { ErrorHandlerProvider } from "../context/ErrorHandlerProvider";
 
 const RootLayout = () => {
 
@@ -46,11 +47,13 @@ const RootLayout = () => {
 
   return (
     <AuthProvider>
-      <ThemeProvider>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-        </Stack>
-      </ThemeProvider>
+      <ErrorHandlerProvider>
+        <ThemeProvider>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+          </Stack>
+        </ThemeProvider>
+      </ErrorHandlerProvider>
     </AuthProvider>
   )
 };
