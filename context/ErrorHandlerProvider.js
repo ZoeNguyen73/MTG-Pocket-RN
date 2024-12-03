@@ -2,11 +2,16 @@ import { createContext, useContext } from "react";
 import { router } from "expo-router";
 import { Alert } from "react-native";
 
+import { useClearSession } from "../hooks/useClearSession";
+import handleGlobalError from "../utils/ErrorHandler";
+
 const ErrorHandlerContext = createContext();
 
 export const useErrorHandler = () => useContext(ErrorHandlerContext);
 
 export const ErrorHandlerProvider = ({ children }) => {
+
+  const { clearSession } = useClearSession();
 
   const handleError = async (error, handleFormError) => {
     console.log("error response received: " + JSON.stringify(error.response.data));
@@ -24,18 +29,18 @@ export const ErrorHandlerProvider = ({ children }) => {
           {
             text: "Proceed to log in",
             onPress: () => {
-              // clearSession();
+              clearSession();
               // router.push("/sign-in");
             }
           }
         ]);
       } else {
-        // handleGlobalError(error, handleFormError);
+        handleGlobalError(error, handleFormError);
       }
 
     } catch (error) {
       console.log("error: " + JSON.stringify(error));
-      // handleGlobalError(error);
+      handleGlobalError(error);
     }
   };
 

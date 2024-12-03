@@ -1,4 +1,5 @@
 import { useAuthContext } from "../context/AuthProvider";
+import handleGlobalError from "../utils/ErrorHandler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const useClearSession = () => {
@@ -17,7 +18,7 @@ export const useClearSession = () => {
         avatar: "",
       });
     } catch (error) {
-      // handleGlobalError(error);
+      handleGlobalError(error);
     }
   };
   
