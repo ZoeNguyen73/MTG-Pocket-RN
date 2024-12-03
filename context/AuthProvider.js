@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }) => {
       //handle error
 
     } finally {
-      setIsLoading(false;)
+      setIsLoading(false);
     }
 
     useEffect(() => {
