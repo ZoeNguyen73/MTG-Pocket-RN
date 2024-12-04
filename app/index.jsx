@@ -5,10 +5,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 import { useThemeContext } from "../context/ThemeProvider";
+import { useAuthContext } from "../context/AuthProvider";
+
 import tailwindConfig from "../tailwind.config";
 
 const App = () => {
   const { theme } = useThemeContext();
+  const { isLoggedIn, isLoading } = useAuthContext();
+  const { width } = Dimensions.get("window");
 
   const lightBackgroundColor = tailwindConfig.theme.extend.colors.light.background;
   const darkBackgroundColor = tailwindConfig.theme.extend.colors.dark.background;
@@ -18,6 +22,11 @@ const App = () => {
     return (
       <Text>Loading...</Text>
     )
+  }
+
+  if (!isLoading && isLoggedIn) {
+    // redirect to logged in homepage
+    // return <Redirect href="/home" />
   }
 
   return (
