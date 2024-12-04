@@ -34,6 +34,8 @@ const useRefreshToken = () => {
       return {...prev, accessToken: newAccessToken};
     });
     await AsyncStorage.setItem("accessToken", newAccessToken);
+
+    return newAccessToken;
   };
 
   return refresh;
