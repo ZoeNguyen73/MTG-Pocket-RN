@@ -7,7 +7,9 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useThemeContext } from "../context/ThemeProvider";
 import { useAuthContext } from "../context/AuthProvider";
 
-import tailwindConfig from "../tailwind.config";
+import { tailwindConfig } from "../tailwind.config";
+
+import { logos } from "../constants";
 
 const App = () => {
   const { theme } = useThemeContext();
@@ -37,8 +39,19 @@ const App = () => {
         items-center h-full
       `}
     >
+      <View className="bg-light-mauve justify-center items-center h-[50vh] flex mb-20">
+        <Image 
+          source={logos.mtgDefaultLogo}
+          style={{ 
+            position: "absolute", 
+            maxWidth: width * 0.7, 
+            top: width * 0.2 
+          }}
+          resizeMode="contain"
+        />
+      </View>
 
-      <View className="justify-center items-center flex h-[50vh] mb-20">
+      <View className="flex-column justify-center items-center">
         <Text className="text-light-text font-sans text-3xl">
           Welcome to Magic The Gathering Pocket
         </Text>

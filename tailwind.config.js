@@ -1,11 +1,11 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const tailwindConfig = {
   content: [
     "./app/**/*.{js,jsx,ts,tsx}", 
     "./components/**/*.{js,jsx,ts,tsx}"
   ],
   presets: [require("nativewind/preset")],
-  darkMode: "selector",
+  darkMode: "class",
   theme: {
     screens: {
       "sm": "640px",
@@ -96,5 +96,14 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
+
+const breakpoints = Object.fromEntries(
+  Object.entries(tailwindConfig.theme.screens).map(([key, value]) => [
+    key,
+    parseInt(value, 10) // convert breakpoints in screens to number
+  ])
+);
+
+module.exports = { tailwindConfig, breakpoints };
 
