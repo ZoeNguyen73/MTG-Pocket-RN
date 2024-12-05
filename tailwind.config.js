@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const tailwindConfig = {
+module.exports = {
   content: [
     "./app/**/*.{js,jsx,ts,tsx}", 
     "./components/**/*.{js,jsx,ts,tsx}"
@@ -97,13 +97,4 @@ const tailwindConfig = {
   },
   plugins: [],
 };
-
-const breakpoints = Object.fromEntries(
-  Object.entries(tailwindConfig.theme.screens).map(([key, value]) => [
-    key,
-    parseInt(value, 10) // convert breakpoints in screens to number
-  ])
-);
-
-module.exports = { tailwindConfig, breakpoints };
 

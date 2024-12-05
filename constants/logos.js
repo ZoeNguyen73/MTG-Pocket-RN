@@ -1,5 +1,8 @@
-import mtgDefaultLogo from "../assets/mtg-logo/mtg_default_logo.png";
+import mtgDefaultLogoPath from "../assets/mtg-logo/mtg_default_logo.png";
 
 export default {
-  mtgDefaultLogo,
+  mtgDefaultLogo: {
+    path: mtgDefaultLogoPath,
+    aspectRatio: 2018 / 672,
+  },
 };
