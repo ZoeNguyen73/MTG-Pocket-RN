@@ -1,7 +1,8 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import axios from "../api/axios";
+import storage from "../utils/Storage";
+import handleGlobalError from "../utils/ErrorHandler";
 
 const AuthContext = createContext({});
 
@@ -15,42 +16,47 @@ export const AuthProvider = ({ children }) => {
     accessToken: "",
     avatar: "",
   });
+  const { handleError } = useErrorHandler();
 
   const logIn = async ({ username, hash }) => {
     setIsLoading(true);
-  
-    const response = await axios.post(
-      "/auth/login",
-      { username, hash },
-    );
-  
-    const { accessToken, refreshToken, avatar } = response.data;
-  
-    await AsyncStorage.setItem("username", username);
-    await AsyncStorage.setItem("accessToken", accessToken);
-    await AsyncStorage.setItem("refreshToken", refreshToken);
-    await AsyncStorage.setItem("avatar", avatar);
-  
-    setAuth({ username, accessToken, avatar });
-    setIsLoggedIn(true);
-  
-    setIsLoading(false);
+
+    try {
+      const response = await axios.post(
+        "/auth/login",
+        { username, hash },
+      );
+    
+      const { accessToken, refreshToken, avatar } = response.data;
+    
+      await storage.setItem("username", username);
+      await storage.setItem("accessToken", accessToken);
+      await storage.setItem("refreshToken", refreshToken);
+      await storage.setItem("avatar", avatar);
+    
+      setAuth({ username, accessToken, avatar });
+      setIsLoggedIn(true);
+    } catch (error) {
+      handleGlobalError(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const logOut = async () => {
     setIsLoading(true);
   
     try {
-      const refreshToken = await AsyncStorage.getItem("refreshToken");
+      const refreshToken = await storage.getItem("refreshToken");
       await axios.delete(
         "/auth/logout",
         { data: { refreshToken }}
       );
   
-      await AsyncStorage.removeItem("username", username);
-      await AsyncStorage.removeItem("accessToken", accessToken);
-      await AsyncStorage.removeItem("refreshToken", refreshToken);
-      await AsyncStorage.removeItem("avatar", avatar);
+      await storage.removeItem("username", username);
+      await storage.removeItem("accessToken", accessToken);
+      await storage.removeItem("refreshToken", refreshToken);
+      await storage.removeItem("avatar", avatar);
   
       setAuth({
         username: "",
@@ -60,7 +66,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(false);
   
     } catch (error) {
-      // handle error
+      handleGlobalError(error);
     } finally {
       setIsLoading(false);
     }
@@ -70,10 +76,10 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
 
     try {
-      const currentUsername = await AsyncStorage.getItem("username");
-      const currentAccessToken = await AsyncStorage.getItem("accessToken");
-      const currentRefreshToken = await AsyncStorage.getItem("refreshToken");
-      const currentAvatar = await AsyncStorage.getItem("avatar");
+      const currentUsername = await storage.getItem("username");
+      const currentAccessToken = await storage.getItem("accessToken");
+      const currentRefreshToken = await storage.getItem("refreshToken");
+      const currentAvatar = await storage.getItem("avatar");
   
       if (!currentUsername || !currentAccessToken || !currentRefreshToken || !currentAvatar) {
         setAuth({
@@ -96,7 +102,7 @@ export const AuthProvider = ({ children }) => {
 
     } catch (error) {
       setIsLoggedIn(false);
-      //handle error
+      handleGlobalError(error);
 
     } finally {
       setIsLoading(false);
