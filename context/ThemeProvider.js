@@ -1,7 +1,9 @@
 import { Appearance } from "react-native";
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { useColorScheme } from "nativewind";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import storage from "../utils/Storage";
+import handleGlobalError from "../utils/ErrorHandler";
 
 const ThemeContext = createContext();
 
@@ -13,31 +15,40 @@ const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     const getCurrentPreferredTheme = async () => {
-      let currentSelectedTheme = await AsyncStorage.getItem("theme");
+      try {
+        let currentSelectedTheme = await storage.getItem("theme");
 
-      if (!currentSelectedTheme) {
-        const colorScheme = Appearance.getColorScheme();
-        if (colorScheme === "dark") {
-          currentSelectedTheme = "dark";
-        } else {
-          currentSelectedTheme = "light";
+        if (!currentSelectedTheme) {
+          const colorScheme = Appearance.getColorScheme();
+          if (colorScheme === "dark") {
+            currentSelectedTheme = "dark";
+          } else {
+            currentSelectedTheme = "light";
+          }
+          await storage.setItem("theme", currentSelectedTheme);
         }
-        await AsyncStorage.setItem("theme", currentSelectedTheme);
-      }
 
-      setTheme(currentSelectedTheme);
-      setColorScheme(currentSelectedTheme);
+        setTheme(currentSelectedTheme);
+        setColorScheme(currentSelectedTheme);
+      } catch (error) {
+        handleGlobalError(error);
+      }
+      
     };
 
     getCurrentPreferredTheme();
   }, [])
 
   const toggleTheme = async () => {
-    const newTheme =  theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    await AsyncStorage.setItem("theme", newTheme);
-    toggleColorScheme();
-  }
+    try {
+      const newTheme =  theme === "light" ? "dark" : "light";
+      setTheme(newTheme);
+      await storage.setItem("theme", newTheme);
+      toggleColorScheme();
+    } catch (error) {
+      handleGlobalError(error);
+    }
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
