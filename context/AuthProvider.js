@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
     accessToken: "",
     avatar: "",
   });
-  const { handleError } = useErrorHandler();
 
   const logIn = async ({ username, hash }) => {
     setIsLoading(true);
