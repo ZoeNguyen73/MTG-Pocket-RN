@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
 import { useThemeContext } from "../../context/ThemeProvider";
-import tailWindConfig from "../../tailwind.config";
+import tailwindConfig from "../../tailwind.config";
 
 const AuthLayout = () => {
   const { theme } = useThemeContext();
@@ -13,10 +13,12 @@ const AuthLayout = () => {
 
   return (
     <>
-      <Stack>
+      <Stack
+        screenOptions={{ headerShown: false }}
+      >
         <Stack.Screen 
           name="register"
-          options={{ headerShown: false }}
+          // options={{ headerShown: false }}
         />
       </Stack>
 

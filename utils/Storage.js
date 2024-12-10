@@ -23,7 +23,7 @@ const storage = {
       if (Platform.OS === "web") {
         return cookies.get(key) || null;
       } else {
-        return await AsyncStorage.getItem(value);
+        return await AsyncStorage.getItem(key);
       }
     } catch (error) {
       console.error(`Failed to get item from storage on platform ${Platform.OS}, ${error}`);
@@ -35,7 +35,7 @@ const storage = {
       if (Platform.OS === "web") {
         cookies.remove(key, { path: "/" });
       } else {
-        await AsyncStorage.removeItem(value);
+        await AsyncStorage.removeItem(key);
       }
     } catch (error) {
       console.error(`Failed to remove item from storage on platform ${Platform.OS}, ${error}`);

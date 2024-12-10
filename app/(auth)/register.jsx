@@ -1,4 +1,4 @@
-import { View, ScrollView, Keyboard } from "react-native";
+import { View, ScrollView, Text, useWindowDimensions, Keyboard } from "react-native";
 import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,7 +7,6 @@ import { useThemeContext } from "../../context/ThemeProvider";
 import { useAuthContext } from "../../context/AuthProvider";
 import { useErrorHandler } from "../../context/ErrorHandlerProvider";
 
-import Text from "../../components/CustomText/CustomText";
 import Button from "../../components/CustomButton/CustomButton";
 import FormField from "../../components/CustomForm/FormField";
 import MessageBox from "../../components/MessageBox";
@@ -32,18 +31,124 @@ const Register = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [activationToken, setActivationToken] = useState("");
 
-  retun (
+  const register = async () => {};
+
+  const handleFormError = ( errorMessage, input ) => {
+    setFormErrors(prev => ({...prev, [input]: errorMessage}));
+  };
+
+  const validate = async () => {};
+
+  return (
     <>
       <SafeAreaView className="bg-light-background dark:bg-dark-background h-full">
-        <ScrollView>
-
+        <ScrollView contentContainerStyle={{ alignItems: "center" }}>
           <View
-            className="w-full justify-center px-8 my-6"
+            className="w-full justify-center px-8 my-14 lg:max-w-screen-sm"
           >
-            <Text>Sign up for free</Text>
-          </View>
+            <Text 
+              className="font-serif-bold text-5xl lg:text-6xl text-light-mauve
+              dark:text-dark-mauve tracking-wider"
+            >
+              Sign Up to{"\n"}
+              MTG Pocket
+            </Text>
 
+            <View className="mt-2">
+              <Text className="font-sans-light text-lg lg:text-xl text-light-grey1 dark:text-dark-grey2 tracking-wide">
+                Get started for free with your email
+              </Text>
+            </View>
+
+            { showSuccessMessage && (
+              <View>
+                <MessageBox 
+                  content="Account created, pending activation"
+                  type="success"
+                  containerStyles="mt-5"
+                />
+                <Button 
+                  title="Activate"
+                  containerStyles="mt-5"
+                  // handlePress={() => router.push(`/activate/${activationToken}`)}
+                  handlePress={()=>{}}
+                />
+              </View>
+            )}
+
+            { !showSuccessMessage && (
+              <>
+                <FormField 
+                  title="Username"
+                  value={form.username}
+                  handleChangeText={(e) => {
+                    handleFormError(null, "username");
+                    setForm({ ...form, username: e });
+                  }}
+                  otherStyles="mt-10"
+                  placeholder="give yourself a unique username"
+                  error={formErrors.username}
+                />
+
+                <FormField 
+                  title="Email"
+                  value={form.email}
+                  keyboardType="email-address"
+                  handleChangeText={(e) => {
+                    handleFormError(null, "email");
+                    setForm({ ...form, email: e });
+                  }}
+                  otherStyles="mt-4"
+                  placeholder="john.tan@email.com"
+                  error={formErrors.email}
+                />
+
+                <FormField 
+                  title="Password"
+                  value={form.password}
+                  handleChangeText={(e) => {
+                    handleFormError(null, "password");
+                    setForm({ ...form, password: e });
+                  }}
+                  otherStyles="mt-4"
+                  error={formErrors.password}
+                />
+
+                <FormField 
+                  title="Confirm Password"
+                  value={form.confirm_password}
+                  handleChangeText={(e) => {
+                    handleFormError(null, "confirm_password");
+                    setForm({ ...form, confirm_password: e });
+                  }}
+                  otherStyles="mt-4"
+                  error={formErrors.confirm_password}
+                />
+
+                <Button 
+                  title="Register"
+                  handlePress={validate}
+                  containerStyles="mt-12"
+                  isLoading={isSubmitting}
+                />
+
+                <View className="justify-center gap-2 pt-5 flex-row">
+                  <Text className="font-sans-bold text-light-text dark:text-dark-text font-sans tracking-wide">
+                    Already have an account?
+                  </Text>
+                  <Link
+                    href="/log-in"
+                    className="font-sans-bold text-light-links dark:text-dark-links tracking-wide"
+                  > 
+                    Log In
+                  </Link>
+                </View>
+              </>
+            )}
+
+          </View>
         </ScrollView>
+        
       </SafeAreaView>
       { isSubmitting && (<LoadingSpinner />) }
     </>

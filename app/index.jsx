@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { View, Image, useWindowDimensions, Platform } from "react-native";
+import { View, Image, Text, useWindowDimensions } from "react-native";
 import { router, Redirect, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -11,7 +11,6 @@ import { getBreakpoint } from "../utils/Breakpoints";
 
 import { logos } from "../constants";
 
-import Text from "../components/CustomText/CustomText";
 import Button from "../components/CustomButton/CustomButton";
 
 const App = () => {
@@ -52,17 +51,23 @@ const App = () => {
         </View>
 
         <View className="flex-column justify-center items-center mt-4">
-          <Text className="text-light-text font-sans">
+          <Text className="text-light-text font-sans text-2xl">
             Welcome to
           </Text>
-          <Text className="text-light-text font-sans-bold">
+          <Text className="text-light-text font-sans-bold text-2xl">
             Magic The Gathering Pocket
           </Text>
         </View>
 
         <Button 
           title="Get Started"
-          handlePress={() => {}}
+          handlePress={() => {
+            if (!isLoggedIn) {
+              router.push("/register");
+            } else {
+              router.push("/home");
+            }
+          }}
           containerStyles="w-fit px-6 py-4 mt-7 mb-7 w-[80%]"
           icon
         />

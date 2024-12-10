@@ -1,8 +1,10 @@
-import { View, Text, TextInput, Image, TouchableOpacity, Platform } from "react-native";
+import { View, Text, TextInput, Image, TouchableOpacity, Platform, useWindowDimensions } from "react-native";
 import React, { useState } from "react";
 
 import tailwindConfig from "../../tailwind.config";
 import { useThemeContext } from "../../context/ThemeProvider";
+
+import { icons } from "../../constants";
 
 const FormField = ({ 
   title, 
@@ -22,6 +24,8 @@ const FormField = ({
   const darkTextColor = tailwindConfig.theme.extend.colors.dark.text;
   const lightSurface= tailwindConfig.theme.extend.colors.light.surface;
   const darkSurface = tailwindConfig.theme.extend.colors.dark.surface;
+
+  const { width } = useWindowDimensions();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -70,7 +74,10 @@ const FormField = ({
           <TouchableOpacity onPress={()=>setShowPassword(!showPassword)} >
             <Image 
               source={ !showPassword ? icons.eye : icons.eyeHide }
-              className="w-6 h-6"
+              style={{
+                width: width >= 1024 ? 22 : 20,
+                height: width >= 1024 ? 22 : 20,
+              }}
               resizeMode="contain"
             />
           </TouchableOpacity>

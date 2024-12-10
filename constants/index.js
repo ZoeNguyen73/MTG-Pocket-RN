@@ -1,3 +1,4 @@
 import logos from "./logos";
+import icons from "./icons";
 
-export { logos };
+export { logos, icons };
