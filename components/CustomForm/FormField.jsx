@@ -28,6 +28,7 @@ const FormField = ({
   const { width } = useWindowDimensions();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View className={`space-y-1 ${otherStyles}`}>
@@ -50,18 +51,24 @@ const FormField = ({
       </View>
 
       <View 
-        className={`w-full px-4 border 
-        ${ error ? "border-light-error dark:border-dark-error" : "border-light-surface dark:border-dark-surface"} 
-        rounded-xl focus:border-light-warning items-center flex-row`}
+        className={`w-full px-4 border rounded-xl items-center flex-row
+        ${ error 
+          ? "border-light-error dark:border-dark-error" 
+          : isFocused
+          ? "border-light-warning dark:border-light-warning"
+          : "border-light-surface dark:border-dark-surface"
+        }`}
         backgroundColor={`${ theme === "dark" ? darkSurface : lightSurface}`}
         style={{ minHeight: 40 }}
       >
         <TextInput 
-          className="flex-1 font-sans-light text-light-text dark:text-dark-text"
+          className="flex-1 font-sans-light text-light-text dark:text-dark-text focus:outline-none"
           value={value}
-          placeholder={placeholder}
+          placeholder={isFocused ? "" : placeholder}
           placeholderTextColor={`${ theme === "dark" ? "#6c7086" : lightTextColor}`}
           inputMode={inputMode}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           onChangeText={handleChangeText}
           secureTextEntry={(title === "Password" || title === "Confirm Password") && !showPassword}
           textContentType={`${ title === "Email" ? "emailAddress" : ""}`}

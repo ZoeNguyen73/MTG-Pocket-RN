@@ -31,13 +31,67 @@ const Register = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [activationToken, setActivationToken] = useState("");
 
-  const register = async () => {};
+  const register = async () => {
+
+    setIsSubmitting(true);
+
+    try {
+      const { username, email, password } = form;
+      const response = await axios.post(
+        "/auth/register",
+        { username, email, hash: password}
+      );
+      setActivationToken(response.data.activateToken);
+      setShowSuccessMessage(true);
+
+    } catch (error) {
+      await handleError(error, handleFormError);
+      
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleFormError = ( errorMessage, input ) => {
     setFormErrors(prev => ({...prev, [input]: errorMessage}));
   };
 
-  const validate = async () => {};
+  const validate = async () => {
+    Keyboard.dismiss();
+    let isValid = true;
+
+    const { username, email, password, confirm_password } = form;
+
+    if (!email || email.indexOf("@") < 0) {
+      handleFormError("Please input a valid email", "email");
+      isValid = false;
+    }
+
+    if ( !username ) {
+      handleFormError("Please input an username", "username");
+      isValid = false;
+    }
+
+    if ( !password ) {
+      handleFormError("Please input your password", "password");
+      isValid = false;
+    }
+
+    if ( !confirm_password ) {
+      handleFormError("Please confirm your password", "confirm_password");
+      isValid = false;
+    }
+
+    if ( password && confirm_password && password !== confirm_password ) {
+      handleFormError("The confirm password does not match password", "confirm_password");
+      isValid = false;
+    }
+
+    if (isValid) {
+      await register();
+    }
+
+  };
 
   return (
     <>
