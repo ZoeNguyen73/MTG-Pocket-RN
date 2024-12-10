@@ -7,7 +7,6 @@ import tailwindConfig from "../../tailwind.config";
 const Avatar = ({ avatarName, selectedAvatar, setSelectedAvatar }) => {
   const lightWarning = tailwindConfig.theme.extend.colors.light.warning;
   const opacity = avatarName === selectedAvatar ? 1 : 0.5;
-  const borderColor = avatarName === selectedAvatar ? lightWarning : "transparent";
   const { width } = useWindowDimensions();
   return (
     <TouchableOpacity

@@ -7,6 +7,7 @@ import axios from "../../../api/axios";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 import storage from "../../../utils/Storage";
+import { updateAvatar } from "../../../utils/AvatarService";
 
 import { useAuthContext } from "../../../context/AuthProvider";
 import { useErrorHandler } from "../../../context/ErrorHandlerProvider";
@@ -26,8 +27,8 @@ const Activate = () => {
   const [ showSuccessMessage, setShowSuccessMessage ] = useState(false);
   const [ username, setUsername ] = useState("");
   const [ isSubmitting, setIsSubmitting ] = useState(false);
-  const [showAvatarChangeMessage, setShowAvatarChangeMessage] = useState(false);
-  const [selectedAvatar, setSelectedAvatar] = useState("");
+  const [ showAvatarChangeMessage, setShowAvatarChangeMessage ] = useState(false);
+  const [ selectedAvatar, setSelectedAvatar ] = useState("");
 
   useEffect(() => {
     async function activate() {
@@ -54,7 +55,18 @@ const Activate = () => {
     activate();
   }, [])
 
-  const updateUserAvatar = async () => {};
+  const updateUserAvatar = async () => {
+    setIsSubmitting(true);
+    try {
+      await updateAvatar(axiosPrivate, username, selectedAvatar, setAuth);
+      setShowAvatarChangeMessage(true);
+      // setTimeout(() => router.push("/home"), 2000);
+    } catch (error) {
+      await handleError(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
