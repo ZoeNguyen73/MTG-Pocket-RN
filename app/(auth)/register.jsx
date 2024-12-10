@@ -30,7 +30,7 @@ const Register = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [activationToken, setActivationToken] = useState("");
+  const [activateToken, setActivateToken] = useState("");
 
   const register = async () => {
 
@@ -42,7 +42,7 @@ const Register = () => {
         "/auth/register",
         { username, email, hash: password}
       );
-      setActivationToken(response.data.activateToken);
+      setActivateToken(response.data.activateToken);
       setShowSuccessMessage(true);
 
     } catch (error) {
@@ -125,8 +125,7 @@ const Register = () => {
                 <Button 
                   title="Activate"
                   containerStyles="mt-5"
-                  // handlePress={() => router.push(`/activate/${activationToken}`)}
-                  handlePress={()=>{}}
+                  handlePress={() => router.push(`/activate/${activateToken}`)}
                 />
               </View>
             )}
