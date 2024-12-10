@@ -10,6 +10,7 @@ import { useErrorHandler } from "../../context/ErrorHandlerProvider";
 import Button from "../../components/CustomButton/CustomButton";
 import FormField from "../../components/CustomForm/FormField";
 import MessageBox from "../../components/MessageBox";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 import axios from "../../api/axios";
 
@@ -46,7 +47,7 @@ const Register = () => {
 
     } catch (error) {
       await handleError(error, handleFormError);
-      
+
     } finally {
       setIsSubmitting(false);
     }
