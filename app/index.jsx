@@ -23,11 +23,6 @@ const App = () => {
   const darkBackgroundColor = tailwindConfig.theme.extend.colors.dark.background;
   const darkTextColor = tailwindConfig.theme.extend.colors.dark.text;
 
-  if (!isLoading && isLoggedIn) {
-    // redirect to logged in homepage
-    // return <Redirect href="/home" />
-  }
-
   return (
     <SafeAreaView
       className={`
@@ -71,6 +66,7 @@ const App = () => {
           containerStyles="w-fit px-6 py-4 mt-7 mb-7 w-[80%]"
           icon
         />
+        <Link href="/home">Go to Home</Link>
       </View>
 
       <StatusBar 
