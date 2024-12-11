@@ -14,8 +14,8 @@ export const ErrorHandlerProvider = ({ children }) => {
   const { clearSession } = useClearSession();
 
   const handleError = async (error, handleFormError) => {
-    console.log("error response received: " + JSON.stringify(error.response.data));
-    console.log("error request received: " + JSON.stringify(error.request.data));
+    if (error.response) console.log("error response received: " + JSON.stringify(error.response?.data));
+    if (error.request) console.log("error request received: " + JSON.stringify(error.request?.data));
 
     try {
 
