@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Platform } from "react-native";
 import React, { useState, useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,6 +30,10 @@ const Activate = () => {
   const [ showAvatarChangeMessage, setShowAvatarChangeMessage ] = useState(false);
   const [ selectedAvatar, setSelectedAvatar ] = useState("");
 
+  const homePath = Platform.OS === "web"
+    ? "/(nav)/(web)/home"
+    : "/(nav)/(tabs)/home";
+
   useEffect(() => {
     async function activate() {
       try {
@@ -60,7 +64,7 @@ const Activate = () => {
     try {
       await updateAvatar(axiosPrivate, username, selectedAvatar, setAuth);
       setShowAvatarChangeMessage(true);
-      // setTimeout(() => router.push("/home"), 2000);
+      setTimeout(() => router.push("/home"), 2000);
     } catch (error) {
       await handleError(error);
     } finally {
