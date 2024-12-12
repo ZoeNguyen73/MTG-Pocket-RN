@@ -30,7 +30,7 @@ export const ErrorHandlerProvider = ({ children }) => {
             text: "Proceed to log in",
             onPress: () => {
               clearSession();
-              // router.push("/sign-in");
+              router.push("/log-in");
             }
           }
         ]);

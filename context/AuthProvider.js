@@ -19,53 +19,49 @@ export const AuthProvider = ({ children }) => {
 
   const logIn = async ({ username, hash }) => {
     setIsLoading(true);
+    const response = await axios.post(
+      "/auth/login",
+      { username, hash },
+    );
+  
+    const { accessToken, refreshToken, avatar } = response.data;
+  
+    await storage.setItem("username", username);
+    await storage.setItem("accessToken", accessToken);
+    await storage.setItem("refreshToken", refreshToken);
+    await storage.setItem("avatar", avatar);
+  
+    setAuth({ username, accessToken, avatar });
+    setIsLoggedIn(true);
 
-    try {
-      const response = await axios.post(
-        "/auth/login",
-        { username, hash },
-      );
-    
-      const { accessToken, refreshToken, avatar } = response.data;
-    
-      await storage.setItem("username", username);
-      await storage.setItem("accessToken", accessToken);
-      await storage.setItem("refreshToken", refreshToken);
-      await storage.setItem("avatar", avatar);
-    
-      setAuth({ username, accessToken, avatar });
-      setIsLoggedIn(true);
-    } catch (error) {
-      handleGlobalError(error);
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   };
   
   const logOut = async () => {
     setIsLoading(true);
-  
+
     try {
       const refreshToken = await storage.getItem("refreshToken");
       await axios.delete(
         "/auth/logout",
         { data: { refreshToken }}
       );
-  
-      await storage.removeItem("username", username);
-      await storage.removeItem("accessToken", accessToken);
-      await storage.removeItem("refreshToken", refreshToken);
-      await storage.removeItem("avatar", avatar);
-  
+
+      await storage.removeItem("username");
+      await storage.removeItem("accessToken");
+      await storage.removeItem("refreshToken");
+      await storage.removeItem("avatar");
+
       setAuth({
         username: "",
         accessToken: "",
         avatar: "",
       });
       setIsLoggedIn(false);
-  
+
     } catch (error) {
       handleGlobalError(error);
+
     } finally {
       setIsLoading(false);
     }

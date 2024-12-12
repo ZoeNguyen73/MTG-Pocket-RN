@@ -73,9 +73,10 @@ const LogIn = () => {
   };
 
   const initiateLogOut = async () => {
+
     try {
       await logOut();
-      router.replace("/");
+      router.push("/");
     } catch (error) {
       await handleError(error);
     }
