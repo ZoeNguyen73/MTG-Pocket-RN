@@ -35,6 +35,8 @@ const TabsLayout = () => {
   const activeTintColor = tailwindConfig.theme.extend.colors.dark.yellow;
   const inactiveTintColor = tailwindConfig.theme.extend.colors.dark.grey1;
 
+  const font = tailwindConfig.theme.fontFamily.sans[0];
+
   return (
     <>
       <Tabs
@@ -42,19 +44,22 @@ const TabsLayout = () => {
         screenOptions={{ 
           tabBarLabelStyle: {
             fontSize: width >= 1024 ? 16 : 14,
-            fontFamily: "Poppins",
+            fontFamily: font,
             fonWeight: 300,
             marginTop: 2,
+            letterSpacing: 0.5,
           },
           tabBarActiveTintColor: activeTintColor,
           tabBarInactiveTintColor: inactiveTintColor,
+          tabBarActiveBackgroundColor: "transparent",
           tabBarPosition: width >= 1024 ? "left" : "bottom",
           tabBarStyle: {
             backgroundColor: backgroundColor,
             height: width >= 1024 ? "100%" : 70,
             itemAlign: "center",
             display: "flex",
-            paddingTop: 2,
+            paddingTop: width >= 1024 ? 20 : 4,
+            paddingLeft: width >= 1024 ? 30 : 0,
           }
         }}
       >

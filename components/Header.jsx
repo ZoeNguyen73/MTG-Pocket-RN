@@ -17,7 +17,7 @@ const Header = ({ containerStyles }) => {
     : tailwindConfig.theme.extend.colors.light.text;
 
   return (
-    <View className={`flex-column w-full ${containerStyles}`}>
+    <View className={`flex-column ${containerStyles}`}>
       <View className="flex-row gap-2.5 items-center ml-1 mb-7">
         <Avatar 
           avatarName={auth?.avatar}

@@ -19,11 +19,11 @@ const Home = () => {
       className="bg-light-background dark:bg-dark-background h-full"
     >
       <Header 
-        containerStyles = "px-5 pt-5"
+        containerStyles = "px-5 pt-5 bg-dark-mauve rounded-3xl mx-5 md:mt-5"
       />
 
       <ScrollView>
-        <Text>Home</Text>
+        {/* <Text>Home</Text> */}
       </ScrollView>
       
     </ SafeAreaView>
