@@ -44,8 +44,11 @@ const Avatar = ({ avatarName, size, withoutBorder }) => {
         borderWidth={borderWidth}
         borderRadius={borderRadius}
         borderColor={borderColor}
-        className="w-[100%] h-[100%]"
         resizeMode="contain"
+        style={{
+          width: dimension,
+          height: dimension,
+        }}
       />
     </View>
   )
