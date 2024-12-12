@@ -2,6 +2,7 @@ import { Alert } from "react-native";
 
 const handleGlobalError = (error, handleFormError) => {
   if (error.response) {
+
     const errorMessage = error.response.data.message || "An error occurred";
     let errorDetails = error.response.data.details || "Please try again.";
     if (typeof(errorDetails) !== "string") {

@@ -58,7 +58,7 @@ const App = () => {
           title="Get Started"
           handlePress={() => {
             if (!isLoggedIn) {
-              router.push("/register");
+              router.push("/log-in");
             } else {
               router.push("/home");
             }
@@ -67,6 +67,8 @@ const App = () => {
           icon
         />
         <Link href="/home">Go to Home</Link>
+        <Link href="/log-in">Go to Log in</Link>
+        <Link href="/register">Go to Register</Link>
       </View>
 
       <StatusBar 

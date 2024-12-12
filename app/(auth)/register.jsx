@@ -11,6 +11,7 @@ import Button from "../../components/CustomButton/CustomButton";
 import FormField from "../../components/CustomForm/FormField";
 import MessageBox from "../../components/MessageBox";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import Avatar from "../../components/Avatar/Avatar";
 
 import axios from "../../api/axios";
 
@@ -93,6 +94,61 @@ const Register = () => {
     }
 
   };
+
+  const initiateLogOut = async () => {
+    try {
+      await logOut();
+      router.replace("/");
+    } catch (error) {
+      await handleError(error);
+    }
+  };
+
+  if (!isLoading && isLoggedIn && auth.username) {
+    return (
+      <SafeAreaView className="bg-light-background dark:bg-dark-background h-full">
+        <ScrollView>
+          <View className="w-full justify-center px-8 my-6 min-h-[85vh]">
+            <View className="flex-column justify-center items-center gap-2">
+              <Text 
+                className="font-mono-bold text-2xl text-light-yellow 
+                dark:text-dark-yellow tracking-wider mb-5"
+              >
+                You are currently logged in as 
+              </Text>
+
+              <View className="justify-center items-center w-full">
+                <Avatar 
+                  avatarName={auth.avatar}
+                  size="large"
+                />
+
+                <Text className="font-mono-bold tracking-wider text-light-teal dark:text-dark-teal text-3xl mt-2">
+                  {auth.username}
+                </Text> 
+              </View>
+            </View>
+
+            <View className="justify-center flex-column">
+              <Button 
+                title="Continue to Home"
+                handlePress={() => router.push("/home")}
+                containerStyles="mt-12"
+              />
+              <Button 
+                title="Log Out"
+                variant="secondary"
+                handlePress={initiateLogOut}
+                containerStyles="mt-12"
+              />
+            </View>
+          </View>
+        
+        </ScrollView>
+        
+      </SafeAreaView>
+    )
+  }
 
   return (
     <>

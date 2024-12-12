@@ -30,10 +30,6 @@ const Activate = () => {
   const [ showAvatarChangeMessage, setShowAvatarChangeMessage ] = useState(false);
   const [ selectedAvatar, setSelectedAvatar ] = useState("");
 
-  const homePath = Platform.OS === "web"
-    ? "/(nav)/(web)/home"
-    : "/(nav)/(tabs)/home";
-
   useEffect(() => {
     async function activate() {
       try {
