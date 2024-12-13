@@ -5,6 +5,8 @@ import { SvgUri } from "react-native-svg";
 
 import axios from "../../api/axios";
 
+import Button from "../CustomButton/CustomButton";
+
 const zoomIn = {
   0: { scale: 0.85 },
   1: { scale: 1 },
@@ -94,32 +96,38 @@ const SetDetails = ({ setList, activeSetId }) => {
             />
 
             <View
-              className="bg-light-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[20vh]
+              className="bg-light-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 min-h-[20vh]
               border border-b-8 border-black"
             >
               <View className="flex-row flex-wrap w-full gap-2 items-center mb-2">
-                <SvgUri width="20px" height="20px" uri={set.details?.icon_svg_uri} />
                 <Text
                   className="font-mono-bold text-xl text-light-text dark:text-dark-text tracking-wider flex-1"
                 >
                   {set.details?.name}
                 </Text>
+                <SvgUri width="20px" height="20px" uri={set.details?.icon_svg_uri} />
               </View>
-              <Text
-                className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
+
+              <View
+                className="items-center"
               >
-                {`Released date: ${set.details?.released_at}`}
-              </Text>
-              <Text
-                className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
-              >
-                {`Code: ${set.details?.code}`}
-              </Text>
-              <Text
-                className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
-              >
-                {`Set type: ${set.details?.set_type}`}
-              </Text>
+                <Text
+                  className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
+                >
+                  {`Released date: ${set.details?.released_at}`}
+                </Text>
+                <Text
+                  className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
+                >
+                  {`Code: ${set.details?.code}`}
+                </Text>
+              </View>
+              
+              <Button 
+                title="Open a Play Booster"
+                variant="secondary"
+                containerStyles="mt-5"
+              />
               
             </View>
           </View>

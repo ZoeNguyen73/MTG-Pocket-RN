@@ -20,7 +20,7 @@ const Header = ({ containerStyles }) => {
     <View className={`flex-column ${containerStyles}`}>
       <View className="flex-row gap-2.5 items-center ml-1 mb-7">
         <Avatar 
-          avatarName={auth?.avatar}
+          avatarName={auth?.avatar || "Planeswalker_1"}
           withoutBorder={true}
           size="small"
         />
@@ -33,7 +33,7 @@ const Header = ({ containerStyles }) => {
           </View>
           
           <Text className="font-sans-semibold text-xl text-light-text dark:text-dark-text tracking-wide">
-            {auth?.username}
+            {auth?.username || "Planeswalker"}
           </Text>
         </View>
 
