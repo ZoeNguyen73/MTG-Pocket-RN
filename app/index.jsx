@@ -66,9 +66,9 @@ const App = () => {
           containerStyles="w-fit px-6 py-4 mt-7 mb-7 w-[80%]"
           icon
         />
-        <Link href="/home">Go to Home</Link>
-        <Link href="/log-in">Go to Log in</Link>
-        <Link href="/register">Go to Register</Link>
+        <Link href="/home" style={{padding: 5}}>Go to Home</Link>
+        <Link href="/log-in" style={{padding: 5}}>Go to Log in</Link>
+        <Link href="/register" style={{padding: 5}}>Go to Register</Link>
       </View>
 
       <StatusBar 

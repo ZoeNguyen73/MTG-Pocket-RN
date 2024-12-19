@@ -1,7 +1,7 @@
 import { sets } from "../../constants";
 
 const SET_LIST_CODE = [
-  "pfdn",
+  "fdn",
   "dsk",
   "blb",
   "mh3",
