@@ -24,6 +24,21 @@ const zoomOut = {
 };
 
 const SetCard = ({ activeSetId, set, lastSetId }) => {
+  const [ selected, setSelected ] = useState(false);
+
+  const popupBackground = tailwindConfig.theme.extend.colors.dark.mauve;
+
+  const handlePress = () => {
+    setSelected(true); // Update the selected state
+  };
+
+  // Reset the selected state when the card is swiped away
+  useEffect(() => {
+    if (activeSetId !== set.code) {
+      setSelected(false);
+    }
+  }, [activeSetId, set.code])
+
   return (
     <Animatable.View
       className={`${ lastSetId === set.code ? "mr-2" : ""}`}
@@ -31,6 +46,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
       duration={500}
     >
       <View className="h-[450px] w-[200px] overflow-visible">
+
         {/* Glowing Highlight */}
         {activeSetId === set.code && (
           <View
@@ -51,14 +67,78 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
             }}
           />
         )}
-        <Image 
-          source={set.play_booster_image}
-          resizeMode="contain"
-          style={{
-            maxHeight: 450,
-            width: "auto",
-          }}
-        />
+
+        { activeSetId === set.code && (
+          <TouchableOpacity
+            onPress={handlePress}
+          >
+            <Image 
+              source={set.play_booster_image}
+              resizeMode="contain"
+              style={{
+                maxHeight: 450,
+                width: "auto",
+              }}
+            />
+          </TouchableOpacity>
+        )}
+        
+        { activeSetId !== set.code && (
+          <Image 
+            source={set.play_booster_image}
+            resizeMode="contain"
+            style={{
+              maxHeight: 450,
+              width: "auto",
+            }}
+          />
+        )}
+
+        {/* Confirmation Popup */}
+        {selected && activeSetId === set.code && (
+          <View
+            style={{
+              position: "absolute",
+              top: "80%",
+              left: "50%",
+              transform: [{ translateX: -100 }, { translateY: -100 }],
+              width: 200,
+              height: 110,
+              backgroundColor: popupBackground,
+              borderRadius: 10,
+              justifyContent: "center",
+              alignItems: "center",
+              elevation: 5,
+              shadowColor: "black",
+              shadowOffset: { width: 0, height: 5 },
+              shadowOpacity: 0.2,
+              shadowRadius: 5,
+              borderBottomWidth: 6,
+              borderTopWidth: 1,
+              borderLeftWidth: 1,
+              borderRightWidth: 1,
+              borderColor: "black"
+            }}
+          >
+            <Text className="font-mono-bold text-lg text-light-text tracking-wider">
+              Open this pack?
+            </Text>
+
+            <View className="flex-row gap-3 mt-3">
+              <Button 
+                title="Cancel"
+                handlePress={() => setSelected(false)}
+                variant="small-secondary"
+              />
+              <Button 
+                title="Confirm"
+                handlePress={() => router.push(`/pack/play-booster/${set.code}`)}
+                variant="small-primary"
+              />
+            </View>
+          </View>  
+        )}
+        
       </View>
     </Animatable.View>
   )
@@ -456,24 +536,5 @@ const SetSelector = ({ sets }) => {
   )
 
 };
-
-const customCSS = `
-  .scroll-container {
-    scrollbar-width: none;
-  }
-  .scroll-container::-webkit-scrollbar {
-    height: 8px;
-  }
-  .scroll-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-  .scroll-container::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-  }
-  .scroll-container:not(:hover)::-webkit-scrollbar {
-    display: none;
-  }
-`;
 
 export default SetSelector;

@@ -16,16 +16,16 @@ const CardSwiper = ({ cards }) => {
   return (
     <View
       // className="h-full border border-light-red"
-      style={{ marginTop: "30", justifyContent: "center" }}
+      style={{ marginTop: "30", height: "100%"}}
     >
-      <View style={{ justifyContent: "center", alignItems: "center" }}>
+      <View style={{ justifyContent: "center", alignItems: "center", marginTop: "30" }}>
         <View className="flex-row gap-1">
           <Text 
             className="text-light-yellow font-sans-semibold tracking-wide"
           >
             {counter}
           </Text>
-          <Text className="text-light-text dark:text-dark-text font-sans tracking-wide">
+          <Text className="text-dark-text font-sans tracking-wide">
             {`/ ${cards.length} cards`}
           </Text>
         </View>
@@ -39,10 +39,6 @@ const CardSwiper = ({ cards }) => {
             card={item}
             index={index}
           />
-          
-          // <View className="h-[65vh] w-full bg-light-yellow border border-4 rounded-3xl overflow-hidden border-dark-background dark:border-dark-primary">
-          //   <Text>{item.card_faces[0].name}</Text>
-          // </View>
         )}
         stackSize={2}
         stackSeparation={2}
@@ -51,7 +47,7 @@ const CardSwiper = ({ cards }) => {
         cardVerticalMargin={20}
         cardHorizontalMargin={30}
         onSwiped={() => increaseCounter()}
-        backgroundColor="white"
+        containerStyle={{ backgroundColor: "transparent" }}
         marginTop={50}
         // onSwipedAll={() => setSwipedAllCards(true)}
       />

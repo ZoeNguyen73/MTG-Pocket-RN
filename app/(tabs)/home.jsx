@@ -35,7 +35,10 @@ const Home = () => {
           <Text>Loading...</Text>
         )}
         { (setList.length > 0) && (
-          <View className="flex-column w-full">
+          <View className="flex-column w-full items-center mt-5">
+            <Text className="mb-2 text-center font-sans-bold text-2xl text-light-yellow tracking-wider">
+              Open a Booster Pack
+            </Text>
             <SetSelector sets={setList} />
           </View>
         )}

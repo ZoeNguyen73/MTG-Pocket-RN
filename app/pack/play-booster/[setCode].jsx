@@ -45,7 +45,7 @@ const PlayBoosterPackOpening = () => {
   }, []);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView className="bg-dark-background">
       { cards.length === 0 && (
         <Text>Loading...</Text>
       )}
