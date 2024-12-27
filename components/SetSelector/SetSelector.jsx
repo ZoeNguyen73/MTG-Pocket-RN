@@ -6,7 +6,12 @@ import { router } from "expo-router";
 
 import axios from "../../api/axios";
 
+import tailwindConfig from "../../tailwind.config";
+
 import Button from "../CustomButton/CustomButton";
+import CardHighlight from "./../Card/CardHighlight";
+
+// import "../../global.css";
 
 const zoomIn = {
   0: { scale: 0.85 },
@@ -25,12 +30,32 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
       animation={activeSetId === set.code ? zoomIn : zoomOut}
       duration={500}
     >
-      <View className="h-[330px] w-[180px] my-3 mx-2">
+      <View className="h-[450px] w-[200px] overflow-visible">
+        {/* Glowing Highlight */}
+        {activeSetId === set.code && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: [{ translateX: -100 }, { translateY: 55 }], // Center glow
+              width: "100%", // Width of the glow
+              height: "60%", // Height of the glow
+              backgroundColor: "rgba(255, 215, 0, 0.01)", // Semi-transparent yellow
+              borderRadius: 70, // Rounded edges for glow
+              shadowColor: "yellow",
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.5,
+              shadowRadius: 30, // Creates the "glow" effect
+              elevation: 35, // Android shadow
+              zIndex: -1, // Place glow behind the content
+            }}
+          />
+        )}
         <Image 
           source={set.play_booster_image}
           resizeMode="contain"
           style={{
-            maxHeight: 330,
+            maxHeight: 450,
             width: "auto",
           }}
         />
@@ -66,14 +91,14 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
           style={{
             position: "absolute",
             left: "50%",
-            transform: [{ translateX: -100 }], // Center glow
-            width: 200, // Width of the glow
+            transform: [{ translateX: -90 }], // Center glow
+            width: 180, // Width of the glow
             height: 380, // Height of the glow
-            backgroundColor: "rgba(255, 215, 0, 0.5)", // Semi-transparent yellow
+            backgroundColor: "rgba(255, 215, 0, 0.05)", // Semi-transparent yellow
             borderRadius: 100, // Rounded edges for glow
             shadowColor: "yellow",
             shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.5,
+            shadowOpacity: 0.6,
             shadowRadius: 50, // Creates the "glow" effect
             elevation: 6, // Android shadow
             zIndex: -1, // Place glow behind the content
@@ -120,6 +145,8 @@ const SetDetails = ({ setList, activeSetId }) => {
   const set = setList.filter(set => set.code === activeSetId)[0];
   const [animationKey, setAnimationKey] = useState(0);
 
+  const backgroundColor = tailwindConfig.theme.extend.colors.dark.yellow;
+
   useEffect(() => {
     // Trigger a re-render of the Animatable.View to animate the component
     setAnimationKey((prevKey) => prevKey + 1);
@@ -135,24 +162,54 @@ const SetDetails = ({ setList, activeSetId }) => {
           duration={500}
           style={{
             width: "100%",
-            marginBottom: 20,
+            marginTop: 10,
             alignItems: "center",
           }}
         >
           <View className="items-center">
+
+            <View
+              className="bg-dark-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[25vh]
+              border border-b-8 border-black flex-column"
+            >
+              <View className="flex-row flex-wrap w-full gap-2 items-center mb-1 flex-1">
+                <Text
+                  className="font-mono-bold text-lg text-light-text tracking-wider flex-1"
+                >
+                  {set.details?.name}
+                </Text>
+                <SvgUri width="20px" height="20px" uri={set.details?.icon_svg_uri} />
+              </View>
+
+              <View className="mb-1">
+                <Text
+                  className="font-sans-light text-xs text-light-text tracking-wide"
+                >
+                  Most popular cards from this set:
+                </Text>
+              </View>
+
+              <CardHighlight 
+                setCode={set.code}
+                containerWidth={320}
+                containerHeight={120}
+              />
+              
+            </View>
+
             <View
               style={{
                 width: 0,
                 height: 0,
                 borderLeftWidth: 12,
                 borderRightWidth: 12,
-                borderBottomWidth: 12,
+                borderTopWidth: 12,
                 borderLeftColor: "transparent",
                 borderRightColor: "transparent",
-                borderBottomColor: "#FFBD12",
+                borderTopColor: backgroundColor,
                 backgroundColor: "transparent",
                 position: "absolute",
-                top: -10,
+                bottom: -4,
                 zIndex: 2,
               }}
             />
@@ -162,53 +219,16 @@ const SetDetails = ({ setList, activeSetId }) => {
                 height: 0,
                 borderLeftWidth: 13,
                 borderRightWidth: 13,
-                borderBottomWidth: 13,
+                borderTopWidth: 13,
                 borderLeftColor: "transparent",
                 borderRightColor: "transparent",
-                borderBottomColor: "black",
+                borderTopColor: "black",
                 backgroundColor: "transparent",
                 position: "absolute",
-                top: -12,
+                bottom: -6,
                 zIndex: 1,
               }}
             />
-
-            <View
-              className="bg-light-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 min-h-[20vh]
-              border border-b-8 border-black"
-            >
-              <View className="flex-row flex-wrap w-full gap-2 items-center mb-2">
-                <Text
-                  className="font-mono-bold text-xl text-light-text dark:text-dark-text tracking-wider flex-1"
-                >
-                  {set.details?.name}
-                </Text>
-                <SvgUri width="20px" height="20px" uri={set.details?.icon_svg_uri} />
-              </View>
-
-              <View
-                className="items-center"
-              >
-                <Text
-                  className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
-                >
-                  {`Released date: ${set.details?.released_at}`}
-                </Text>
-                <Text
-                  className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
-                >
-                  {`Code: ${set.details?.code}`}
-                </Text>
-              </View>
-              
-              <Button 
-                title="Open a Play Booster"
-                variant="secondary"
-                containerStyles="mt-5"
-                handlePress={() => router.push(`/pack/play-booster/${set.details?.code}`)}
-              />
-              
-            </View>
           </View>
         </Animatable.View>
       )}
@@ -218,8 +238,14 @@ const SetDetails = ({ setList, activeSetId }) => {
 
 const SetDetailsWeb = ({ sets, hoveredSetId}) => {
   const set = sets[hoveredSetId];
-  console.log("hoveredSetId: " + hoveredSetId)
   const [animationKey, setAnimationKey] = useState(0);
+
+  const backgroundColor = tailwindConfig.theme.extend.colors.dark.yellow;
+
+  const { width, height } = useWindowDimensions();
+
+  const containerHeight = Math.floor(0.4 * height);
+  const containerWidth = Math.floor(0.7 * width);
 
   useEffect(() => {
     // Trigger a re-render of the Animatable.View to animate the component
@@ -252,7 +278,7 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
               borderBottomWidth: 12,
               borderLeftColor: "transparent",
               borderRightColor: "transparent",
-              borderBottomColor: "#FFBD12",
+              borderBottomColor: backgroundColor,
               backgroundColor: "transparent",
               position: "absolute",
               top: 10,
@@ -277,12 +303,18 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
           />
 
           <View
-            className="bg-light-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 min-h-[100px]
-            border border-b-8 border-black"
+            className="bg-dark-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[30vh]
+            border border-b-8 border-black items-center"
+            style={{
+              height: containerHeight,
+              width: containerWidth,
+              paddingLeft: 10,
+              paddingRight: 10,
+            }}
           >
-            <View className="flex-row flex-wrap w-full gap-2 items-center mb-2">
+            <View className="w-full gap-2 items-center mb-2 w-[50%]">
               <Text
-                className="font-mono-bold text-xl text-light-text dark:text-dark-text tracking-wider flex-1"
+                className="font-mono-bold text-xl text-light-text dark:text-dark-text tracking-wider"
               >
                 {set.details?.name}
               </Text>
@@ -293,15 +325,16 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
               className="items-center"
             >
               <Text
-                className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
+                className="font-sans-light text-base text-light-text tracking-wide mb-1 mt-2"
               >
-                {`Released date: ${set.details?.released_at}`}
+                Most popular cards from this set:
               </Text>
-              <Text
-                className="font-sans text-base text-light-text dark:text-dark-text tracking-wide"
-              >
-                {`Code: ${set.details?.code}`}
-              </Text>
+              <CardHighlight 
+                setCode={set.code}
+                containerWidth={containerWidth*0.9}
+                containerHeight={containerHeight*0.8}
+              />
+
             </View>
             
           </View>
@@ -366,19 +399,37 @@ const SetSelector = ({ sets }) => {
   }, [sets]);
 
   return (
-    <>
+    <>    
       { Platform.OS === "web" && (
         <View
           onWheel={handleWheelScroll}
-          style={{ WebkitOverflowScrolling: 'touch' }} // Smooth scrolling
-          className="overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4"
+          style={{ 
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: hoveredSetId === null ? "none" : "auto",
+            msOverflowStyle: hoveredSetId === null ? "none" : "auto", 
+          }}
+          className="scroll-container overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4"
         >
           {sets.map((set, index) => (
-              <SetCardWeb key={index} index={index} set={set} updateHoveredSetId={updateHoveredSetId} />
+            <SetCardWeb 
+              key={index} 
+              index={index} 
+              set={set} 
+              updateHoveredSetId={updateHoveredSetId}
+            />
             )
           )}
         </View>
       )}
+
+      { Platform.OS === "web" && (
+        <SetDetailsWeb sets={sets} hoveredSetId={hoveredSetId}/>
+      )}
+
+      { Platform.OS !== "web" && setDetailsLoaded && activeSetId && (
+        <SetDetails setList={sets} activeSetId={activeSetId} />
+      )}
+
       { Platform.OS !== "web" && (
         <FlatList
           data={sets}
@@ -399,17 +450,30 @@ const SetSelector = ({ sets }) => {
           showsHorizontalScrollIndicator={false}
         />
       )}
-      { Platform.OS !== "web" && setDetailsLoaded && activeSetId && (
-        <SetDetails setList={sets} activeSetId={activeSetId} />
-      )}
-      {/* { Platform.OS === "web" && (
-        <SetDetailsWeb sets={sets} hoveredSetId={hoveredSetId}/>
-      )} */}
       
     </>
     
   )
 
 };
+
+const customCSS = `
+  .scroll-container {
+    scrollbar-width: none;
+  }
+  .scroll-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  .scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  .scroll-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  .scroll-container:not(:hover)::-webkit-scrollbar {
+    display: none;
+  }
+`;
 
 export default SetSelector;

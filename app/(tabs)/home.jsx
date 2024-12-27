@@ -24,11 +24,11 @@ const Home = () => {
 
   return (
     <SafeAreaView 
-      className="bg-light-background dark:bg-dark-background h-full"
+      className="bg-dark-background dark:bg-dark-background h-full"
     >
-      <Header 
+      {/* <Header 
         containerStyles = "px-5 pt-5 bg-dark-mauve rounded-3xl mx-5 md:mt-5"
-      />
+      /> */}
 
       <ScrollView>
         { (setList.length === 0) && (
