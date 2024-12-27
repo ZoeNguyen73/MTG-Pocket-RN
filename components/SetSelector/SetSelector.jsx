@@ -65,7 +65,6 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
         <View
           style={{
             position: "absolute",
-            // bottom: 10, // Position glow below the image
             left: "50%",
             transform: [{ translateX: -100 }], // Center glow
             width: 200, // Width of the glow

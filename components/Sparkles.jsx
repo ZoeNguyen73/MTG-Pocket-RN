@@ -82,7 +82,7 @@ const Sparkles= ({ color = DEFAULT_COLOR }) => {
   
         return [...filteredSparkles, sparkle];
       });
-    }, 200);
+    }, 170);
 
     return () => clearInterval(interval);
   }, [color]);
