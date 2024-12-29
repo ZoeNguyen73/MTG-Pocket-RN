@@ -1,5 +1,5 @@
-import { View, Text } from "react-native";
-import React, { useState, useEffect } from "react";
+import { View, Text, Platform, Image } from "react-native";
+import React, { useState } from "react";
 import Swiper from "react-native-deck-swiper";
 import { router } from "expo-router";
 
@@ -15,8 +15,7 @@ const CardSwiper = ({ cards }) => {
 
   return (
     <View
-      // className="h-full border border-light-red"
-      style={{ marginTop: "30", height: "100%"}}
+      className="mt-5 h-screen"
     >
       <View style={{ justifyContent: "center", alignItems: "center", marginTop: "30" }}>
         <View className="flex-row gap-1">
@@ -30,27 +29,33 @@ const CardSwiper = ({ cards }) => {
           </Text>
         </View>
       </View>
-      <Swiper 
-        cards={cards}
-        keyExtractor={(item, index) => `${item._id}-${index}`}
-        cardIndex={0}
-        renderCard={(item, index) => (
-          <CardDisplay 
-            card={item}
-            index={index}
-          />
-        )}
-        stackSize={2}
-        stackSeparation={2}
-        animateCardOpacity
-        verticalSwipe={false}
-        cardVerticalMargin={20}
-        cardHorizontalMargin={30}
-        onSwiped={() => increaseCounter()}
-        containerStyle={{ backgroundColor: "transparent" }}
-        marginTop={50}
-        // onSwipedAll={() => setSwipedAllCards(true)}
-      />
+
+      { Platform.OS !== "web" && (
+        <Swiper 
+          cards={cards}
+          keyExtractor={(item, index) => `${item._id}-${index}`}
+          cardIndex={0}
+          renderCard={(item, index) => (
+            <CardDisplay 
+              card={item}
+              index={index}
+            />
+          )}
+          stackSize={2}
+          stackSeparation={2}
+          animateCardOpacity
+          verticalSwipe={false}
+          cardVerticalMargin={20}
+          cardHorizontalMargin={30}
+          onSwiped={() => increaseCounter()}
+          containerStyle={{ 
+            backgroundColor: "transparent",
+          }}
+          marginTop={50}
+          // onSwipedAll={() => setSwipedAllCards(true)}
+        />
+      )}
+      
     </View>
   )
 };

@@ -30,17 +30,16 @@ const Home = () => {
         containerStyles = "px-5 pt-5 bg-dark-mauve rounded-3xl mx-5 md:mt-5"
       /> */}
 
-      <ScrollView>
+      <Text className="mb-2 mt-8 text-center font-sans-bold text-2xl text-light-yellow tracking-wider">
+        Open a Booster Pack
+      </Text>
+
+      <ScrollView className="overflow-visible">
         { (setList.length === 0) && (
           <Text>Loading...</Text>
         )}
         { (setList.length > 0) && (
-          <View className="flex-column w-full items-center mt-5">
-            <Text className="mb-2 text-center font-sans-bold text-2xl text-light-yellow tracking-wider">
-              Open a Booster Pack
-            </Text>
-            <SetSelector sets={setList} />
-          </View>
+          <SetSelector sets={setList} />
         )}
         
       </ScrollView>

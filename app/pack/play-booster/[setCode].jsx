@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, useWindowDimensions, FlatList } from "react-native";
+import { View, Text, Platform } from "react-native";
 import React, { useState, useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,6 +12,7 @@ import { useThemeContext } from "../../../context/ThemeProvider";
 
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import CardSwiper from "../../../components/Card/CardSwiper";
+import CardFlipperWeb from "../../../components/Card/CardFlipperWeb";
 
 const PlayBoosterPackOpening = () => {
   const { isLoggedIn } = useAuthContext();
@@ -45,17 +46,24 @@ const PlayBoosterPackOpening = () => {
   }, []);
 
   return (
-    <SafeAreaView className="bg-dark-background">
-      { cards.length === 0 && (
-        <Text>Loading...</Text>
-      )}
+    <>
+       <SafeAreaView className="bg-dark-background">
+          { cards.length === 0 && (
+            <Text>Loading...</Text>
+          )}
+    
+          { cards.length > 0 && Platform.OS !== "web" && (
+            <CardSwiper cards={cards} />
+          )}
 
-      { cards.length > 0 && (
-        <CardSwiper cards={cards} />
-      )}
-
-      {isLoading && <LoadingSpinner />}
-    </SafeAreaView>
+          { cards.length > 0 && Platform.OS === "web" && (
+            <CardFlipperWeb cards={cards} />
+          )}
+    
+          {isLoading && <LoadingSpinner />}
+        </SafeAreaView>
+    </>
+    
   )
 
 };

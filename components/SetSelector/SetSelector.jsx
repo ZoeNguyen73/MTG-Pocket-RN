@@ -157,7 +157,7 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
 
   return (
     <View
-      className="h-[420px] w-[220px] justify-center mx-2"
+      className="h-[420px] w-[220px] justify-center mx-2 overflow-visible"
       style={{
         transform: isHovered ? [{ scale: 1.1 }] : [{ scale : 1 }],
         transition: "transform 0.5s ease",
@@ -210,6 +210,7 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
             shadowOpacity: 0.6, // Shadow opacity
             shadowRadius: 4, // Blur radius
           }}
+          onPress={() => router.push(`/pack/play-booster/${set.code}`)}
         >
           <Text className="text-base font-sans tracking-wide">
             Open
@@ -485,10 +486,10 @@ const SetSelector = ({ sets }) => {
           onWheel={handleWheelScroll}
           style={{ 
             WebkitOverflowScrolling: "touch",
-            scrollbarWidth: hoveredSetId === null ? "none" : "auto",
-            msOverflowStyle: hoveredSetId === null ? "none" : "auto", 
+            scrollbarWidth: hoveredSetId === null ? "none" : "auto", // Hides scrollbar in Firefox
+            msOverflowStyle: hoveredSetId === null ? "none" : "auto", // Hides scrollbar in IE/Edge 
           }}
-          className="scroll-container overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4"
+          className="overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4"
         >
           {sets.map((set, index) => (
             <SetCardWeb 
