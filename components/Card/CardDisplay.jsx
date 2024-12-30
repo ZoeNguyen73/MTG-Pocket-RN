@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet, Platform } from "react-native";
+import { View, Image, StyleSheet, Text, Platform } from "react-native";
 import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -22,7 +22,7 @@ const CardDisplay = ({ card, size, maxWidth, shadow }) => {
             {
               width: size && size === "small" ? maxWidth : "100%",
               aspectRatio: 488 / 680,
-              borderRadius: size && size === "small" ? 4 : 15,
+              borderRadius: maxWidth * 0.07,
             },
           ]}
         >
@@ -56,7 +56,7 @@ const CardDisplay = ({ card, size, maxWidth, shadow }) => {
                 style={{
                   width: shadow ? "98%" : "100%",
                   height: shadow ? "98%" : "100%",
-                  borderRadius: size && size === "small" ? 5 : 15,
+                  borderRadius: size && size === "small" ? 5 : 17,
                 }}
               />
     
@@ -87,6 +87,7 @@ const CardDisplay = ({ card, size, maxWidth, shadow }) => {
               )}
             </View>  
           )}
+
         </View>
       )}
       { Platform.OS === "web" && (
@@ -96,7 +97,7 @@ const CardDisplay = ({ card, size, maxWidth, shadow }) => {
             {
               width: size && size === "small" ? maxWidth : "100%",
               aspectRatio: 488 / 680,
-              borderRadius: maxWidth * 0.05,
+              borderRadius: maxWidth * 0.07,
             },
           ]}
         > 
@@ -106,7 +107,7 @@ const CardDisplay = ({ card, size, maxWidth, shadow }) => {
             style={{
               width: shadow ? "98%" : "100%",
               height: shadow ? "98%" : "100%",
-              borderRadius: maxWidth * 0.05,
+              borderRadius: maxWidth * 0.07,
             }}
           />
 
