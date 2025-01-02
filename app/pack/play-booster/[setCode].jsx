@@ -1,10 +1,11 @@
-import { View, Text, Platform } from "react-native";
+import { View, Text, Platform, ImageBackground } from "react-native";
 import React, { useState, useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import axios from "../../../api/axios";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { images } from "../../../constants";
 
 import { useAuthContext } from "../../../context/AuthProvider";
 import { useErrorHandler } from "../../../context/ErrorHandlerProvider";
@@ -46,23 +47,29 @@ const PlayBoosterPackOpening = () => {
   }, []);
 
   return (
-    <>
-       <SafeAreaView className="bg-dark-background">
+    <ImageBackground
+      source={images.dark_background_vertical_10}
+      style={{
+        resizeMode: "cover",
+        overflow: "hidden",
+      }}
+    >
+       <SafeAreaView>
           { cards.length === 0 && (
             <Text>Loading...</Text>
           )}
     
           { cards.length > 0 && Platform.OS !== "web" && (
-            <CardSwiper cards={cards} />
+            <CardSwiper cards={cards} setCode={setCode}/>
           )}
 
           { cards.length > 0 && Platform.OS === "web" && (
-            <CardFlipperWeb cards={cards} />
+            <CardFlipperWeb cards={cards} setCode={setCode}/>
           )}
     
           {isLoading && <LoadingSpinner />}
         </SafeAreaView>
-    </>
+    </ImageBackground>
     
   )
 

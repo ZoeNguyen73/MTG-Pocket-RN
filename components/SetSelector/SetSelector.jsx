@@ -26,8 +26,6 @@ const zoomOut = {
 const SetCard = ({ activeSetId, set, lastSetId }) => {
   const [ selected, setSelected ] = useState(false);
 
-  const popupBackground = tailwindConfig.theme.extend.colors.dark.mauve;
-
   const handlePress = () => {
     setSelected(true); // Update the selected state
   };
@@ -104,7 +102,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
               transform: [{ translateX: -100 }, { translateY: -100 }],
               width: 200,
               height: 110,
-              backgroundColor: popupBackground,
+              backgroundColor: "rgba(203, 166, 247, 0.95)",
               borderRadius: 10,
               justifyContent: "center",
               alignItems: "center",
@@ -250,8 +248,11 @@ const SetDetails = ({ setList, activeSetId }) => {
           <View className="items-center">
 
             <View
-              className="bg-dark-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[25vh]
+              className="rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[25vh]
               border border-b-8 border-black flex-column"
+              style={{
+                backgroundColor: "rgba(249, 226, 175, 0.4)"
+              }}
             >
               <View className="flex-row flex-wrap w-full gap-2 items-center mb-1 flex-1">
                 <Text
@@ -287,7 +288,7 @@ const SetDetails = ({ setList, activeSetId }) => {
                 borderTopWidth: 12,
                 borderLeftColor: "transparent",
                 borderRightColor: "transparent",
-                borderTopColor: backgroundColor,
+                borderTopColor: "rgba(249, 226, 175, 0.5)",
                 backgroundColor: "transparent",
                 position: "absolute",
                 bottom: -4,
@@ -303,7 +304,7 @@ const SetDetails = ({ setList, activeSetId }) => {
                 borderTopWidth: 13,
                 borderLeftColor: "transparent",
                 borderRightColor: "transparent",
-                borderTopColor: "black",
+                borderTopColor: "rgba(0, 0, 0, 0.2)",
                 backgroundColor: "transparent",
                 position: "absolute",
                 bottom: -6,

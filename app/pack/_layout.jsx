@@ -21,8 +21,11 @@ const PackOpeningLayout = () => {
         />
       </Stack>
       <StatusBar 
-        backgroundColor={`${ theme === "dark" ? darkBackgroundColor : lightBackgroundColor }`} 
-        style={`${ theme === "dark" ? "light" : "dark"}`}
+        // backgroundColor={`${ theme === "dark" ? darkBackgroundColor : lightBackgroundColor }`} 
+        // style={`${ theme === "dark" ? "light" : "dark"}`}
+        backgroundColor="transparent"
+        translucent={true}
+        style="light"
       />
     </>
   )

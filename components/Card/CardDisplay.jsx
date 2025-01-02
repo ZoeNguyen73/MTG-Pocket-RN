@@ -31,10 +31,11 @@ const CardDisplay = ({
   card, 
   size, 
   maxWidth, 
-  shadow, 
+  shadow = false, 
   index = null, 
   currentIndex = null, 
-  priceThreshold = null 
+  priceThreshold = null,
+  sparklesOn = false, 
 }) => {
   const frontCardFace = card.card_faces[0];
   const { finish } = card;
@@ -108,7 +109,7 @@ const CardDisplay = ({
           style={[
             styles.shadowContainer,
             {
-              width: size && size === "small" ? maxWidth : "100%",
+              width: maxWidth ? maxWidth : "100%",
               aspectRatio: 488 / 680,
               borderRadius: maxWidth * 0.07,
             },
@@ -119,7 +120,7 @@ const CardDisplay = ({
             <View 
               style={[styles.cardContainer, { 
                 width: "100%",  
-                borderRadius: size && size === "small" ? 4 : 15,
+                borderRadius: maxWidth ? maxWidth * 0.07 : 15,
                 overflow: "visible",
               }]}
             >
@@ -128,7 +129,7 @@ const CardDisplay = ({
                   style={{
                     width: "100%",
                     height: "100%",
-                    borderRadius: size && size === "small" ? 4 : 15,
+                    borderRadius: maxWidth ? maxWidth * 0.07 : 15,
                     top: 2,
                     left: 2,
                     backgroundColor: "rgba(0, 0, 0, 0.2)",
@@ -145,7 +146,7 @@ const CardDisplay = ({
                 style={{
                   width: shadow ? "98%" : "100%",
                   height: shadow ? "98%" : "100%",
-                  borderRadius: size && size === "small" ? 5 : 17,
+                  borderRadius: maxWidth ? maxWidth * 0.07 : 15,
                 }}
               />
     
@@ -162,13 +163,18 @@ const CardDisplay = ({
                     end={gradientOptions.end}
                     style={styles.gradientOverlay}
                   />
-                  <Sparkles />
                 </>
               
               )}
 
               { (priceThreshold !== null && card.final_price >= priceThreshold)
                 && ( index === null || (index !== null && currentIndex !== null && index === currentIndex)) 
+                && ( 
+                  <Sparkles /> 
+                )
+              }
+              
+              { (priceThreshold === null && sparklesOn == true) 
                 && ( 
                   <Sparkles /> 
                 )

@@ -110,8 +110,10 @@ const TabsLayout = () => {
         />
       </Tabs>
       <StatusBar 
-        backgroundColor={`${ theme === "dark" ? darkBackgroundColor : darkBackgroundColor }`} 
-        style={`${ theme === "dark" ? "light" : "light"}`}
+        // backgroundColor={`${ theme === "dark" ? darkBackgroundColor : darkBackgroundColor }`} 
+        // style={`${ theme === "dark" ? "light" : "light"}`}
+        backgroundColor="transparent"
+        translucent={true}
       />
     </>
   )
