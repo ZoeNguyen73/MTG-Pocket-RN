@@ -28,7 +28,7 @@ const SparkleInstance = ({ color, size, style }) => {
     // Scale animation (grow and shrink)
     Animated.timing(scaleAnim, {
       toValue: 1,
-      duration: 2000,
+      duration: 800,
       useNativeDriver: true,
     }).start();
 
@@ -36,7 +36,7 @@ const SparkleInstance = ({ color, size, style }) => {
     Animated.loop(
       Animated.timing(rotateAnim, {
         toValue: 1,
-        duration: 2000,
+        duration: 800,
         useNativeDriver: true,
       })
     ).start();
@@ -77,12 +77,12 @@ const Sparkles= ({ color = DEFAULT_COLOR }) => {
         // Clean up expired sparkles
         const filteredSparkles = prevSparkles.filter((sparkle) => {
           const delta = now - sparkle.createdAt;
-          return delta < 2000;
+          return delta < 800;
         });
   
         return [...filteredSparkles, sparkle];
       });
-    }, 170);
+    }, 100);
 
     return () => clearInterval(interval);
   }, [color]);

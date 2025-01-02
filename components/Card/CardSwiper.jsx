@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Feather from '@expo/vector-icons/Feather';
 
-import CardDisplay from "./CardDisplay";
+import CardDisplay from "./CardDisplay";;
 
 import tailwindConfig from "../../tailwind.config";
 
@@ -70,11 +70,11 @@ const CardSwiper = ({ cards }) => {
 
   const iconYellowColor = tailwindConfig.theme.extend.colors.light.yellow;
 
-  const sparkleRef = useRef(null);
+  const burstRef = useRef(null);
   
   const triggerPriceHighlightAnimation = () => {
-    if (sparkleRef.current) {
-      sparkleRef.current.play(); // Play the Lottie animation
+    if (burstRef.current) {
+      burstRef.current.play(); // Play the Lottie animation
     }
   };
 
@@ -101,7 +101,6 @@ const CardSwiper = ({ cards }) => {
       <View style={{ justifyContent: "center", alignItems: "center", marginTop: "40", marginBottom: "20" }}>
         <View 
           className="mt-5 rounded-full min-h-[45px] min-w-[200px] justify-center items-center border-2 border-light-yellow"
-          // style={{ backgroundColor: "white", opacity: 0.2, shadowColor: "black" }}
         >
           <View className="justify-center items-center flex-row gap-1">
             <Feather name="dollar-sign" size={20} color={iconYellowColor} />
@@ -113,7 +112,8 @@ const CardSwiper = ({ cards }) => {
         </View>
       </View>
       
-      <View className="flex-1 mt-5">
+      <View className="flex-1 mt-5" style={{ position: "relative", overflow: "visible" }}>
+        
         <View className="flex-row px-10 items-center">
           <View className="rounded-full bg-light-mauve justify-center items-center px-3 py-1">
             <Text className="font-sans-semibold tracking-wide text-base text-dark-text">
@@ -122,25 +122,26 @@ const CardSwiper = ({ cards }) => {
           </View>
           <View className="flex-1"></View>
           <View>
-          { counter <= cards.length && parseFloat(cards[counter - 1 ].final_price) < PRICE_HIGHLIGHT_THRESHOLD && (
-            <View 
-              className="rounded-full border border-dark-text justify-center items-center px-3 py-1"
-            >
-              <Text className="text-left text-base tracking-wide text-dark-text font-sans-semibold">
-                {`USD ${cards[counter - 1 ].final_price}`}
-              </Text>
-            </View>
-          )}
-          { counter <= cards.length && parseFloat(cards[counter - 1 ].final_price) >= PRICE_HIGHLIGHT_THRESHOLD && (
-            <ZoomOutText 
-              backgroundColor={tailwindConfig.theme.extend.colors.light.teal}
-              textStyle="text-left text-base tracking-wide text-light-yellow font-sans-semibold"
-              content={`USD ${cards[counter - 1 ].final_price}`}
-              counter={counter}
-            />
-          )}
+            { counter <= cards.length && parseFloat(cards[counter - 1 ].final_price) < PRICE_HIGHLIGHT_THRESHOLD && (
+              <View 
+                className="rounded-full border border-dark-text justify-center items-center px-3 py-1"
+              >
+                <Text className="text-left text-base tracking-wide text-dark-text font-sans-semibold">
+                  {`USD ${cards[counter - 1 ].final_price}`}
+                </Text>
+              </View>
+            )}
+            { counter <= cards.length && parseFloat(cards[counter - 1 ].final_price) >= PRICE_HIGHLIGHT_THRESHOLD && (
+              <ZoomOutText 
+                backgroundColor={tailwindConfig.theme.extend.colors.light.teal}
+                textStyle="text-left text-base tracking-wide text-light-yellow font-sans-semibold"
+                content={`USD ${cards[counter - 1 ].final_price}`}
+                counter={counter}
+              />
+            )}
+          </View>
         </View>
-        </View>
+
         <Swiper 
           cards={cards}
           keyExtractor={item=> `${item._id}-${counter - 1}`}
@@ -150,6 +151,7 @@ const CardSwiper = ({ cards }) => {
               card={item}
               index={index}
               currentIndex={counter - 1}
+              priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
             />
           )}
           stackSize={2}
@@ -168,10 +170,9 @@ const CardSwiper = ({ cards }) => {
 
       </View>
 
-      
       {/* Sparkle Burst Animation */}
       <LottieView
-        ref={sparkleRef}
+        ref={burstRef}
         source={require("../../assets/lottie-files/fireworks_shortened.json")} // Provide the Lottie JSON file as a prop
         autoPlay={false} // Do not autoplay
         loop={false} // Play the animation only once

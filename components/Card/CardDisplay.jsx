@@ -27,7 +27,15 @@ const MOVEMENT = GRADIENT_LOCATIONS[1] / 20;
 const INTERVAL = 15;
 const GRADIENT_DURATION = 10000;
 
-const CardDisplay = ({ card, size, maxWidth, shadow, index = null, currentIndex = null }) => {
+const CardDisplay = ({ 
+  card, 
+  size, 
+  maxWidth, 
+  shadow, 
+  index = null, 
+  currentIndex = null, 
+  priceThreshold = null 
+}) => {
   const frontCardFace = card.card_faces[0];
   const { finish } = card;
   const [ isFrontFacing, setIsFrontFacing ] = useState(true);
@@ -130,6 +138,7 @@ const CardDisplay = ({ card, size, maxWidth, shadow, index = null, currentIndex 
                 
                 />
               )}
+              
               <Image 
                 source={{ uri: frontCardFace[imgUri] }}
                 resizeMode="contain"
@@ -153,9 +162,17 @@ const CardDisplay = ({ card, size, maxWidth, shadow, index = null, currentIndex 
                     end={gradientOptions.end}
                     style={styles.gradientOverlay}
                   />
+                  <Sparkles />
                 </>
               
               )}
+
+              { (priceThreshold !== null && card.final_price >= priceThreshold)
+                && ( index === null || (index !== null && currentIndex !== null && index === currentIndex)) 
+                && ( 
+                  <Sparkles /> 
+                )
+              }
             </View>  
           )}
 
@@ -186,24 +203,12 @@ const CardDisplay = ({ card, size, maxWidth, shadow, index = null, currentIndex 
           { (finish === "foil" || finish === "etched") && size !== "small" && (
             <>
               <LinearGradient 
-                colors={[
-                  "rgba(255, 0, 0, 0) 0%",
-                  "rgba(255, 154, 0, 0.6) 10%",
-                  "rgba(208, 222, 33, 0.8) 20%",
-                  "rgba(79, 220, 74, 1) 30%",
-                  "rgba(63, 218, 216, 0.6) 45%",
-                  "rgba(47, 201, 226, 0.3) 52%",
-                  "rgba(28, 127, 238, 0.2) 63%",
-                  "rgba(95, 21, 242, 0.6) 79%",
-                  "rgba(186, 12, 248, 0.4) 88%",
-                  "rgba(251, 7, 217, 0.4) 89%",
-                  "rgba(255, 0, 0, 0.1) 100%"
-                ]}
-                locations={[0, 0.1, 0.2, 0.3, 0.45, 0.62, 0.63, 0.79, 0.88, 0.89, 1]}
+                colors={gradientOptions.colors}
+                locations={gradientOptions.locations}
+                start={gradientOptions.start}
+                end={gradientOptions.end}
                 style={styles.gradientOverlay}
               />
-              {/* Glittering Animation */}
-              {/* <Sparkles /> */}
             </>
           
           )}
