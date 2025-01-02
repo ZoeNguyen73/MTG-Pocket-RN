@@ -1,17 +1,97 @@
-import { View, Image, StyleSheet, Text, Platform } from "react-native";
-import { useState } from "react";
+import { View, Image, StyleSheet, Platform } from "react-native";
+import { useState, useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 
 import Sparkles from "../Sparkles";
 
-const CardDisplay = ({ card, size, maxWidth, shadow }) => {
+const START_DEFAULT = { x: 0.5, y: 0 };
+const END_DEFAULT = { x: 0.5, y: 1 };
+
+const GRADIENT_LOCATIONS = [0, 0.2, 0.4, 0.6, 0.8, 1, 1];
+
+const GRADIENT_COLORS = [
+  // "rgba(255, 0, 0, 0.1) 0%",
+  "rgba(255, 154, 0, 0.2) 0%",
+  "rgba(208, 222, 33, 0.3) 20%",
+  "rgba(79, 220, 74, 0.5) 40%",
+  // "rgba(63, 218, 216, 0.5) 45%",
+  "rgba(47, 201, 226, 0.3) 60%",
+  // "rgba(28, 127, 238, 0.2) 63%",
+  "rgba(95, 21, 242, 0.5) 80%",
+  "rgba(186, 12, 248, 0.5) 100%",
+  "rgba(251, 7, 217, 0.5) 100%",
+  // "rgba(255, 0, 0, 0.1) 100%"
+];
+
+const MOVEMENT = GRADIENT_LOCATIONS[1] / 20;
+const INTERVAL = 15;
+const GRADIENT_DURATION = 10000;
+
+const CardDisplay = ({ card, size, maxWidth, shadow, index = null, currentIndex = null }) => {
   const frontCardFace = card.card_faces[0];
   const { finish } = card;
   const [ isFrontFacing, setIsFrontFacing ] = useState(true);
 
+  const [gradientOptions, setGradientOptions] = useState({
+    colors: GRADIENT_COLORS,
+    locations: GRADIENT_LOCATIONS,
+    start: START_DEFAULT,
+    end: END_DEFAULT
+  });
+
+  const gradientOptionsRef = useRef(gradientOptions);
+  gradientOptionsRef.current = gradientOptions;
+
   console.log("card: " + frontCardFace.name + ", finish: " + finish);
 
-  let imgUri = "image_jpg_normal";
+  const imgUri = "image_jpg_normal";
+
+  useEffect(() => {
+    const gradientAnimation = () => {
+      if (gradientOptionsRef.current.locations[1] - MOVEMENT <= 0) {
+        // Shift colours and reset locations
+        let gradientColors = [...gradientOptionsRef.current.colors];
+        gradientColors.shift();
+        gradientColors.push(gradientColors[1]);
+
+        setGradientOptions({
+          colors: gradientColors,
+          locations: GRADIENT_LOCATIONS,
+          start: START_DEFAULT,
+          end: END_DEFAULT
+        });
+      } else {
+        let updatedLocations = gradientOptionsRef.current.locations.map((item, index) => {
+          if (index === gradientOptionsRef.current.locations.length - 1) {
+            return 1;
+          }
+
+          return parseFloat(Math.max(0, item - MOVEMENT).toFixed(2));
+        });
+
+        setGradientOptions({
+          colors: [...gradientOptionsRef.current.colors],
+          locations: updatedLocations,
+          start: START_DEFAULT,
+          end: END_DEFAULT
+        });
+      }
+    }
+
+    if (finish === "foil" || finish === "etched") {
+      const intervalRef = setInterval(gradientAnimation, INTERVAL);
+
+      // Clear interval after 5000ms
+      const timeoutRef = setTimeout(() => clearInterval(intervalRef), GRADIENT_DURATION);
+
+      // Cleanup function
+      return () => {
+        clearInterval(intervalRef);
+        clearTimeout(timeoutRef);
+      };
+    }
+    
+  }, []);
 
   return (
     <>
@@ -61,27 +141,18 @@ const CardDisplay = ({ card, size, maxWidth, shadow }) => {
               />
     
               {/* Linear gradient overlay for foil or etched finish*/}
-              { (finish === "foil" || finish === "etched") && size !== "small" && (
+              { (finish === "foil" || finish === "etched") 
+                && size !== "small"
+                && ( index === null || (index !== null && currentIndex !== null && index === currentIndex)) 
+                && (
                 <>
                   <LinearGradient 
-                    colors={[
-                      "rgba(255, 0, 0, 0) 0%",
-                      "rgba(255, 154, 0, 0.6) 10%",
-                      "rgba(208, 222, 33, 0.8) 20%",
-                      "rgba(79, 220, 74, 1) 30%",
-                      "rgba(63, 218, 216, 0.6) 45%",
-                      "rgba(47, 201, 226, 0.3) 52%",
-                      "rgba(28, 127, 238, 0.2) 63%",
-                      "rgba(95, 21, 242, 0.6) 79%",
-                      "rgba(186, 12, 248, 0.4) 88%",
-                      "rgba(251, 7, 217, 0.4) 89%",
-                      "rgba(255, 0, 0, 0.1) 100%"
-                    ]}
-                    locations={[0, 0.1, 0.2, 0.3, 0.45, 0.62, 0.63, 0.79, 0.88, 0.89, 1]}
+                    colors={gradientOptions.colors}
+                    locations={gradientOptions.locations}
+                    start={gradientOptions.start}
+                    end={gradientOptions.end}
                     style={styles.gradientOverlay}
                   />
-                  {/* Glittering Animation */}
-                  <Sparkles />
                 </>
               
               )}
@@ -132,7 +203,7 @@ const CardDisplay = ({ card, size, maxWidth, shadow }) => {
                 style={styles.gradientOverlay}
               />
               {/* Glittering Animation */}
-              <Sparkles />
+              {/* <Sparkles /> */}
             </>
           
           )}
@@ -161,13 +232,14 @@ const styles = StyleSheet.create({
   },
   gradientOverlay: {
     position: "absolute",
-    height: "90%",
+    height: "100%",
     width: "100%",
     opacity: 0.4,
-    top: "5%",
+    top: "0%",
     left: "0%",
     right: 0,
     bottom: 0,
+    borderRadius: 15,
   },
 });
 

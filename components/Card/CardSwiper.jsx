@@ -149,6 +149,7 @@ const CardSwiper = ({ cards }) => {
             <CardDisplay 
               card={item}
               index={index}
+              currentIndex={counter - 1}
             />
           )}
           stackSize={2}
