@@ -80,6 +80,7 @@ const Home = () => {
           );
           bgSoundRef.current = sound;
           await sound.playAsync();
+          await sound.setVolumeAsync(0.5);
         } catch (error) {
           console.error("Error playing sound:", error);
         }

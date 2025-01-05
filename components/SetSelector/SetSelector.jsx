@@ -41,11 +41,11 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
     const playSound = async () => {
       try {
         const { sound } = await Audio.Sound.createAsync(
-          require("../../assets/sounds/marimba-bloop-1.mp3"),
+          require("../../assets/sounds/infographic-pop-5.mp3"),
           { isLooping: false }
         );
         soundRef.current = sound;
-        await sound.setVolumeAsync(0.5);
+        await sound.setVolumeAsync(1);
         await sound.playAsync();
 
       } catch (error) {

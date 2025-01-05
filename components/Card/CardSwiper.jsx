@@ -11,6 +11,7 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import { Audio } from "expo-av";
 
 import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
@@ -163,21 +164,60 @@ const CardSwiper = ({ cards, setCode }) => {
   const [ totalValue, setTotalValue ] = useState(parseFloat(firstCardPrice).toFixed(2));
   const [ swipedAllCards, setSwipedAllCards ] = useState(false);
   const [ topCard, setTopCard ] = useState(cards[0]);
-
-  console.log("setCode:" + setCode);
+  const bloopSoundRef = useRef(null);
+  const highlightSoundRef = useRef(null);
+  const summarySoundRef = useRef(null);
 
   const burstRef = useRef(null);
+
+  useEffect(() => {
+    console.log("CardSwiper mounts...")
+    return () => {
+      if (bloopSoundRef.current) {
+        bloopSoundRef.current.unloadAsync();
+        bloopSoundRef.current = null;
+      }
+      if (highlightSoundRef.current) {
+        highlightSoundRef.current.unloadAsync();
+        highlightSoundRef.current = null;
+      }
+      if (summarySoundRef.current) {
+        summarySoundRef.current.unloadAsync();
+        summarySoundRef.current = null;
+      }
+    };
+      
+  }, []);
   
-  const triggerPriceHighlightAnimation = () => {
+  const triggerPriceHighlightAnimation = async () => {
     if (burstRef.current) {
       burstRef.current.play(); // Play the Lottie animation
     }
+
+    // play highlight sound
+    try {
+      if (highlightSoundRef.current) {
+        await highlightSoundRef.current.unloadAsync();
+        highlightSoundRef.current = null;
+      }
+
+      const { sound } = await Audio.Sound.createAsync(
+        require("../../assets/sounds/level-up.mp3"),
+        { isLooping: false }
+      );
+      highlightSoundRef.current = sound;
+      await sound.setVolumeAsync(0.5);
+      await sound.playAsync();
+
+    } catch (error) {
+      console.error("Error playing highlight sound:", error);
+    }
   };
 
-  const increaseCounter = () => {
-
+  const increaseCounter = async () => {
+    let currentCardPrice = 0;
     if (counter < cards.length ) {
-      const currentCardPrice = cards[counter].final_price || "0" ;
+      currentCardPrice = cards[counter].final_price || "0" ;
 
       if (parseFloat(currentCardPrice) > parseFloat(topCard.final_price)) {
         setTopCard(cards[counter]);
@@ -189,9 +229,54 @@ const CardSwiper = ({ cards, setCode }) => {
 
       setTotalValue(prev => (parseFloat(prev) + parseFloat(currentCardPrice)).toFixed(2));
     }
+
+    // play bloop sound
+    // try {
+    //   if (bloopSoundRef.current) {
+    //     await bloopSoundRef.current.unloadAsync();
+    //     bloopSoundRef.current = null;
+    //   }
+
+    //   if (parseFloat(currentCardPrice) < PRICE_HIGHLIGHT_THRESHOLD) {
+        
+    //     const { sound } = await Audio.Sound.createAsync(
+    //       require("../../assets/sounds/happy-pop-1.mp3"),
+    //       { isLooping: false }
+    //     );
+    //     bloopSoundRef.current = sound;
+    //     await sound.setVolumeAsync(0.5);
+    //     await sound.playAsync();
+    //   }
+      
+    // } catch (error) {
+    //   console.error("Error playing bloop sound:", error);
+    // }
     
     setCounter(prev => prev + 1);
     
+  };
+
+  const openSummary = async () => {
+    // play summary sound
+
+    try {
+      if (summarySoundRef.current) {
+        await summarySoundRef.current.unloadAsync();
+        summarySoundRef.current = null;
+      }
+
+      const { sound } = await Audio.Sound.createAsync(
+        require("../../assets/sounds/bonus-points.mp3"),
+        { isLooping: false }
+      );
+      summarySoundRef.current = sound;
+      await sound.setVolumeAsync(0.5);
+      await sound.playAsync();
+    } catch (error) {
+      console.error("Error playing summaryt sound:", error);
+    }
+
+    setSwipedAllCards(true);
   };
 
   return (
@@ -305,7 +390,7 @@ const CardSwiper = ({ cards, setCode }) => {
                 position: "relative",
                 zIndex: 10,
               }}
-              onSwipedAll={() => setSwipedAllCards(true)}
+              onSwipedAll={() => openSummary()}
             />
 
           </View>
