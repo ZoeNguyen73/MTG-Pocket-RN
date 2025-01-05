@@ -87,7 +87,7 @@ const CardDisplay = ({
       }
     }
 
-    if (finish === "foil" || finish === "etched") {
+    if ((finish === "foil" || finish === "etched") && size !== "small") {
       const intervalRef = setInterval(gradientAnimation, INTERVAL);
 
       // Clear interval after 5000ms
@@ -111,7 +111,7 @@ const CardDisplay = ({
             {
               width: maxWidth ? maxWidth : "100%",
               aspectRatio: 488 / 680,
-              borderRadius: maxWidth * 0.07,
+              borderRadius: maxWidth ? maxWidth * 0.07 : 15,
             },
           ]}
         >
@@ -121,7 +121,7 @@ const CardDisplay = ({
               style={[styles.cardContainer, { 
                 width: "100%",  
                 borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-                overflow: "visible",
+                overflow: "hidden",
               }]}
             >
               { shadow && (
@@ -130,11 +130,17 @@ const CardDisplay = ({
                     width: "100%",
                     height: "100%",
                     borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-                    top: 2,
-                    left: 2,
-                    backgroundColor: "rgba(0, 0, 0, 0.2)",
+                    backgroundColor: "rgba(0, 0, 0, 0.1)",
                     zIndex: -1,
-                    position: "absolute"
+                    position: "absolute",
+                    shadowColor: "#000",
+                    shadowOffset: {
+                      width: 10,
+                      height: 20,
+                    },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 10,
+                    elevation: 10,
                   }}
                 
                 />
@@ -146,7 +152,7 @@ const CardDisplay = ({
                 style={{
                   width: shadow ? "98%" : "100%",
                   height: shadow ? "98%" : "100%",
-                  borderRadius: maxWidth ? maxWidth * 0.07 : 15,
+                  borderRadius: maxWidth ? maxWidth * 0.07 : 16,
                 }}
               />
     

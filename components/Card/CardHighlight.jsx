@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
-import { View, ScrollView, Platform, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, ScrollView, Platform, Pressable } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from "react-native-reanimated";
 
 import axios from "../../api/axios";
 
 import CardDisplay from "./CardDisplay";
 
-const CardHighlight = ({ setCode, containerWidth, containerHeight }) => {
-  const [ cards, setCards ] = useState([]);
-  const [ cardNo, setCardNo ] = useState(0);
+const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress }) => {
+  const cardNo = cards.length;
 
   // Shared value for horizontal translation
   const translateX = useSharedValue(0);
@@ -16,32 +15,12 @@ const CardHighlight = ({ setCode, containerWidth, containerHeight }) => {
   const width = containerWidth;
 
   useEffect(() => {
-    const getTopCards = async () => {
-      const response = await axios.get(`/sets/${setCode}/top-cards`);
-      const cardData = response.data.top_cards;
+    translateX.value = withSequence(
+      withTiming(-20, { duration: 500 }), // Scroll 50px to the right
+      withTiming(0, { duration: 500 })   // Return to original position
+    );
 
-      if (cardData.length > 0) {
-        // reformat card data
-        const reformattedData = [];
-        for (let i = 0; i < cardData.length; i++) {
-          reformattedData.push(cardData[i].card_id);
-        }
-        setCards(reformattedData);
-        setCardNo(cardData.length);
-
-        // Trigger hint animation
-        translateX.value = withSequence(
-          withTiming(-20, { duration: 500 }), // Scroll 50px to the right
-          withTiming(0, { duration: 500 })   // Return to original position
-        );
-
-      };
-    };
-
-    if (setCode && containerWidth) {
-      getTopCards();
-    }
-  }, [setCode, containerWidth, translateX]);
+  }, [cards, containerWidth, translateX]);
 
   // Animated style for the scroll view
   const animatedStyle = useAnimatedStyle(() => ({
@@ -72,14 +51,19 @@ const CardHighlight = ({ setCode, containerWidth, containerHeight }) => {
           <View
             className="flex-row flex-nowrap gap-3"
           >
-            { cards.map((card) => (
-              <CardDisplay
-                key={card._id}  
-                card={card}
-                size="small"
-                maxWidth={Math.min(Math.floor(width/2.6), height * (488/680))}
-                shadow={true}
-              />
+            { cards.map(card => (
+              <Pressable
+                onLongPress={handleLongPress}
+                delayLongPress={500} // Customize long press duration
+                key={card._id}               
+              >
+                <CardDisplay  
+                  card={card}
+                  size="small"
+                  maxWidth={Math.min(Math.floor(width/2.6), height * (488/680))}
+                  shadow={true}
+                />
+              </Pressable>
             ))}
 
           </View>

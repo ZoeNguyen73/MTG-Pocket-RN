@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Swiper from "react-native-deck-swiper";
 import LottieView from "lottie-react-native";
 import { router } from "expo-router";
+import * as Animatable from "react-native-animatable";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,6 +18,11 @@ import Button from "../CustomButton/CustomButton";
 import tailwindConfig from "../../tailwind.config";
 
 const PRICE_HIGHLIGHT_THRESHOLD = 5;
+
+const zoomIn = {
+  0: { scale: 0.6 },
+  1: { scale: 1 },
+};
 
 const ZoomOutText = ({ content, backgroundColor, textStyle, counter }) => {
   const scale = useSharedValue(1.5); // Start at scale 1.5
@@ -73,61 +79,80 @@ const ZoomOutText = ({ content, backgroundColor, textStyle, counter }) => {
 };
 
 const Summary = ({ totalValue, topCard }) => {
-  return (
-    <View className="position-relative h-[50vh] w-9/12">
-      <View 
-        className="w-full h-full rounded-3xl py-5"
-        style={{
-          backgroundColor: "rgba(255, 255, 255, 0.7)",
-          borderColor: "rgba(0, 0, 0, 0.1)",
-          borderWidth: 7,
-        }}
-      >
-        <View className="flex-column justify-center items-center gap-2">
-          <Text className="text-center font-sans-semibold tracking-wide text-light-text">
-            Total Pack Value:
-          </Text>
-          <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
-            {`USD ${totalValue}`}
-          </Text>
-        </View>
+  const [animationKey, setAnimationKey] = useState(0);
 
-        <View className="flex-column justify-center items-center gap-2 mt-5">
-          <Text className="text-center font-sans-semibold tracking-wide text-light-text">
-            Top card:
-          </Text>
-          <View style={{ maxWidth: "80%" }}>
-            <View className="position-relative">
-              <CardDisplay 
-                card={topCard}
-                maxWidth={200}
-                sparklesOn={true}
-              />
-              <View
-                style={{
-                  position: "absolute",
-                  bottom: -10,
-                  right: -10,
-                  zIndex: 30,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <ZoomOutText 
-                  backgroundColor={tailwindConfig.theme.extend.colors.light.teal}
-                  textStyle="text-left text-base tracking-wide text-light-yellow font-sans-semibold"
-                  content={`USD ${topCard.final_price}`}
-                  counter={0}
-                  />
+  useEffect(() => {
+    // Trigger a re-render of the Animatable.View to animate the component
+    setAnimationKey((prevKey) => prevKey + 1);
+  }, []);
+
+  return (
+    <Animatable.View
+      key={animationKey}
+      animation={zoomIn}
+      iterationCount={1}
+      duration={500}
+      style={{
+        position: "relative",
+        width: "100%",
+        alignItems: "center"
+      }}
+    >
+      <View className="position-relative h-[50vh] w-9/12">
+        <View 
+          className="w-full h-full rounded-3xl py-5"
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            borderColor: "rgba(0, 0, 0, 0.1)",
+            borderWidth: 7,
+          }}
+        >
+          <View className="flex-column justify-center items-center gap-2">
+            <Text className="text-center font-sans-semibold tracking-wide text-light-text">
+              Total Pack Value:
+            </Text>
+            <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
+              {`USD ${totalValue}`}
+            </Text>
+          </View>
+
+          <View className="flex-column justify-center items-center gap-2 mt-5">
+            <Text className="text-center font-sans-semibold tracking-wide text-light-text">
+              Top card:
+            </Text>
+            <View style={{ maxWidth: "80%" }}>
+              <View className="position-relative">
+                <CardDisplay 
+                  card={topCard}
+                  maxWidth={200}
+                  sparklesOn={true}
+                />
+                <View
+                  style={{
+                    position: "absolute",
+                    bottom: -10,
+                    right: -10,
+                    zIndex: 30,
+                    justifyContent: "center",
+                    alignItems: "center"
+                  }}
+                >
+                  <ZoomOutText 
+                    backgroundColor={tailwindConfig.theme.extend.colors.light.teal}
+                    textStyle="text-left text-base tracking-wide text-light-yellow font-sans-semibold"
+                    content={`USD ${topCard.final_price}`}
+                    counter={0}
+                    />
+                </View>
               </View>
+              
             </View>
             
           </View>
           
         </View>
-        
       </View>
-    </View>
+    </Animatable.View>
     
   );
 };

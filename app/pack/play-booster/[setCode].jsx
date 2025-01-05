@@ -54,21 +54,18 @@ const PlayBoosterPackOpening = () => {
         overflow: "hidden",
       }}
     >
-       <SafeAreaView>
-          { cards.length === 0 && (
-            <Text>Loading...</Text>
-          )}
-    
-          { cards.length > 0 && Platform.OS !== "web" && (
-            <CardSwiper cards={cards} setCode={setCode}/>
-          )}
+       <SafeAreaView className="h-screen justify-center">
+  
+        { cards.length > 0 && Platform.OS !== "web" && (
+          <CardSwiper cards={cards} setCode={setCode}/>
+        )}
 
-          { cards.length > 0 && Platform.OS === "web" && (
-            <CardFlipperWeb cards={cards} setCode={setCode}/>
-          )}
-    
-          {isLoading && <LoadingSpinner />}
-        </SafeAreaView>
+        { cards.length > 0 && Platform.OS === "web" && (
+          <CardFlipperWeb cards={cards} setCode={setCode}/>
+        )}
+  
+        {isLoading && <LoadingSpinner />}
+      </SafeAreaView>
     </ImageBackground>
     
   )

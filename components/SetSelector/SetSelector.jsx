@@ -1,8 +1,19 @@
-import { View, Text, FlatList, TouchableOpacity, Image, useWindowDimensions, Platform } from "react-native";
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  TouchableOpacity, 
+  Image, 
+  useWindowDimensions, 
+  Platform, 
+  SafeAreaView,
+  ScrollView, 
+} from "react-native";
 import * as Animatable from "react-native-animatable";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { SvgUri } from "react-native-svg";
 import { router } from "expo-router";
+import { Audio } from "expo-av";
 
 import axios from "../../api/axios";
 
@@ -10,8 +21,7 @@ import tailwindConfig from "../../tailwind.config";
 
 import Button from "../CustomButton/CustomButton";
 import CardHighlight from "./../Card/CardHighlight";
-
-// import "../../global.css";
+import CardDisplay from "../Card/CardDisplay";
 
 const zoomIn = {
   0: { scale: 0.85 },
@@ -25,9 +35,66 @@ const zoomOut = {
 
 const SetCard = ({ activeSetId, set, lastSetId }) => {
   const [ selected, setSelected ] = useState(false);
+  const soundRef = useRef(null);
 
-  const handlePress = () => {
+  const handlePress = async () => {
+    const playSound = async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require("../../assets/sounds/marimba-bloop-1.mp3"),
+          { isLooping: false }
+        );
+        soundRef.current = sound;
+        await sound.setVolumeAsync(0.5);
+        await sound.playAsync();
+
+      } catch (error) {
+        console.error("Error playing sound:", error);
+      }
+    };
+
+    playSound();
+
     setSelected(true); // Update the selected state
+
+    // Cleanup: Unload the sound when the component unmounts
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+      }
+    };
+  };
+
+  const handleConfirmation = async () => {
+    const playSound = async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require("../../assets/sounds/marimba-win-b.mp3"),
+          { isLooping: false }
+        );
+        soundRef.current = sound;
+        await sound.setVolumeAsync(0.5);
+        await sound.playAsync();
+
+      } catch (error) {
+        console.error("Error playing sound:", error);
+      }
+    };
+
+    playSound();
+
+    const timeoutRef = setTimeout(
+      () => router.push(`/pack/play-booster/${set.code}`),
+      1000
+    );
+
+    // Cleanup: Unload the sound when the component unmounts
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+      }
+      clearTimeout(timeoutRef);
+    };
   };
 
   // Reset the selected state when the card is swiped away
@@ -130,7 +197,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
               />
               <Button 
                 title="Confirm"
-                handlePress={() => router.push(`/pack/play-booster/${set.code}`)}
+                handlePress={handleConfirmation}
                 variant="small-primary"
               />
             </View>
@@ -220,15 +287,39 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
   )
 };
 
-const SetDetails = ({ setList, activeSetId }) => {
+const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHighlight }) => {
   const set = setList.filter(set => set.code === activeSetId)[0];
+  const [ topCards, setTopCards ] = useState([]);
   const [animationKey, setAnimationKey] = useState(0);
 
   const backgroundColor = tailwindConfig.theme.extend.colors.dark.yellow;
 
   useEffect(() => {
+    const getTopCards = async () => {
+      const response = await axios.get(`/sets/${set.code}/top-cards`);
+      const cardData = response.data.top_cards;
+
+      if (cardData.length > 0) {
+        // reformat card data
+        const reformattedData = [];
+        for (let i = 0; i < cardData.length; i++) {
+          const card = cardData[i].card_id;
+          card.final_price = cardData[i].final_price;
+          card.finish = cardData[i].finish;
+          reformattedData.push(card);
+        }
+        setActiveSetTopCards(reformattedData);
+        setTopCards(reformattedData);
+      };
+    };
+
+    if (activeSetId) {
+      getTopCards();
+    }
+
     // Trigger a re-render of the Animatable.View to animate the component
     setAnimationKey((prevKey) => prevKey + 1);
+
   }, [activeSetId]);
 
   return (
@@ -270,11 +361,12 @@ const SetDetails = ({ setList, activeSetId }) => {
                   Most popular cards from this set:
                 </Text>
               </View>
-
+              
               <CardHighlight 
-                setCode={set.code}
+                cards={topCards}
                 containerWidth={320}
                 containerHeight={120}
+                handleLongPress={enlargeCardHighlight}
               />
               
             </View>
@@ -435,6 +527,8 @@ const SetSelector = ({ sets }) => {
   const [ lastSetId, setLastSetId ] = useState(null);
   const [ setDetailsLoaded, setSetDetailsLoaded ] = useState(false);
   const [ hoveredSetId, setHoveredSetId ] = useState(null);
+  const [ enlargedCardHighlight, setEnlargedCardHighlight ] = useState(false);
+  const [ activeSetTopCards, setActiveSetTopCards ] = useState([]);
   
   const viewableSetsChanges = ({ viewableItems }) => {
     if (viewableItems.length > 0) {
@@ -481,7 +575,23 @@ const SetSelector = ({ sets }) => {
   }, [sets]);
 
   return (
-    <>    
+    <SafeAreaView className="h-full">
+      <Text
+        className="mb-2 mt-20 text-center font-sans-bold text-2xl text-light-yellow tracking-wider"
+        style={{
+          shadowColor: "black",
+          shadowOffset: {
+            width: 0,
+            height: 12,
+          },
+          shadowOpacity: 0.6,
+          shadowRadius: 6,
+          elevation: 6,
+        }}
+      >
+        Open a Booster Pack
+      </Text> 
+
       { Platform.OS === "web" && (
         <View
           onWheel={handleWheelScroll}
@@ -509,31 +619,120 @@ const SetSelector = ({ sets }) => {
       )}
 
       { Platform.OS !== "web" && setDetailsLoaded && activeSetId && (
-        <SetDetails setList={sets} activeSetId={activeSetId} />
+        <SetDetails 
+          setList={sets} 
+          activeSetId={activeSetId} 
+          enlargeCardHighlight={() => setEnlargedCardHighlight(true)}
+          setActiveSetTopCards={setActiveSetTopCards}
+        />
       )}
 
       { Platform.OS !== "web" && (
-        <FlatList
-          data={sets}
-          keyExtractor={(item) => item.code}
-          renderItem={({ item }) => (
-            <SetCard 
-              activeSetId={activeSetId}
-              set={item}
-              lastSetId={lastSetId}
-            />
-            
-          )}
-          onViewableItemsChanged={viewableSetsChanges}
-          viewabilityConfig={{
-            itemVisiblePercentThreshold: 90
-          }}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
+        <View className="zIndex-10">
+          <FlatList
+            data={sets}
+            keyExtractor={(item) => item.code}
+            renderItem={({ item }) => (
+              <SetCard 
+                activeSetId={activeSetId}
+                set={item}
+                lastSetId={lastSetId}
+              />
+              
+            )}
+            onViewableItemsChanged={viewableSetsChanges}
+            viewabilityConfig={{
+              itemVisiblePercentThreshold: 90
+            }}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+        
+      )}
+
+      { Platform.OS !== "web" 
+        && setDetailsLoaded 
+        && activeSetId
+        && enlargedCardHighlight 
+        && (
+          <View 
+            style={{
+              position: "absolute",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0,0,0,0.8)",
+              width: "100%",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => {
+                setEnlargedCardHighlight(false);
+              }}
+              style={{
+                position: "relative",
+                width: "100%",
+                flex: 1,
+              }}
+            >
+            </TouchableOpacity>
+
+            <ScrollView 
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{
+                width: "100%",
+                maxHeight: 340,
+              }}
+            >
+              { activeSetTopCards.length > 0 && (
+                <View className="pl-3 flex-row flex-nowrap gap-5 h-fit justify-center">
+                  {activeSetTopCards.map(card => (
+                    <View
+                      key={card._id}
+                      className="flex-column justify-center items-center gap-1"
+                    >
+                      <CardDisplay 
+                        card={card}
+                        maxWidth={220}
+                        size="small"
+                      />
+
+                      <View
+                        className="bg-light-yellow rounded-full justify-center items-center w-[120px] py-1 px-2"
+                      >
+                        <Text className="font-sans-semibold tracking-wide text-light-text">
+                          {`USD ${card.final_price}`}
+                        </Text>
+                      </View>
+                      
+                    </View>
+                    
+                  ))}
+                </View>
+              )}
+            </ScrollView>  
+
+            <TouchableOpacity
+              onPress={() => {
+                setEnlargedCardHighlight(false);
+              }}
+              style={{
+                position: "relative",
+                width: "100%",
+                flex: 1,
+              }}
+            >
+            </TouchableOpacity>
+          
+          </View>
       )}
       
-    </>
+    </SafeAreaView>
     
   )
 
