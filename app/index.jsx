@@ -1,13 +1,14 @@
 import { StatusBar } from "expo-status-bar";
 import { ImageBackground, View, Image, Text, useWindowDimensions } from "react-native";
-import { router, Redirect, Link } from "expo-router";
+import { router, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect } from "react";
 
 import { useThemeContext } from "../context/ThemeProvider";
-import { useAuthContext } from "../context/AuthProvider";
 
 import tailwindConfig from "../tailwind.config";
 import { getBreakpoint } from "../utils/Breakpoints";
+import { soundManager } from "../utils/SoundManager";
 
 import { logos, images } from "../constants";
 
@@ -15,13 +16,19 @@ import Button from "../components/CustomButton/CustomButton";
 
 const App = () => {
   const { theme } = useThemeContext();
-  const { isLoggedIn, isLoading } = useAuthContext();
   const { width } = useWindowDimensions();
   const breakpoint = getBreakpoint(width);
 
   const lightBackgroundColor = tailwindConfig.theme.extend.colors.light.background;
   const darkBackgroundColor = tailwindConfig.theme.extend.colors.dark.background;
-  const darkTextColor = tailwindConfig.theme.extend.colors.dark.text;
+
+  useEffect(() => {
+    const playBgMusic = async () => {
+      await soundManager.playBackgroundMusic();
+    };
+
+    playBgMusic();
+  }, [])
 
   return (
     <ImageBackground
@@ -59,19 +66,6 @@ const App = () => {
             </Text>
           </View>
 
-          {/* <Button 
-            title="Get Started"
-            handlePress={() => {
-              if (!isLoggedIn) {
-                router.push("/log-in");
-              } else {
-                router.push("/home");
-              }
-            }}
-            containerStyles="w-fit px-6 py-4 mt-7 mb-7 w-[80%]"
-            icon
-          /> */}
-
           <Button 
             title="Get Started"
             handlePress={() => router.push("/home")}
@@ -79,7 +73,6 @@ const App = () => {
             icon
           />
 
-          {/* <Link href="/home" style={{padding: 5}}>Go to Home</Link> */}
           <Link href="/log-in" style={{padding: 5}}>Go to Log in</Link>
           <Link href="/register" style={{padding: 5}}>Go to Register</Link>
         </View>

@@ -50,40 +50,40 @@ const PlayBoosterPackOpening = () => {
   }, []);
 
   // manage sound with navigation events
-  useFocusEffect(
-    useCallback(() => {
-      const playSound = async () => {
-        try {
-          // Unload any existing sound before playing a new one
-          if (packOpeningBgSoundRef.current) {
-            await packOpeningBgSoundRef.current.unloadAsync();
-            packOpeningBgSoundRef.current = null;
-          }
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const playSound = async () => {
+  //       try {
+  //         // Unload any existing sound before playing a new one
+  //         if (packOpeningBgSoundRef.current) {
+  //           await packOpeningBgSoundRef.current.unloadAsync();
+  //           packOpeningBgSoundRef.current = null;
+  //         }
 
-          const { sound } = await Audio.Sound.createAsync(
-            require("../../../assets/sounds/Rise_of_Kingdoms.mp3"),
-            { shouldPlay: true, isLooping: true }
-          );
-          packOpeningBgSoundRef.current = sound;
-          await sound.setVolumeAsync(0.5);
-          await sound.playAsync();
-        } catch (error) {
-          console.error("Error playing sound:", error);
-        }
-      };
+  //         const { sound } = await Audio.Sound.createAsync(
+  //           require("../../../assets/sounds/Rise_of_Kingdoms.mp3"),
+  //           { shouldPlay: true, isLooping: true }
+  //         );
+  //         packOpeningBgSoundRef.current = sound;
+  //         await sound.setVolumeAsync(0.5);
+  //         await sound.playAsync();
+  //       } catch (error) {
+  //         console.error("Error playing sound:", error);
+  //       }
+  //     };
 
-      playSound();
+  //     playSound();
 
-      // Cleanup: Unload sound when leaving the screen
-      return () => {
-        if (packOpeningBgSoundRef.current) {
-          packOpeningBgSoundRef.current.unloadAsync();
-          packOpeningBgSoundRef.current = null;
-        }
-      };
+  //     // Cleanup: Unload sound when leaving the screen
+  //     return () => {
+  //       if (packOpeningBgSoundRef.current) {
+  //         packOpeningBgSoundRef.current.unloadAsync();
+  //         packOpeningBgSoundRef.current = null;
+  //       }
+  //     };
 
-    }, [])
-  );
+  //   }, [])
+  // );
 
   return (
     <ImageBackground

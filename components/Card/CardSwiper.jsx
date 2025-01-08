@@ -231,26 +231,26 @@ const CardSwiper = ({ cards, setCode }) => {
     }
 
     // play bloop sound
-    // try {
-    //   if (bloopSoundRef.current) {
-    //     await bloopSoundRef.current.unloadAsync();
-    //     bloopSoundRef.current = null;
-    //   }
+    try {
+      if (bloopSoundRef.current) {
+        await bloopSoundRef.current.unloadAsync();
+        bloopSoundRef.current = null;
+      }
 
-    //   if (parseFloat(currentCardPrice) < PRICE_HIGHLIGHT_THRESHOLD) {
+      if (parseFloat(currentCardPrice) < PRICE_HIGHLIGHT_THRESHOLD) {
         
-    //     const { sound } = await Audio.Sound.createAsync(
-    //       require("../../assets/sounds/happy-pop-1.mp3"),
-    //       { isLooping: false }
-    //     );
-    //     bloopSoundRef.current = sound;
-    //     await sound.setVolumeAsync(0.5);
-    //     await sound.playAsync();
-    //   }
+        const { sound } = await Audio.Sound.createAsync(
+          require("../../assets/sounds/happy-pop-1.mp3"),
+          { isLooping: false }
+        );
+        bloopSoundRef.current = sound;
+        await sound.setVolumeAsync(0.5);
+        await sound.playAsync();
+      }
       
-    // } catch (error) {
-    //   console.error("Error playing bloop sound:", error);
-    // }
+    } catch (error) {
+      console.error("Error playing bloop sound:", error);
+    }
     
     setCounter(prev => prev + 1);
     
@@ -440,7 +440,7 @@ const CardSwiper = ({ cards, setCode }) => {
           <Button 
             variant="secondary"
             title="Back to Home"
-            handlePress={() => router.push(`/home`)}
+            handlePress={() => router.replace(`/home`)}
           />
         </View>
         

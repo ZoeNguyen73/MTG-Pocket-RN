@@ -18,6 +18,7 @@ import { Audio } from "expo-av";
 import axios from "../../api/axios";
 
 import tailwindConfig from "../../tailwind.config";
+import { soundManager } from "../../utils/SoundManager";
 
 import Button from "../CustomButton/CustomButton";
 import CardHighlight from "./../Card/CardHighlight";
@@ -41,11 +42,11 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
     const playSound = async () => {
       try {
         const { sound } = await Audio.Sound.createAsync(
-          require("../../assets/sounds/infographic-pop-5.mp3"),
+          require("../../assets/sounds/shine-8.mp3"),
           { isLooping: false }
         );
         soundRef.current = sound;
-        await sound.setVolumeAsync(1);
+        await sound.setVolumeAsync(soundManager.getSoundEffectsVolume());
         await sound.playAsync();
 
       } catch (error) {
@@ -69,11 +70,11 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
     const playSound = async () => {
       try {
         const { sound } = await Audio.Sound.createAsync(
-          require("../../assets/sounds/marimba-win-b.mp3"),
+          require("../../assets/sounds/shine-10.mp3"),
           { isLooping: false }
         );
         soundRef.current = sound;
-        await sound.setVolumeAsync(0.5);
+        await sound.setVolumeAsync(soundManager.getSoundEffectsVolume());
         await sound.playAsync();
 
       } catch (error) {

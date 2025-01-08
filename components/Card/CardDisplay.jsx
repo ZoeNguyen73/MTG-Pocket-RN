@@ -56,6 +56,7 @@ const CardDisplay = ({
   const imgUri = "image_jpg_normal";
 
   useEffect(() => {
+    
     const gradientAnimation = () => {
       if (gradientOptionsRef.current.locations[1] - MOVEMENT <= 0) {
         // Shift colours and reset locations
@@ -87,7 +88,9 @@ const CardDisplay = ({
       }
     }
 
-    if ((finish === "foil" || finish === "etched") && size !== "small") {
+    if ((finish === "foil" || finish === "etched") 
+      && size !== "small"
+      && ( index === null || (index !== null && currentIndex !== null && index === currentIndex))) {
       const intervalRef = setInterval(gradientAnimation, INTERVAL);
 
       // Clear interval after 5000ms
