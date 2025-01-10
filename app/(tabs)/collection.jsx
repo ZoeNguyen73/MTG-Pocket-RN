@@ -5,7 +5,7 @@ import { images } from "../../constants";
 const Collection = () => {
   return (
     <ImageBackground
-      source={images.dark_background_vertical_9}
+      source={images.dark_background_vertical_5}
       style={{
         resizeMode: "cover",
         overflow: "hidden",

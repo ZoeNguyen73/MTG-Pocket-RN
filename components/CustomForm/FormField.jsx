@@ -33,18 +33,18 @@ const FormField = ({
   return (
     <View className={`space-y-1 ${otherStyles}`}>
 
-      <Text className="font-sans-semibold text-sm text-light-text dark:text-dark-text tracking-wide">
+      <Text className="font-sans-semibold text-sm text-dark-text tracking-wide">
         {title}
       </Text>
 
       <View className="flex-row justify-between">
         { helpText && (
-          <Text className="font-sans-light-italic text-xs text-light-text dark:text-dark-text">
+          <Text className="font-sans-light-italic text-xs text-dark-text">
             {helpText}
           </Text>
         )}
         { charCount && (
-          <Text className="font-sans-light-italic text-xs text-light-text dark:text-dark-text">
+          <Text className="font-sans-light-italic text-xs text-dark-text">
             {value.length} / {maxLength}
           </Text>
         )}
@@ -62,7 +62,7 @@ const FormField = ({
         style={{ minHeight: 40 }}
       >
         <TextInput 
-          className="flex-1 font-sans-light text-light-text dark:text-dark-text focus:outline-none"
+          className="flex-1 font-sans-light text-light-text focus:outline-none"
           value={value}
           placeholder={isFocused ? "" : placeholder}
           placeholderTextColor={`${ theme === "dark" ? "#6c7086" : lightTextColor}`}
@@ -92,7 +92,7 @@ const FormField = ({
       </View>
 
       { error && (
-        <Text className="text-light-error dark:text-dark-error font-xs font-sans-light">
+        <Text className="text-dark-error font-xs font-sans-light">
           {error}
         </Text>
       )}

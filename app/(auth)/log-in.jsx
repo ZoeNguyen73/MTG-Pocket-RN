@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Keyboard, StyleSheet, Image } from "react-native";
+import { View, Text, ScrollView, Keyboard, StyleSheet, Image, ImageBackground } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Link } from "expo-router";
@@ -22,9 +22,7 @@ const LogIn = () => {
   const { handleError } = useErrorHandler();
   const { theme } = useThemeContext();
   
-  const iconColor = theme === "dark"
-    ? tailwindConfig.theme.extend.colors.dark.text
-    : tailwindConfig.theme.extend.colors.light.text;
+  const iconColor = tailwindConfig.theme.extend.colors.dark.text;
 
   const [form, setForm] = useState({
     username: "",
@@ -131,30 +129,41 @@ const LogIn = () => {
   }
 
   return (
-    <>
-      <SafeAreaView className="bg-light-mauve items-center h-full">
+    <ImageBackground
+      source={images.FDN_Bundle_Wallpaper_1040x1536}
+      style={{
+        resizeMode: "cover",
+        overflow: "hidden",
+      }}
+    >
+      <SafeAreaView 
+        className="items-center h-full"
+      >
         <ScrollView className="w-full" contentContainerStyle={styles.scrollView}>
           <View 
             className="flex-column w-full h-full justify-between items-center"
           >
 
             <View className="h-[35vh] w-full justify-center items-center flex">
-              <Image 
-                source={images.foundations_1}
+              {/* <Image 
+                source={images.FDN_Key_Art_Wallpaper_1040x1536}
                 resizeMode="center"
                 style={{ position: "absolute" }}
-              />
+              /> */}
             </View>
 
             <View
-              className="w-full h-[60vh] bg-light-background dark:bg-dark-background rounded-3xl justify-center items-center 
+              className="w-full h-[50vh] rounded-3xl justify-center items-center 
               rounded-b-none border border-t-8 border-black"
+              style={{
+                backgroundColor: "rgba(30, 30, 46, 0.90)"
+              }}
             >
               <View
                 className="w-[85%] py-5 px-5"
               >
                 <View className="flex-row gap-2 items-center">
-                  <Text className="text-light-text dark:text-dark-text font-serif-bold text-4xl tracking-wider">
+                  <Text className="text-dark-text font-serif-bold text-4xl tracking-wider">
                     Welcome Back!
                   </Text>
                   <Feather name="smile" size={32} color={iconColor} />
@@ -190,7 +199,7 @@ const LogIn = () => {
                 />
 
                 <View className="justify-center gap-2 pt-5 flex-row mt-1 mb-5">
-                  <Text className="text-sm text-light-text dark:text-dark-text font-sans">
+                  <Text className="text-sm text-dark-text font-sans">
                     Don't have an account?
                   </Text>
                   <Link
@@ -212,7 +221,7 @@ const LogIn = () => {
       { isSubmitting && (
         <LoadingSpinner />
       )}
-    </>
+    </ ImageBackground>
   )
 
 };
