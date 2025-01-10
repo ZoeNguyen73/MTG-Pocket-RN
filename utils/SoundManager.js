@@ -1,6 +1,6 @@
 import { Audio } from "expo-av";
 
-import { soundAssets } from "../constants/sounds";
+import { musicAssets } from "../constants/music";
 
 const DEFAULT_BG_TRACK_FILENAME = "Adventure_remaster";
 
@@ -28,7 +28,7 @@ export const soundManager = {
   // Background music methods
   async playBackgroundMusic(fileName) {
     const confirmedFileName = fileName ? fileName : DEFAULT_BG_TRACK_FILENAME;
-    const confirmedTrack = soundAssets[confirmedFileName];
+    const confirmedTrack = musicAssets[confirmedFileName];
 
     const filePath = confirmedTrack.path;
 

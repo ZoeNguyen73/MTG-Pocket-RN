@@ -1,9 +1,7 @@
-import { View, Text, Platform, ImageBackground } from "react-native";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { router, useLocalSearchParams } from "expo-router";
+import { Platform, ImageBackground } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
-import { Audio } from "expo-av";
 
 import axios from "../../../api/axios";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
@@ -23,7 +21,6 @@ const PlayBoosterPackOpening = () => {
   const { setCode } = useLocalSearchParams();
   const [ cards, setCards ] = useState([]);
   const [ isLoading, setIsLoading ] = useState(false);
-  const packOpeningBgSoundRef = useRef();
 
   const axiosPrivate = useAxiosPrivate();
 
@@ -48,42 +45,6 @@ const PlayBoosterPackOpening = () => {
 
     getCardsFromPack();
   }, []);
-
-  // manage sound with navigation events
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     const playSound = async () => {
-  //       try {
-  //         // Unload any existing sound before playing a new one
-  //         if (packOpeningBgSoundRef.current) {
-  //           await packOpeningBgSoundRef.current.unloadAsync();
-  //           packOpeningBgSoundRef.current = null;
-  //         }
-
-  //         const { sound } = await Audio.Sound.createAsync(
-  //           require("../../../assets/sounds/Rise_of_Kingdoms.mp3"),
-  //           { shouldPlay: true, isLooping: true }
-  //         );
-  //         packOpeningBgSoundRef.current = sound;
-  //         await sound.setVolumeAsync(0.5);
-  //         await sound.playAsync();
-  //       } catch (error) {
-  //         console.error("Error playing sound:", error);
-  //       }
-  //     };
-
-  //     playSound();
-
-  //     // Cleanup: Unload sound when leaving the screen
-  //     return () => {
-  //       if (packOpeningBgSoundRef.current) {
-  //         packOpeningBgSoundRef.current.unloadAsync();
-  //         packOpeningBgSoundRef.current = null;
-  //       }
-  //     };
-
-  //   }, [])
-  // );
 
   return (
     <ImageBackground

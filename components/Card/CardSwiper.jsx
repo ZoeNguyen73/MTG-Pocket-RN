@@ -17,6 +17,8 @@ import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
 
 import tailwindConfig from "../../tailwind.config";
+import { soundManager } from "../../utils/SoundManager";
+import { soundAssets } from "../../constants/sounds";
 
 const PRICE_HIGHLIGHT_THRESHOLD = 5;
 
@@ -172,6 +174,33 @@ const CardSwiper = ({ cards, setCode }) => {
 
   useEffect(() => {
     console.log("CardSwiper mounts...")
+
+    const loadSounds = async () => {
+      try {
+        const { sound: bloopSound } = await Audio.Sound.createAsync(
+          soundAssets["paper-collect-3"],
+          { isLooping: false }
+        );
+        bloopSoundRef.current = bloopSound;
+  
+        const { sound: highlightSound } = await Audio.Sound.createAsync(
+          soundAssets["charming-twinkle"],
+          { isLooping: false }
+        );
+        highlightSoundRef.current = highlightSound;
+  
+        const { sound: summarySound } = await Audio.Sound.createAsync(
+          soundAssets["magical-twinkle"],
+          { isLooping: false }
+        );
+        summarySoundRef.current = summarySound;
+      } catch (error) {
+        console.error("Error loading sounds:", error);
+      }
+    };
+
+    loadSounds();
+
     return () => {
       if (bloopSoundRef.current) {
         bloopSoundRef.current.unloadAsync();
@@ -189,29 +218,25 @@ const CardSwiper = ({ cards, setCode }) => {
       
   }, []);
   
+  const playSound = async (soundRef) => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.setPositionAsync(0); // Reset playback position
+        await soundRef.current.setVolumeAsync(soundManager.getSoundEffectsVolume());
+        await soundRef.current.playAsync();
+      }
+    } catch (error) {
+      console.error("Error playing sound:", error);
+    }
+  };
+  
   const triggerPriceHighlightAnimation = async () => {
     if (burstRef.current) {
       burstRef.current.play(); // Play the Lottie animation
     }
 
     // play highlight sound
-    try {
-      if (highlightSoundRef.current) {
-        await highlightSoundRef.current.unloadAsync();
-        highlightSoundRef.current = null;
-      }
-
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/sounds/level-up.mp3"),
-        { isLooping: false }
-      );
-      highlightSoundRef.current = sound;
-      await sound.setVolumeAsync(0.5);
-      await sound.playAsync();
-
-    } catch (error) {
-      console.error("Error playing highlight sound:", error);
-    }
+    await playSound(highlightSoundRef);
   };
 
   const increaseCounter = async () => {
@@ -231,26 +256,7 @@ const CardSwiper = ({ cards, setCode }) => {
     }
 
     // play bloop sound
-    try {
-      if (bloopSoundRef.current) {
-        await bloopSoundRef.current.unloadAsync();
-        bloopSoundRef.current = null;
-      }
-
-      if (parseFloat(currentCardPrice) < PRICE_HIGHLIGHT_THRESHOLD) {
-        
-        const { sound } = await Audio.Sound.createAsync(
-          require("../../assets/sounds/happy-pop-1.mp3"),
-          { isLooping: false }
-        );
-        bloopSoundRef.current = sound;
-        await sound.setVolumeAsync(0.5);
-        await sound.playAsync();
-      }
-      
-    } catch (error) {
-      console.error("Error playing bloop sound:", error);
-    }
+    await playSound(bloopSoundRef);
     
     setCounter(prev => prev + 1);
     
@@ -258,24 +264,7 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const openSummary = async () => {
     // play summary sound
-
-    try {
-      if (summarySoundRef.current) {
-        await summarySoundRef.current.unloadAsync();
-        summarySoundRef.current = null;
-      }
-
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/sounds/bonus-points.mp3"),
-        { isLooping: false }
-      );
-      summarySoundRef.current = sound;
-      await sound.setVolumeAsync(0.5);
-      await sound.playAsync();
-    } catch (error) {
-      console.error("Error playing summaryt sound:", error);
-    }
-
+    await playSound(summarySoundRef);
     setSwipedAllCards(true);
   };
 
@@ -371,10 +360,10 @@ const CardSwiper = ({ cards, setCode }) => {
               keyExtractor={item=> `${item._id}-${counter - 1}`}
               cardIndex={0}
               renderCard={(item, index) => (
-                <CardDisplay 
+                <CardDisplay
                   card={item}
                   index={index}
-                  currentIndex={counter - 1}
+                  currentIndex={counter}
                   priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
                 />
               )}

@@ -1,13 +1,12 @@
 export const soundAssets = {
-  Adventure_remaster: {
-    display: "Adventure (remaster) by Alexander Nakarada",
-    path: require("../assets/sounds/Adventure_remaster.mp3"),
-  },
-  Forest_Walk: {
-    display: "Forest Walk by Alexander Nakarada",
-    path: require("../assets/sounds/Forest_Walk.mp3")},
-  Tavern_Loop_One: {
-    display: "Tavern Loop One by Alexander Nakarada",
-    path: require("../assets/sounds/Tavern_Loop_One.mp3"),
-  },
+  "paper-collect-3": require("../assets/sounds/paper-collect-3.mp3"),
+  "shine-8": require("../assets/sounds/shine-8.mp3"),
+  "shine-10": require("../assets/sounds/shine-10.mp3"),
+  "happy-pop-1": require("../assets/sounds/happy-pop-1.mp3"),
+  "level-up": require("../assets/sounds/level-up.mp3"),
+  "bonus-points": require("../assets/sounds/bonus-points.mp3"),
+  "magical-twinkle": require("../assets/sounds/magical-twinkle.mp3"),
+  "charming-twinkle": require("../assets/sounds/charming-twinkle.mp3"),
+  "game-bonus": require("../assets/sounds/game-bonus.mp3"),
+  "magic-3": require("../assets/sounds/magic-3.mp3"),
 };

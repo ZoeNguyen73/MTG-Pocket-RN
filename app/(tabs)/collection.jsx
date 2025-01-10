@@ -1,13 +1,21 @@
-import { View, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ImageBackground, Text, View } from "react-native";
+
+import { images } from "../../constants";
 
 const Collection = () => {
   return (
-    <SafeAreaView 
-      className="bg-light-background dark:bg-dark-background h-full"
+    <ImageBackground
+      source={images.dark_background_vertical_9}
+      style={{
+        resizeMode: "cover",
+        overflow: "hidden",
+      }}
     >
-      <Text>Collection</Text>
-    </ SafeAreaView>
+      <View className="h-screen justify-center">
+        <Text className="text-dark-text">Collection</Text>
+      </View>
+      
+    </ImageBackground>
   )
 };
 

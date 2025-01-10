@@ -5,7 +5,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { Audio } from "expo-av";
 
 import { soundManager } from "../../utils/SoundManager";
-import { soundAssets } from "../../constants/sounds";
+import { musicAssets } from "../../constants/music";
 
 import tailwindConfig from "../../tailwind.config";
 
@@ -21,16 +21,16 @@ const SoundSettings = () => {
 
   useEffect(() => {
     const options = [];
-    Object.keys(soundAssets).forEach(key => {
+    Object.keys(musicAssets).forEach(key => {
       const option = {
-        label: soundAssets[key].display,
+        label: musicAssets[key].display,
         value: key,
       };
       options.push(option);
     });
 
     setBgMusicOptions(options);
-    setBgMusicDisplay(soundAssets[soundManager.backgroundMusicFileName].display);
+    setBgMusicDisplay(musicAssets[soundManager.backgroundMusicFileName].display);
     setSfxVolume(soundManager.getSoundEffectsVolume());
   }, []);
 
@@ -54,8 +54,7 @@ const SoundSettings = () => {
   const handleBgMusicVolumeChange = async (change) => {
     let newVol = bgMusicVolume + change;
     if (newVol < 0) newVol = 0;
-    if (newVol = 1) newVol = 1;
-    console.log("newVol: " + newVol);
+    if (newVol > 1) newVol = 1;
     if (newVol !== bgMusicVolume) {
       setBgMusicVolume(newVol);
       await soundManager.setBackgroundMusicVolume(newVol);
@@ -65,14 +64,12 @@ const SoundSettings = () => {
   const handleChangeMusicOption = async (value) => {
     if (value !== soundManager.backgroundMusicFileName) {
       await soundManager.playBackgroundMusic(value);
-      setBgMusicDisplay(soundAssets[value].display);
+      setBgMusicDisplay(musicAssets[value].display);
     } 
   };
 
   const handleSfxVolumeChange = async (change) => {
     let newVol = sfxVolume + change;
-    console.log("newVol: " + newVol);
-
     if (newVol < 0) newVol = 0;
     if (newVol > 1) newVol = 1;
 
@@ -119,12 +116,18 @@ const SoundSettings = () => {
       </View>
 
       { bgMusicPlaying && (
-        <View className="flex-row gap-2 justify-center h-[40]">
-          <Feather name="music" size={18} color={darkText} />
-          <Text className="flex-1 font-sans-semibold-italic text-base text-dark-text tracking-wide">
-            {bgMusicDisplay}
+        <View className="h-[40]">
+          <View className="flex-row gap-2 justify-center">
+            <Feather name="music" size={18} color={darkText} />
+            <Text className="flex-1 font-sans-semibold-italic text-base text-dark-text tracking-wide">
+              {bgMusicDisplay}
+            </Text>
+          </View>
+          <Text className="font-sans-light text-xs text-dark-text tracking-wide">
+            by Alexander Nakarada (creatorchords.com)
           </Text>
         </View>
+        
       )}
 
       { bgMusicPlaying && (
