@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import React, { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { 
   Poppins_300Light,
@@ -68,17 +69,21 @@ const RootLayout = () => {
   }
 
   return (
-    <AuthProvider>
-      <ErrorHandlerProvider>
-        <ThemeProvider>
-          <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-        </ThemeProvider>
-      </ErrorHandlerProvider>
-    </AuthProvider>
+    <GestureHandlerRootView>
+      <AuthProvider>
+        <ErrorHandlerProvider>
+          <ThemeProvider>
+            <Stack>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="pack" options={{ headerShown: false }} />
+            </Stack>
+          </ThemeProvider>
+        </ErrorHandlerProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
+    
   )
 };
 

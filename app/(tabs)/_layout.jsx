@@ -1,8 +1,9 @@
-import { View, Text, useWindowDimensions} from "react-native";
+import { View, Text, useWindowDimensions, StyleSheet } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
+import { BlurView } from "expo-blur";
 
 import tailwindConfig from "../../tailwind.config";
 import { useThemeContext } from "../../context/ThemeProvider";
@@ -32,7 +33,7 @@ const TabsLayout = () => {
   const backgroundColor = theme === "dark" 
     ? tailwindConfig.theme.extend.colors.dark.surface
     : tailwindConfig.theme.extend.colors.dark.background;
-  const activeTintColor = tailwindConfig.theme.extend.colors.dark.yellow;
+  const activeTintColor = tailwindConfig.theme.extend.colors.light.yellow;
   const inactiveTintColor = tailwindConfig.theme.extend.colors.dark.grey1;
 
   const font = tailwindConfig.theme.fontFamily.sans[0];
@@ -47,20 +48,25 @@ const TabsLayout = () => {
             fontFamily: font,
             fonWeight: 300,
             marginTop: 2,
-            letterSpacing: 0.5,
+            letterSpacing: 0.3,
           },
           tabBarActiveTintColor: activeTintColor,
           tabBarInactiveTintColor: inactiveTintColor,
           tabBarActiveBackgroundColor: "transparent",
           tabBarPosition: width >= 1024 ? "left" : "bottom",
           tabBarStyle: {
-            backgroundColor: backgroundColor,
+            // backgroundColor: "#161a21",
             height: width >= 1024 ? "100%" : 70,
             itemAlign: "center",
             display: "flex",
             paddingTop: width >= 1024 ? 20 : 4,
             paddingLeft: width >= 1024 ? 30 : 0,
-          }
+            borderTopWidth: 0,
+            position: "absolute"
+          },
+          tabBarBackground: () => (
+            <BlurView tint="dark" intensity={100} style={StyleSheet.absoluteFill} />
+          ),
         }}
       >
         <Tabs.Screen 
@@ -110,8 +116,10 @@ const TabsLayout = () => {
         />
       </Tabs>
       <StatusBar 
-        backgroundColor={`${ theme === "dark" ? darkBackgroundColor : lightBackgroundColor }`} 
-        style={`${ theme === "dark" ? "light" : "dark"}`}
+        // backgroundColor={`${ theme === "dark" ? darkBackgroundColor : darkBackgroundColor }`} 
+        // style={`${ theme === "dark" ? "light" : "light"}`}
+        backgroundColor="transparent"
+        translucent={true}
       />
     </>
   )

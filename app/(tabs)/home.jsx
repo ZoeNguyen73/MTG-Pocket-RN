@@ -1,7 +1,5 @@
-import { View, ScrollView, Text } from "react-native";
+import { ImageBackground } from "react-native";
 import React, { useState, useEffect } from "react";
-import { Redirect } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuthContext } from "../../context/AuthProvider";
 
@@ -9,40 +7,32 @@ import Header from "../../components/Header";
 import SetSelector from "../../components/SetSelector/SetSelector";
 import generateSetListData from "../../components/SetSelector/setList";
 
+import { images } from "../../constants";
+
 const Home = () => {
   const { isLoggedIn, isLoading } = useAuthContext();
   const [ setList, setSetList ] = useState([]);
+  // const bgSoundRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(true);
 
+  // load set data
   useEffect(() => {
     const data = generateSetListData();
     setSetList(data);
   }, [])
 
-  // if (!isLoading && !isLoggedIn) {
-  //   return <Redirect href="/" />;
-  // }
-
   return (
-    <SafeAreaView 
-      className="bg-light-background dark:bg-dark-background h-full"
+    <ImageBackground
+      source={images.dark_background_vertical_2}
+      style={{
+        resizeMode: "cover",
+        overflow: "hidden",
+      }}
     >
-      <Header 
-        containerStyles = "px-5 pt-5 bg-dark-mauve rounded-3xl mx-5 md:mt-5"
-      />
-
-      <ScrollView>
-        { (setList.length === 0) && (
-          <Text>Loading...</Text>
-        )}
-        { (setList.length > 0) && (
-          <View className="flex-column w-full">
-            <SetSelector sets={setList} />
-          </View>
-        )}
-        
-      </ScrollView>
-      
-    </ SafeAreaView>
+      { (setList.length > 0) && (
+        <SetSelector sets={setList} />
+      )}
+    </ImageBackground>
   )
 };
 
