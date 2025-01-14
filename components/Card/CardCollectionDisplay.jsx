@@ -35,7 +35,7 @@ const CardCollectionDisplay = ({
   shadow = false, 
   favourite, 
   id,
-  triggerFavouriteSound 
+  handleFavouriteToggle 
 }) => {
   const frontCardFace = card.card_faces[0];
   const [ isFrontFacing, setIsFrontFacing ] = useState(true);
@@ -57,14 +57,14 @@ const CardCollectionDisplay = ({
 
   const imgUri = "image_jpg_normal";
 
-  const handleFavouriteToggle = async () => {
+  const triggerFavouriteToggle = async () => {
     try {
       if (isFavourite) {
         await axiosPrivate.put(`/users/${auth.username}/cards/favourites/remove/${id}`);
       } else {
         await axiosPrivate.put(`/users/${auth.username}/cards/favourites/add/${id}`);
       }
-      triggerFavouriteSound();
+      handleFavouriteToggle();
       setIsFavourite(!isFavourite);
     } catch (error) {
       await handleError(error);
@@ -142,7 +142,7 @@ const CardCollectionDisplay = ({
               {/* Favourite */}
               <TouchableOpacity 
                 style={styles.favourite}
-                onPress={() => handleFavouriteToggle()}
+                onPress={() => triggerFavouriteToggle()}
               >
                 { isFavourite && (
                   <MaterialCommunityIcons name="heart" size={24} color="#dc8a78" />

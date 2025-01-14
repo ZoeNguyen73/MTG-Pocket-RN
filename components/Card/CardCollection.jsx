@@ -7,7 +7,7 @@ import CardCollectionDisplay from "./CardCollectionDisplay";
 import { soundManager } from "../../utils/SoundManager";
 import { soundAssets } from "../../constants/sounds";
 
-const CardCollection = ({ cards, headerHeight }) => {
+const CardCollection = ({ cards, headerHeight, updateFavourite }) => {
   const { width } = useWindowDimensions();
   const favSoundRef = useRef(null);
 
@@ -32,7 +32,7 @@ const CardCollection = ({ cards, headerHeight }) => {
         favSoundRef.current = null;
       }
     };
-  }, [])
+  }, [cards])
 
   const playFavSound = async () => {
     try {
@@ -46,6 +46,11 @@ const CardCollection = ({ cards, headerHeight }) => {
     }
   };
 
+  const handleFavouriteToggle = async (id) => {
+    updateFavourite(id);
+    await playFavSound();
+  };
+
   return (
     <FlatList 
       data={cards}
@@ -57,9 +62,15 @@ const CardCollection = ({ cards, headerHeight }) => {
             height: headerHeight + 10,
             width: "100%"
           }}
-        >
-
-        </View>
+        />
+      }
+      ListFooterComponent={
+        <View
+          style={{
+            height: 90,
+            width: "100%"
+          }}
+        />
       }
       columnWrapperStyle={{
         flex: "row",
@@ -78,7 +89,7 @@ const CardCollection = ({ cards, headerHeight }) => {
             finalPrice={item.final_price}
             favourite={item.is_favourite}
             id={item._id}
-            triggerFavouriteSound={playFavSound}
+            handleFavouriteToggle={() => handleFavouriteToggle(item._id)}
           />
         )
       }}
