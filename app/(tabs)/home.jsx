@@ -1,5 +1,6 @@
-import { ImageBackground } from "react-native";
+import { ImageBackground, View } from "react-native";
 import React, { useState, useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuthContext } from "../../context/AuthProvider";
 
@@ -29,9 +30,16 @@ const Home = () => {
         overflow: "hidden",
       }}
     >
-      { (setList.length > 0) && (
-        <SetSelector sets={setList} />
-      )}
+      <SafeAreaView className="h-full">
+        <View className="px-2 mb-10">
+          <Header />
+        </View>
+        
+        { (setList.length > 0) && (
+          <SetSelector sets={setList} />
+        )}
+      </SafeAreaView>
+     
     </ImageBackground>
   )
 };

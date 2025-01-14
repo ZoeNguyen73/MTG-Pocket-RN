@@ -56,7 +56,7 @@ const TabsLayout = () => {
           tabBarPosition: width >= 1024 ? "left" : "bottom",
           tabBarStyle: {
             // backgroundColor: "#161a21",
-            height: width >= 1024 ? "100%" : 70,
+            height: width >= 1024 ? "100%" : 55,
             itemAlign: "center",
             display: "flex",
             paddingTop: width >= 1024 ? 20 : 4,
@@ -67,6 +67,7 @@ const TabsLayout = () => {
           tabBarBackground: () => (
             <BlurView tint="dark" intensity={100} style={StyleSheet.absoluteFill} />
           ),
+          tabBarShowLabel: false
         }}
       >
         <Tabs.Screen 
@@ -93,6 +94,21 @@ const TabsLayout = () => {
               <TabIcon 
                 name="Collection"
                 icon="book-open"
+                color={color}
+                focused={focused}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen 
+          name="social"
+          options={{
+            title: "Social",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon 
+                name="Social"
+                icon="users"
                 color={color}
                 focused={focused}
               />

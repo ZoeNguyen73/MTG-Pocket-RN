@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 
@@ -9,14 +9,23 @@ import { useThemeContext } from "../context/ThemeProvider";
 import tailwindConfig from "../tailwind.config";
 
 import Avatar from "./Avatar/Avatar";
+import Button from "./CustomButton/CustomButton";
 
 const AccountSettings = () => {
-  const { auth } = useAuthContext();
+  const { auth, logOut } = useAuthContext();
   const { theme } = useThemeContext();
+
+  const [ showConfirmPopup, setShowConfirmPopup ] = useState(false);
+
   const iconColor = theme === "dark"
     ? tailwindConfig.theme.extend.colors.dark.text
     : tailwindConfig.theme.extend.colors.light.text;
   const lightYellow = tailwindConfig.theme.extend.colors.light.yellow;
+
+  const handleLogOut = async () => {
+    await logOut();
+    router.replace("/")
+  };
 
   return (
     <View 
@@ -35,15 +44,9 @@ const AccountSettings = () => {
           size="small"
         />
 
-        <View className="flex-column grow">
-          <View className="flex-row gap-1 items-start">
-            <Text className="font-sans text-dark-text tracking-wide">
-              Greetings 👋
-            </Text>
-          </View>
-          
+        <View className="flex-column grow"> 
           { auth?.username && (
-            <Text className="font-serif-bold text-2xl text-light-sapphire tracking-wider">
+            <Text className="font-serif-bold text-3xl text-dark-mauve tracking-wider">
               {auth?.username}
             </Text>
           )}
@@ -63,7 +66,7 @@ const AccountSettings = () => {
               backgroundColor: "#FFFFFF80",
               marginRight: 5,
             }}
-            onPress={() => router.push("/log-in")}
+            onPress={() => setShowConfirmPopup(true)}
           >
             <Feather name="log-out" size={20} color={iconColor} />
           </TouchableOpacity>
@@ -81,6 +84,52 @@ const AccountSettings = () => {
           >
             <Feather name="log-in" size={20} color={iconColor} />
           </TouchableOpacity>
+        )}
+
+        {/* Log out confirmation Popup */}
+        { showConfirmPopup && (
+          <View
+            style={{
+              position: "absolute",
+              top: "300%",
+              left: "50%",
+              transform: [{ translateX: -150 }, { translateY: -100 }],
+              width: 300,
+              height: 150,
+              backgroundColor: "rgba(203, 166, 247, 0.95)",
+              borderRadius: 10,
+              justifyContent: "center",
+              alignItems: "center",
+              elevation: 5,
+              shadowColor: "black",
+              shadowOffset: { width: 0, height: 5 },
+              shadowOpacity: 0.2,
+              shadowRadius: 5,
+              borderBottomWidth: 6,
+              borderTopWidth: 1,
+              borderLeftWidth: 1,
+              borderRightWidth: 1,
+              borderColor: "black",
+              zIndex: 100,
+            }}
+          >
+            <Text className="font-mono-bold text-lg text-light-text tracking-wider">
+              Confirm to Log Out?
+            </Text>
+
+            <View className="flex-row gap-3 mt-3">
+              <Button 
+                title="Cancel"
+                handlePress={() => setShowConfirmPopup(false)}
+                variant="small-secondary"
+              />
+              <Button 
+                title="Confirm"
+                handlePress={handleLogOut}
+                variant="small-primary"
+              />
+            </View>
+          </View>
         )}
         
       </View>

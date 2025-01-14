@@ -44,25 +44,29 @@ const App = () => {
         `}
       >
         <View
-          className="h-[80vh] flex-col justify-center items-center"
+          className="h-[90vh] flex-col justify-center items-center"
         >
           <View className="justify-center items-center">
             <Image 
               source={logos.mtgDefaultLogo.path}
               style={{ 
-                width: breakpoint === "sm" ? width * 0.7 : 450,
-                height: (breakpoint === "sm" ? width * 0.7 : 450) / logos.mtgDefaultLogo.aspectRatio,
+                width: breakpoint === "sm" ? width * 0.8 : 450,
+                height: (breakpoint === "sm" ? width * 0.8 : 450) / logos.mtgDefaultLogo.aspectRatio,
               }}
               resizeMode="contain"
             />
           </View>
 
-          <View className="flex-column justify-center items-center mt-4">
-            <Text className="text-dark-text font-sans text-2xl">
-              Welcome to
-            </Text>
-            <Text className="text-dark-text font-sans-bold text-2xl">
-              Magic The Gathering Pocket
+          <View className="flex-column justify-center items-center pl-4 mb-10">
+            <Text 
+              className="text-light-background font-serif-bold text-4xl"
+              style={{
+                textShadowColor: "rgba(0, 0, 0, 0.60)",
+                textShadowOffset: {width: -1, height: 1},
+                textShadowRadius: 10
+              }}
+            >
+              Pocket Edition
             </Text>
           </View>
 
@@ -78,8 +82,11 @@ const App = () => {
         </View>
 
         <StatusBar 
-          backgroundColor={`${ theme === "dark" ? darkBackgroundColor : lightBackgroundColor }`} 
-          style={`${ theme === "dark" ? "light" : "dark"}`}
+          // backgroundColor={`${ theme === "dark" ? darkBackgroundColor : lightBackgroundColor }`} 
+          // style={`${ theme === "dark" ? "light" : "dark"}`}
+          style="light"
+          backgroundColor="transparent"
+          translucent={true}
         />
 
       </SafeAreaView>

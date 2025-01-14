@@ -98,7 +98,7 @@ const SoundSettings = () => {
         <Text 
           className="flex-1 font-sans-semibold text-2xl tracking-wide"
           style={{
-            color: bgMusicPlaying ? lightYellow : darkText
+            color: bgMusicPlaying ? lightYellow : "#9ca0b0"
           }}
         >
           Background Music
