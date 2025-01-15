@@ -18,6 +18,7 @@ import { Audio } from "expo-av";
 import axios from "../../api/axios";
 
 import tailwindConfig from "../../tailwind.config";
+import { getFonts } from "../../utils/FontFamily";
 import { soundManager } from "../../utils/SoundManager";
 import { soundAssets } from "../../constants/sounds";
 
@@ -34,6 +35,8 @@ const zoomOut = {
   0: { scale: 1 },
   1: { scale: 0.85 },
 };
+
+const fonts = getFonts();
 
 const SetCard = ({ activeSetId, set, lastSetId }) => {
   const [ selected, setSelected ] = useState(false);
@@ -187,7 +190,10 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
               borderColor: "black"
             }}
           >
-            <Text className="font-mono-bold text-lg text-light-text tracking-wider">
+            <Text 
+              className="font-mono-bold text-lg text-light-text tracking-wider"
+              style={{ fontFamily: fonts.monoBold }}
+            >
               Open this pack?
             </Text>
 
@@ -279,7 +285,10 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
           }}
           onPress={() => router.push(`/pack/play-booster/${set.code}`)}
         >
-          <Text className="text-base font-sans tracking-wide">
+          <Text 
+            className="text-base font-sans tracking-wide"
+            style={{ fontFamily: fonts.sans }}
+          >
             Open
           </Text>
         </TouchableOpacity>
@@ -351,6 +360,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
               <View className="flex-row flex-wrap w-full gap-2 items-center mb-1 flex-1">
                 <Text
                   className="font-mono-bold text-lg text-light-text tracking-wider flex-1"
+                  // style={{ fontFamily: fonts.monoBold }}
                 >
                   {set.details?.name}
                 </Text>
@@ -360,6 +370,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
               <View className="mb-1">
                 <Text
                   className="font-sans-light text-xs text-light-text tracking-wide"
+                  style={{ fontFamily: fonts.sansLight}}
                 >
                   Most popular cards from this set:
                 </Text>
@@ -590,7 +601,7 @@ const SetSelector = ({ sets }) => {
 
       </View>
       <Text
-        className="mb-5 text-center font-serif-bold text-3xl text-light-yellow tracking-wider"
+        className="mb-5 text-center font-serif-bold text-3xl text-dark-green tracking-wider"
         style={{
           textShadowColor: "#00000080",
           textShadowOffset: {

@@ -2,6 +2,7 @@ import { View, Text, TextInput, Image, TouchableOpacity, Platform, useWindowDime
 import React, { useState } from "react";
 
 import tailwindConfig from "../../tailwind.config";
+import { getFonts } from "../../utils/FontFamily";
 import { useThemeContext } from "../../context/ThemeProvider";
 
 import { icons } from "../../constants";
@@ -30,10 +31,15 @@ const FormField = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
+  const fonts = getFonts();
+
   return (
     <View className={`space-y-1 ${otherStyles}`}>
 
-      <Text className="font-sans-semibold text-sm text-dark-text tracking-wide">
+      <Text 
+        className="font-sans-semibold text-sm text-dark-text tracking-wide"
+        style={{ fontFamily: fonts.sansSemibold}}
+      >
         {title}
       </Text>
 

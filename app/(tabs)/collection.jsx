@@ -1,9 +1,8 @@
-import { ImageBackground, Text, View, TouchableOpacity, FlatList } from "react-native";
-import { useState, useEffect } from "react";
+import { ImageBackground, Text, View, TouchableOpacity, Modal } from "react-native";
+import { useState, useEffect, useRef } from "react";
 import { router, Link } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import DropDownPicker from "react-native-dropdown-picker";
 import { SvgUri } from "react-native-svg";
 
@@ -13,16 +12,17 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 import { images } from "../../constants";
 import tailwindConfig from "../../tailwind.config";
+import { getFonts } from "../../utils/FontFamily";
 
 import Button from "../../components/CustomButton/CustomButton";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import CardCollection from "../../components/Card/CardCollection";
 
+const fonts = getFonts();
+
 const SetSelectionDropdown = ({ 
   setOptions,
   setSetOptions, 
-  // open, 
-  // setOpen, 
   selectedSet,
   setSelectedSet,
   handleChangeSetOption 
@@ -30,12 +30,10 @@ const SetSelectionDropdown = ({
 
   const lightText = tailwindConfig.theme.extend.colors.light.text;
   const lightBackground = tailwindConfig.theme.extend.colors.light.background;
-  const textFont = tailwindConfig.theme.fontFamily.sans[0];
 
   const [ open, setOpen ] = useState(false);
 
   useEffect(() => {
-    console.log("Dropdown mounting...")
   }, [])
 
   return (
@@ -58,7 +56,6 @@ const SetSelectionDropdown = ({
         alignItems: "center"
       }}
       listMode="MODAL"
-      // modalAnimationType="slide"
       modalProps={{
         animationType: "slide",
       }}
@@ -76,7 +73,7 @@ const SetSelectionDropdown = ({
       }}
       textStyle={{
         color: lightText,
-        fontFamily: textFont,
+        fontFamily: fonts.sans,
         fontSize: 14,
         numberOfLines: 1
       }}
@@ -96,8 +93,6 @@ const StickyHeader = ({
   height, 
   cardCount, 
   totalValue,
-  // dropdownOpen,
-  // setDropdownOpen,
   setOptions,
   setSetOptions,
   selectedSet,
@@ -119,7 +114,10 @@ const StickyHeader = ({
       }}
     >
       <View>
-        <Text className="mt-16 text-center font-serif-semibold tracking-wide text-light-yellow text-3xl">
+        <Text 
+          className="mt-16 text-center font-serif-semibold tracking-wide text-light-yellow text-3xl"
+          style={{ fontFamily: fonts.serifSemibold }}
+        >
           My Cards
         </Text>
       </View>
@@ -127,13 +125,19 @@ const StickyHeader = ({
       <View className="pl-6 pr-6 mt-5 flex-row gap-3 items-end" style={{ height: 32 }}>
         <View className="flex-row gap-1">
           <MaterialCommunityIcons name="cards-outline" size={22} color="white" />
-          <Text className="font-sans-semibold tracking-wide text-dark-text">
+          <Text 
+            className="font-sans-semibold tracking-wide text-dark-text"
+            style={{ fontFamily: fonts.sansSemibold }}
+          >
             {cardCount}
           </Text>
         </View>
         <View className="flex-row justify-center pr-5">
           <Feather name="dollar-sign" size={22} color="white" />
-          <Text className="font-sans-semibold tracking-wide text-dark-text">
+          <Text 
+            className="font-sans-semibold tracking-wide text-dark-text"
+            style={{ fontFamily: fonts.sansSemibold }}
+          >
             {totalValue.toFixed(2)}
           </Text>
         </View>
@@ -143,40 +147,198 @@ const StickyHeader = ({
             <SetSelectionDropdown 
               setOptions={setOptions}
               setSetOptions={setSetOptions} 
-              // open={dropdownOpen} 
-              // setOpen={setDropdownOpen} 
               selectedSet={selectedSet}
               setSelectedSet={setSelectedSet}
               handleChangeSetOption={handleChangeSetOption} 
             />
           )}
         </View>
-          
-        {/* <TouchableOpacity 
-          style={{
-            height: "100%",
-            width: 32,
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
-          <Feather name="filter" size={22} color="white" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={{
-            height: "100%",
-            width: 32,
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
-          <FontAwesome name="sort" size={22} color="white" />
-        </TouchableOpacity> */}
 
       </View>
       
     </View>
+  )
+};
+
+const SortOptionsModal = ({ 
+  modalVisible, 
+  setModalVisible, 
+  sortType, 
+  sortDirection, 
+  setSortType, 
+  setSortDirection,
+  sortIconMapping 
+}) => {
+
+  const darkYellow = tailwindConfig.theme.extend.colors.light["dark-yellow"];
+
+  const typeRef = useRef(sortType);
+  const directionRef = useRef(sortDirection);
+
+  const handleChangeSortOption = (selectedSortType) => {
+    if (selectedSortType !== sortType) {
+      typeRef.current = selectedSortType;
+      setSortType(selectedSortType);
+    } else {
+      if (sortDirection === "asc") {
+        directionRef.current = "desc";
+        setSortDirection("desc");
+      } else {
+        directionRef.current = "asc";
+        setSortDirection("asc");
+      }
+    }
+    setTimeout(() => { setModalVisible(false) }, 800);
+  };
+
+  return (
+    <Modal 
+      animationType="slide"
+      visible={modalVisible}
+      onRequestClose={() => {
+        setModalVisible(false);
+      }}
+      onDismiss={() => {
+        setModalVisible(false);
+      }}
+      transparent={true}
+    >
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "flex-end",
+        }}
+      >
+        <View className="pl-5 pr-5 pt-8 h-1/2 bg-light-background">
+          <View className="flex-row items-center">
+            <Text 
+              className="flex-1 font-sans text-lg tracking-wide"
+              style={{
+                fontFamily: fonts.sans
+              }}
+            >
+              Sort by
+            </Text>
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+            >
+              <Feather name="x" size={28} color="black" />
+            </TouchableOpacity>
+          </View>
+          
+          <View
+            style={{
+              height: 1,
+              borderTopWidth: 1,
+              borderColor: "black",
+              width: "100%",
+              marginTop: 10,
+              paddingTop: 15,
+              paddingBottom: 15
+            }}
+          />
+          <View className="flex-column gap-4 items-end">
+            { Object.keys(sortIconMapping).map(key => (
+              <TouchableOpacity
+                key={key}
+                className="flex-row justify-end w-[100%] gap-2 items-center pr-5 pt-2 pb-2"
+                style={{ 
+                  backgroundColor: typeRef.current === key ? tailwindConfig.theme.extend.colors.dark.yellow : "transparent", 
+                  borderRadius: 8 
+                }}
+                onPress={() => handleChangeSortOption(key)}
+              >
+                <Text className="text-lg tracking-wide"
+                  style={{
+                    fontFamily: typeRef.current === key ? fonts.sansBold : fonts.sans,
+                    color: typeRef.current === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text
+                  }}
+                >
+                  {key}
+                </Text>
+                <MaterialCommunityIcons  
+                  name={sortIconMapping[key]} 
+                  size={25} 
+                  color={typeRef.current === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text}
+                />
+                { typeRef.current === key && directionRef.current === "asc" && (
+                  <Feather name="arrow-up" size={25} color="black"/>
+                )}
+                { typeRef.current === key && directionRef.current === "desc" && (
+                  <Feather name="arrow-down" size={25} color="black"/>
+                )}
+                { typeRef.current !== key && (
+                  <View style={{ width: 25 }}/>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+        </View>
+      </View>
+      
+    </Modal>
+  )
+};
+
+const SortButton = ({ 
+  sortType, 
+  setSortType, 
+  sortDirection, 
+  setSortDirection, 
+  sortIconName,
+  sortIconMapping 
+}) => {
+  const [ modalVisible, setModalVisible ] = useState(false);
+  return (
+    <>
+      <View
+        style={{
+          position: "absolute",
+          right: 20,
+          bottom: 100,
+          height: 40,
+          width: 80,
+          backgroundColor: "#FFFFFF",
+          borderRadius: 20,
+          shadowColor: "#000000",
+          shadowOffset: {width: 0, height: 1},
+          shadowRadius: 5,
+          elevation: 5
+        }}
+      >
+        <TouchableOpacity 
+          style={{
+            height: "100%",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={() => setModalVisible(true)}
+        >
+          <View className="flex-row justify-center items-center">
+            <MaterialCommunityIcons name={sortIconName} size={25} color="black" />
+            { sortDirection === "asc" && (
+              <Feather name="arrow-up" size={25} color="black"/>
+            )}
+            { sortDirection === "desc" && (
+              <Feather name="arrow-down" size={25} color="black"/>
+            )}
+          </View>
+          
+        </TouchableOpacity>
+      </View>
+      <SortOptionsModal 
+        modalVisible={modalVisible} 
+        setModalVisible={setModalVisible} 
+        sortType={sortType} 
+        sortDirection={sortDirection} 
+        setSortType={setSortType}  
+        setSortDirection={setSortDirection} 
+        sortIconMapping={sortIconMapping} 
+      />
+    </>
+    
   )
 };
 
@@ -190,22 +352,30 @@ const Collection = () => {
   const [ isLoading, setIsLoading ] = useState(false);
   const [ setOptions, setSetOptions ] = useState([{ value: "all", label: "All Sets"}]);
   const [ selectedSet, setSelectedSet ] = useState("all");
-  // const [ dropdownOpen, setDropdownOpen] = useState(false);
+  const [ sortType, setSortType ] = useState("time");
+  const [ sortDirection, setSortDirection ] = useState("desc");
   const [ filteredCardList, setFilteredCardList ] = useState([]);
 
-  const headerHeight = 150; 
+  const headerHeight = 150;
+  
+  const sortIconMapping = {
+    "time": "clock-outline",
+    "alphabetical": "alphabetical",
+    "quantity": "numeric",
+    "price": "gold",
+    "rarity": "star",
+  };
 
   useEffect(() => {
-    console.log("useEffect triggered...");
     const getUserCardsData = async () => {
       try {
-        console.log("getUserCardsData...");
         setIsLoading(true);
         const response = await axiosPrivate.get(`/users/${auth.username}/cards`);
         let totalPrice = 0;
+        const rawCardData = response.data.user_cards;
         const sets = [];
         const options = [];
-        for (const card of response.data.user_cards) {
+        for (const card of rawCardData) {
           const value = card.quantity * card.final_price;
           totalPrice += value;
           const setCode = card.card_id.set_id.code;
@@ -219,7 +389,13 @@ const Collection = () => {
             sets.push(setCode);
           }
         }
-        setCardList(response.data.user_cards);
+
+        // by default, sort by latest_add_time in desc order
+        rawCardData.sort((a, b) => {
+          return Date.parse(b.latest_add_time) - Date.parse(a.latest_add_time);
+        });
+
+        setCardList(rawCardData);
         setSetOptions([{ value: "all", label: "All Sets"}, ...options]);
         setTotalValue(totalPrice);
       } catch (error) {
@@ -261,8 +437,6 @@ const Collection = () => {
             height={headerHeight} 
             cardCount={cardList.length} 
             totalValue={totalValue}
-            // dropdownOpen={dropdownOpen}
-            // setDropdownOpen={setDropdownOpen}
             setOptions={setOptions}
             setSetOptions={setSetOptions}
             selectedSet={selectedSet}
@@ -273,6 +447,14 @@ const Collection = () => {
             cards={selectedSet === "all" ? cardList : filteredCardList } 
             headerHeight={headerHeight}
             updateFavourite={updateFavourite} 
+          />
+          <SortButton 
+            sortType={sortType}
+            sortIconName={sortIconMapping[sortType]}
+            setSortType={setSortType}
+            sortDirection={sortDirection}
+            setSortDirection={setSortDirection}
+            sortIconMapping={sortIconMapping}
           />
         </View>
       )}

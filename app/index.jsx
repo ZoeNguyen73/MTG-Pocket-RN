@@ -8,11 +8,14 @@ import { useThemeContext } from "../context/ThemeProvider";
 
 import tailwindConfig from "../tailwind.config";
 import { getBreakpoint } from "../utils/Breakpoints";
+import { getFonts } from "../utils/FontFamily";
 import { soundManager } from "../utils/SoundManager";
 
 import { logos, images } from "../constants";
 
 import Button from "../components/CustomButton/CustomButton";
+
+const fonts = getFonts();
 
 const App = () => {
   const { theme } = useThemeContext();
@@ -63,7 +66,8 @@ const App = () => {
               style={{
                 textShadowColor: "rgba(0, 0, 0, 0.60)",
                 textShadowOffset: {width: -1, height: 1},
-                textShadowRadius: 10
+                textShadowRadius: 10,
+                fontFamily: fonts.serifBold,
               }}
             >
               Pocket Edition
@@ -77,8 +81,8 @@ const App = () => {
             icon
           />
 
-          <Link href="/log-in" style={{padding: 5}}>Go to Log in</Link>
-          <Link href="/register" style={{padding: 5}}>Go to Register</Link>
+          <Link href="/log-in" style={{padding: 5, fontFamily: fonts.sans}}>Go to Log in</Link>
+          <Link href="/register" style={{padding: 5, fontFamily: fonts.sans}}>Go to Register</Link>
         </View>
 
         <StatusBar 

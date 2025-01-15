@@ -65,6 +65,9 @@ const Button = ({
       <View className="justify-center items-center flex-row">
         <Text
           className={`${textColor} ${textSize} font-sans-semibold tracking-wider`}
+          style={{
+            fontFamily: tailwindConfig.theme.fontFamily["sans-semibold"][0]
+          }}
         >
           {title}
         </Text>

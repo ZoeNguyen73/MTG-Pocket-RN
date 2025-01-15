@@ -7,6 +7,7 @@ import { useAuthContext } from "../context/AuthProvider";
 import { useThemeContext } from "../context/ThemeProvider";
 
 import tailwindConfig from "../tailwind.config";
+import { getFonts } from "../utils/FontFamily";
 import { logos } from "../constants";
 
 import Avatar from "./Avatar/Avatar";
@@ -14,6 +15,7 @@ import Avatar from "./Avatar/Avatar";
 const Header = () => {
   const { auth } = useAuthContext();
   const { theme } = useThemeContext();
+  const fonts = getFonts();
   const iconColor = theme === "dark"
     ? tailwindConfig.theme.extend.colors.dark.text
     : tailwindConfig.theme.extend.colors.light.text;
@@ -38,8 +40,11 @@ const Header = () => {
             }}
           >
             <View className="flex-row flex-nowrap gap-2.5 items-center mx-4">
-              <Text className="flex-1 font-sans text-base text-dark-text tracking-wider">
-                Log in to save cards to your own collection
+              <Text 
+                className="flex-1 font-sans text-base text-dark-text tracking-wide" 
+                style={{ fontFamily: fonts.sans }}
+              >
+                Log in to save cards to your collection
               </Text>
               <TouchableOpacity
                 className="justify-center items-center w-[30px] h-[30px]"
@@ -91,7 +96,9 @@ const Header = () => {
                     }}
                   />
                 </View>
-                <Text className="text-dark-text font-sans tracking-wide">
+                <Text className="text-dark-text tracking-wider"
+                  style={{ fontFamily: fonts.serif }}
+                >
                   150
                 </Text>
               </View>

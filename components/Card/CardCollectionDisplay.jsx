@@ -7,6 +7,8 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useErrorHandler } from "../../context/ErrorHandlerProvider";
 import { useAuthContext } from "../../context/AuthProvider";
 
+import { getFonts } from "../../utils/FontFamily";
+
 const START_DEFAULT = { x: 0.5, y: 0 };
 const END_DEFAULT = { x: 0.5, y: 1 };
 
@@ -25,6 +27,8 @@ const GRADIENT_COLORS = [
   "rgba(251, 7, 217, 0.5) 100%",
   // "rgba(255, 0, 0, 0.1) 100%"
 ];
+
+const fonts = getFonts();
 
 const CardCollectionDisplay = ({ 
   card, 
@@ -45,8 +49,8 @@ const CardCollectionDisplay = ({
   const { handleError } = useErrorHandler();
   const { auth } = useAuthContext();
 
-  console.log("card: " + card.card_faces[0].name);
-  console.log("finish: " + finish + ", quantity: " + quantity);
+  // console.log("card: " + card.card_faces[0].name);
+  // console.log("finish: " + finish + ", quantity: " + quantity);
 
   const [gradientOptions, setGradientOptions] = useState({
     colors: GRADIENT_COLORS,
@@ -166,7 +170,7 @@ const CardCollectionDisplay = ({
                   >
                     <Text 
                       className="font-sans-semibold text-xs"
-                      style={{ color: "#FFFFFF", paddingLeft: 4 }}
+                      style={{ color: "#FFFFFF", paddingLeft: 4, fontFamily: fonts.sansSemibold }}
                     >
                       {quantity}
                     </Text>
@@ -181,7 +185,7 @@ const CardCollectionDisplay = ({
                   >
                     <Text 
                       className="text-center font-sans-semibold text-xs"
-                      style={{ color: "#FFFFFF" }}
+                      style={{ color: "#FFFFFF", fontFamily: fonts.sansSemibold }}
                     >
                       {`$ ${finalPrice}`}
                     </Text>
