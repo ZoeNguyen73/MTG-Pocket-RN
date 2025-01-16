@@ -306,24 +306,34 @@ const CardSwiper = ({ cards, setCode }) => {
           <View className="flex-1 mt-5" style={{ position: "relative", overflow: "visible" }}>
             
             <View className="flex-row px-10 items-center">
-              <View 
-                className="rounded-full bg-light-mauve justify-center items-center px-3 py-1"
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 3.84,
-                  elevation: 5,
-                }}
-              >
-                <Text className="font-sans-semibold tracking-wide text-base text-dark-text">
-                  New!
-                </Text>
-              </View>
+            { counter <= cards.length && cards[counter - 1].is_new && (
+              // <View 
+              //   className="rounded-full bg-light-mauve justify-center items-center px-3 py-1"
+              //   style={{
+              //     shadowColor: "#000",
+              //     shadowOffset: {
+              //       width: 0,
+              //       height: 2,
+              //     },
+              //     shadowOpacity: 0.5,
+              //     shadowRadius: 3.84,
+              //     elevation: 5,
+              //   }}
+              // >
+              //   <Text className="font-sans-semibold tracking-wide text-base text-dark-text">
+              //     New!
+              //   </Text>
+              // </View>
+              <ZoomOutText 
+                backgroundColor={tailwindConfig.theme.extend.colors.light.mauve}
+                textStyle="text-left text-base tracking-wide text-dark-text font-sans-semibold"
+                content="New!"
+                counter={counter}
+              />
+            )}
+              
               <View className="flex-1"></View>
+
               <View>
                 { counter <= cards.length && parseFloat(cards[counter - 1 ].final_price) < PRICE_HIGHLIGHT_THRESHOLD && (
                   <View 
