@@ -25,8 +25,11 @@ const AuthLayout = () => {
       </Stack>
 
       <StatusBar 
-        backgroundColor={`${ theme === "dark" ? darkBackgroundColor : lightBackgroundColor }`} 
-        style={`${ theme === "dark" ? "light" : "dark"}`}
+        // backgroundColor={`${ theme === "dark" ? darkBackgroundColor : lightBackgroundColor }`} 
+        // style={`${ theme === "dark" ? "light" : "dark"}`}
+        style="light"
+        backgroundColor="transparent"
+        translucent={true}
       />
     </>
   )

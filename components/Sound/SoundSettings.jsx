@@ -95,7 +95,12 @@ const SoundSettings = () => {
     <View className="px-4 py-8 h-full">
       {/* Background Music Controls */}
       <View className="flex-row gap-2 justify-center items-center">
-        <Text className="flex-1 font-sans-semibold text-2xl text-light-yellow tracking-wide">
+        <Text 
+          className="flex-1 font-sans-semibold text-2xl tracking-wide"
+          style={{
+            color: bgMusicPlaying ? lightYellow : "#9ca0b0"
+          }}
+        >
           Background Music
         </Text>
         <View
@@ -157,7 +162,7 @@ const SoundSettings = () => {
               minHeight: 28,
               borderRadius: 14,
             }}
-
+            listMode="SCROLLVIEW"
             dropDownContainerStyle={{ 
               backgroundColor: lightBackground, 
             }}
@@ -235,7 +240,7 @@ const SoundSettings = () => {
       )}
 
       {/* Sfx Controls */}
-      <View className="mt-20">
+      <View className="mt-12">
         <Text className="font-sans-semibold text-2xl text-light-yellow tracking-wide">
           Sound Effects
         </Text>

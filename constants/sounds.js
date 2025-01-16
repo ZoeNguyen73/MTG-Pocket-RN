@@ -9,4 +9,5 @@ export const soundAssets = {
   "charming-twinkle": require("../assets/sounds/charming-twinkle.mp3"),
   "game-bonus": require("../assets/sounds/game-bonus.mp3"),
   "magic-3": require("../assets/sounds/magic-3.mp3"),
+  "fantasy_ui_button_6": require("../assets/sounds/fantasy_ui_button_6.mp3"),
 };

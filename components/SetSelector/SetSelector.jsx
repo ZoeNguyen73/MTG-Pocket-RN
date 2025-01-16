@@ -18,6 +18,7 @@ import { Audio } from "expo-av";
 import axios from "../../api/axios";
 
 import tailwindConfig from "../../tailwind.config";
+import { getFonts } from "../../utils/FontFamily";
 import { soundManager } from "../../utils/SoundManager";
 import { soundAssets } from "../../constants/sounds";
 
@@ -34,6 +35,8 @@ const zoomOut = {
   0: { scale: 1 },
   1: { scale: 0.85 },
 };
+
+const fonts = getFonts();
 
 const SetCard = ({ activeSetId, set, lastSetId }) => {
   const [ selected, setSelected ] = useState(false);
@@ -112,7 +115,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
       animation={activeSetId === set.code ? zoomIn : zoomOut}
       duration={500}
     >
-      <View className="h-[450px] w-[200px] overflow-visible">
+      <View className="h-[400px] w-[200px] overflow-visible">
 
         {/* Glowing Highlight */}
         {activeSetId === set.code && (
@@ -143,7 +146,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
               source={set.play_booster_image}
               resizeMode="contain"
               style={{
-                maxHeight: 450,
+                maxHeight: 380,
                 width: "auto",
               }}
             />
@@ -155,7 +158,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
             source={set.play_booster_image}
             resizeMode="contain"
             style={{
-              maxHeight: 450,
+              maxHeight: 380,
               width: "auto",
             }}
           />
@@ -187,7 +190,10 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
               borderColor: "black"
             }}
           >
-            <Text className="font-mono-bold text-lg text-light-text tracking-wider">
+            <Text 
+              className="font-mono-bold text-lg text-light-text tracking-wider"
+              style={{ fontFamily: fonts.monoBold }}
+            >
               Open this pack?
             </Text>
 
@@ -279,7 +285,10 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
           }}
           onPress={() => router.push(`/pack/play-booster/${set.code}`)}
         >
-          <Text className="text-base font-sans tracking-wide">
+          <Text 
+            className="text-base font-sans tracking-wide"
+            style={{ fontFamily: fonts.sans }}
+          >
             Open
           </Text>
         </TouchableOpacity>
@@ -342,14 +351,16 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
 
             <View
               className="rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[25vh]
-              border border-b-8 border-black flex-column"
+              border border-b-4 flex-column"
               style={{
-                backgroundColor: "rgba(249, 226, 175, 0.4)"
+                backgroundColor: "rgba(249, 226, 175, 0.4)",
+                borderColor: "#00000020"
               }}
             >
               <View className="flex-row flex-wrap w-full gap-2 items-center mb-1 flex-1">
                 <Text
                   className="font-mono-bold text-lg text-light-text tracking-wider flex-1"
+                  // style={{ fontFamily: fonts.monoBold }}
                 >
                   {set.details?.name}
                 </Text>
@@ -359,6 +370,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
               <View className="mb-1">
                 <Text
                   className="font-sans-light text-xs text-light-text tracking-wide"
+                  style={{ fontFamily: fonts.sansLight}}
                 >
                   Most popular cards from this set:
                 </Text>
@@ -377,19 +389,19 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
               style={{
                 width: 0,
                 height: 0,
-                borderLeftWidth: 12,
-                borderRightWidth: 12,
-                borderTopWidth: 12,
+                borderLeftWidth: 10,
+                borderRightWidth: 10,
+                borderTopWidth: 10,
                 borderLeftColor: "transparent",
                 borderRightColor: "transparent",
                 borderTopColor: "rgba(249, 226, 175, 0.5)",
                 backgroundColor: "transparent",
                 position: "absolute",
-                bottom: -4,
+                bottom: -6,
                 zIndex: 2,
               }}
             />
-            <View
+            {/* <View
               style={{
                 width: 0,
                 height: 0,
@@ -404,7 +416,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
                 bottom: -6,
                 zIndex: 1,
               }}
-            />
+            /> */}
           </View>
         </Animatable.View>
       )}
@@ -577,18 +589,26 @@ const SetSelector = ({ sets }) => {
   }, [sets]);
 
   return (
-    <SafeAreaView className="h-full">
+    <View 
+      className="h-screen"
+      style={{
+        position: "absolute"
+      }}
+    >
+      <View
+        style={{ height: 130 }}
+      >
+
+      </View>
       <Text
-        className="mb-2 mt-20 text-center font-sans-bold text-2xl text-light-yellow tracking-wider"
+        className="mb-5 text-center font-serif-bold text-3xl text-dark-green tracking-wider"
         style={{
-          shadowColor: "black",
-          shadowOffset: {
+          textShadowColor: "#00000080",
+          textShadowOffset: {
             width: 0,
-            height: 12,
+            height: 1,
           },
-          shadowOpacity: 0.6,
-          shadowRadius: 6,
-          elevation: 6,
+          textShadowRadius: 6,
         }}
       >
         Open a Booster Pack
@@ -688,7 +708,7 @@ const SetSelector = ({ sets }) => {
               showsHorizontalScrollIndicator={false}
               style={{
                 width: "100%",
-                maxHeight: 340,
+                maxHeight: 360,
               }}
             >
               { activeSetTopCards.length > 0 && (
@@ -705,7 +725,7 @@ const SetSelector = ({ sets }) => {
                       />
 
                       <View
-                        className="bg-light-yellow rounded-full justify-center items-center w-[120px] py-1 px-2"
+                        className="bg-light-yellow rounded-full justify-center items-center w-[120px] pt-2 pb-1 px-2"
                       >
                         <Text className="font-sans-semibold tracking-wide text-light-text">
                           {`USD ${card.final_price}`}
@@ -734,7 +754,7 @@ const SetSelector = ({ sets }) => {
           </View>
       )}
       
-    </SafeAreaView>
+    </View>
     
   )
 

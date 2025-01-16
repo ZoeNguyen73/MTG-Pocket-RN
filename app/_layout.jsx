@@ -59,7 +59,11 @@ const RootLayout = () => {
   });
 
   useEffect(() => {
-    if (loaded || error) {
+    if (loaded) {
+      console.log("Fonts loaded successfully!");
+      SplashScreen.hideAsync();
+    } else if (error) {
+      console.error("Error loading fonts:", error);
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);

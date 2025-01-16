@@ -7,14 +7,14 @@ import tailwindConfig from "../../tailwind.config";
 
 import { avatars } from "../../constants";
 
-const Avatar = ({ avatarName, size, withoutBorder }) => {
+const Avatar = ({ avatarName, size, withoutBorder, shadow = false }) => {
   const { width } = useWindowDimensions();
   let dimension = width >= 1024 ? 100 : 80;
   let borderRadius = width >=1024 ? 50 : 40;
 
   if (size && size === "extra small") {
-    dimension = width >= 1024 ? 54 : 44; // 2.75rem 44px
-    borderRadius = width >= 1024 ? 27 : 22;
+    dimension = width >= 1024 ? 54 : 50; // 2.75rem 44px
+    borderRadius = width >= 1024 ? 27 : 25;
   } else if (size && size === "small") {
     dimension = width >= 1024 ? 80 : 60; // 4rem 64px
     borderRadius = width >= 1024 ? 40 : 30;
@@ -48,6 +48,11 @@ const Avatar = ({ avatarName, size, withoutBorder }) => {
         style={{
           width: dimension,
           height: dimension,
+          shadowColor: shadow ? "#000" : "transparent",
+          shadowOffset: { width: 0, height: 5 },
+          shadowOpacity: 1,
+          shadowRadius: 2,
+          elevation: 15,
         }}
       />
     </View>

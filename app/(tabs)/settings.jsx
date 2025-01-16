@@ -1,7 +1,8 @@
-import { ImageBackground, View, Text } from "react-native";
+import { ImageBackground, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import SoundSettings from "../../components/Sound/SoundSettings";
+import AccountSettings from "../../components/AccountSettings";
 
 import { images } from "../../constants";
 
@@ -17,7 +18,11 @@ const Settings = () => {
       <SafeAreaView 
         className="h-full py-4 px-4"
       >
-        <SoundSettings />
+        <ScrollView>
+          <AccountSettings />
+          <SoundSettings />
+        </ScrollView>
+        
         
       </ SafeAreaView>
     </ImageBackground> 

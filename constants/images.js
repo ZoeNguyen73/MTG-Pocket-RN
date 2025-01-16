@@ -12,9 +12,13 @@ import dark_background_vertical_8 from "../assets/images/dark_background_vertica
 import dark_background_vertical_9 from "../assets/images/dark_background_vertical_9.jpg";
 import dark_background_vertical_10 from "../assets/images/dark_background_vertical_10.jpg";
 import dark_background_vertical_11 from "../assets/images/dark_background_vertical_11.jpg";
+import FDN_Key_Art_Wallpaper_1040x1536 from "../assets/images/FDN_Key_Art_Wallpaper_1040x1536.jpg";
+import FDN_Bundle_Wallpaper_1040x1536 from "../assets/images/FDN_Bundle_Wallpaper_1040x1536.jpg";
 
 export default {
   foundations_1,
+  FDN_Key_Art_Wallpaper_1040x1536,
+  FDN_Bundle_Wallpaper_1040x1536,
   dark_background_vertical,
   dark_background_vertical_2,
   dark_background_vertical_3,
