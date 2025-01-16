@@ -165,9 +165,8 @@ const SortOptionsModal = ({
   setModalVisible, 
   sortType, 
   sortDirection, 
-  setSortType, 
-  setSortDirection,
-  sortIconMapping 
+  sortIconMapping,
+  handleChangeSorting 
 }) => {
 
   const darkYellow = tailwindConfig.theme.extend.colors.light["dark-yellow"];
@@ -178,17 +177,26 @@ const SortOptionsModal = ({
   const handleChangeSortOption = (selectedSortType) => {
     if (selectedSortType !== sortType) {
       typeRef.current = selectedSortType;
-      setSortType(selectedSortType);
+      handleChangeSorting({
+        sortType: selectedSortType,
+        sortDirection: directionRef.current,
+      });
     } else {
       if (sortDirection === "asc") {
         directionRef.current = "desc";
-        setSortDirection("desc");
+        handleChangeSorting({
+          sortType: typeRef.current,
+          sortDirection: "desc",
+        });
       } else {
         directionRef.current = "asc";
-        setSortDirection("asc");
+        handleChangeSorting({
+          sortType: typeRef.current,
+          sortDirection: "asc",
+        });
       }
     }
-    setTimeout(() => { setModalVisible(false) }, 800);
+    setTimeout(() => { setModalVisible(false) }, 500);
   };
 
   return (
@@ -283,11 +291,10 @@ const SortOptionsModal = ({
 
 const SortButton = ({ 
   sortType, 
-  setSortType, 
   sortDirection, 
-  setSortDirection, 
   sortIconName,
-  sortIconMapping 
+  sortIconMapping ,
+  handleChangeSorting
 }) => {
   const [ modalVisible, setModalVisible ] = useState(false);
   return (
@@ -333,9 +340,8 @@ const SortButton = ({
         setModalVisible={setModalVisible} 
         sortType={sortType} 
         sortDirection={sortDirection} 
-        setSortType={setSortType}  
-        setSortDirection={setSortDirection} 
-        sortIconMapping={sortIconMapping} 
+        sortIconMapping={sortIconMapping}
+        handleChangeSorting={handleChangeSorting} 
       />
     </>
     
@@ -363,7 +369,7 @@ const Collection = () => {
     "alphabetical": "alphabetical",
     "quantity": "numeric",
     "price": "gold",
-    "rarity": "star",
+    // "rarity": "star",
   };
 
   useEffect(() => {
@@ -418,6 +424,53 @@ const Collection = () => {
     }
   };
 
+  const handleChangeSorting = ({ sortType, sortDirection }) => {
+    let sortedCardList;
+    if (sortType === "time" && sortDirection === "desc") {
+      sortedCardList = cardList.slice().sort((a, b) => {
+        return Date.parse(b.latest_add_time) - Date.parse(a.latest_add_time);
+      });
+    } else if (sortType === "time" && sortDirection === "asc") {
+      sortedCardList = cardList.slice().sort((a, b) => {
+        return Date.parse(a.latest_add_time) - Date.parse(b.latest_add_time);
+      });
+    } else if (sortType === "alphabetical" && sortDirection === "desc") {
+      sortedCardList = cardList.slice().sort((a, b) => {
+        return a.card_id.card_faces[0].name.toLowerCase() < b.card_id.card_faces[0].name.toLowerCase() ?  1 : -1;
+      });
+    } else if (sortType === "alphabetical" && sortDirection === "asc") {
+      sortedCardList = cardList.slice().sort((a, b) => {
+        return a.card_id.card_faces[0].name.toLowerCase() < b.card_id.card_faces[0].name.toLowerCase() ?  -1 : 1;
+      });
+    } else if (sortType === "quantity" && sortDirection === "desc") {
+      sortedCardList = cardList.slice().sort((a, b) => {
+        return b.quantity - a.quantity;
+      });
+    } else if (sortType === "quantity" && sortDirection === "asc") {
+      sortedCardList = cardList.slice().sort((a, b) => {
+        return a.quantity - b.quantity;
+      });
+    } else if (sortType === "price" && sortDirection === "desc") {
+      sortedCardList = cardList.slice().sort((a, b) => {
+        return parseFloat(b.final_price) - parseFloat(a.final_price);
+      });
+    } else if (sortType === "price" && sortDirection === "asc") {
+      sortedCardList = cardList.slice().sort((a, b) => {
+        return parseFloat(a.final_price) - parseFloat(b.final_price);
+      });
+    }
+
+    if (selectedSet !== "all") {
+      const filteredCards = sortedCardList.filter((card) => card.card_id.set_id.code === selectedSet);
+      setFilteredCardList(filteredCards);
+    }
+
+    setCardList(sortedCardList);
+    setSortType(sortType);
+    setSortDirection(sortDirection); 
+
+  };
+
   const updateFavourite = (id) => {
     const index = cardList.findIndex(card => card._id === id);
     cardList[index].is_favourite = !cardList[index].is_favourite;
@@ -451,10 +504,9 @@ const Collection = () => {
           <SortButton 
             sortType={sortType}
             sortIconName={sortIconMapping[sortType]}
-            setSortType={setSortType}
             sortDirection={sortDirection}
-            setSortDirection={setSortDirection}
             sortIconMapping={sortIconMapping}
+            handleChangeSorting={handleChangeSorting}
           />
         </View>
       )}
