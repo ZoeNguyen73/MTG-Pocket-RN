@@ -2,6 +2,7 @@ import { View, Image, StyleSheet, Platform, TouchableOpacity, Text } from "react
 import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { router } from "expo-router";
 
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useErrorHandler } from "../../context/ErrorHandlerProvider";
@@ -48,9 +49,6 @@ const CardCollectionDisplay = ({
   const axiosPrivate = useAxiosPrivate();
   const { handleError } = useErrorHandler();
   const { auth } = useAuthContext();
-
-  // console.log("card: " + card.card_faces[0].name);
-  // console.log("finish: " + finish + ", quantity: " + quantity);
 
   const [gradientOptions, setGradientOptions] = useState({
     colors: GRADIENT_COLORS,
@@ -118,31 +116,36 @@ const CardCollectionDisplay = ({
                 />
               )}
               
-              <Image 
-                source={{ uri: frontCardFace[imgUri] }}
-                resizeMode="contain"
-                style={{
-                  width: shadow ? "98%" : "100%",
-                  height: shadow ? "98%" : "100%",
-                  borderRadius: maxWidth ? maxWidth * 0.07 : 16,
-                }}
-              />
-    
-              {/* Linear gradient overlay for foil or etched finish*/}
-              { (finish === "foil" || finish === "etched") 
-                && (
-                <>
-                  <LinearGradient 
-                    colors={gradientOptions.colors}
-                    locations={gradientOptions.locations}
-                    start={gradientOptions.start}
-                    end={gradientOptions.end}
-                    style={styles.gradientOverlay}
-                  />
-                </>
-              
-              )}
+              <TouchableOpacity
+                style={{ height: "100%", width: "100%" }}
+                onPress={() => router.push(`/card/${id}`)}
+              >
+                <Image 
+                  source={{ uri: frontCardFace[imgUri] }}
+                  resizeMode="contain"
+                  style={{
+                    width: shadow ? "98%" : "100%",
+                    height: shadow ? "98%" : "100%",
+                    borderRadius: maxWidth ? maxWidth * 0.07 : 16,
+                  }}
+                />
 
+                {/* Linear gradient overlay for foil or etched finish*/}
+                { (finish === "foil" || finish === "etched") 
+                  && (
+                  <>
+                    <LinearGradient 
+                      colors={gradientOptions.colors}
+                      locations={gradientOptions.locations}
+                      start={gradientOptions.start}
+                      end={gradientOptions.end}
+                      style={styles.gradientOverlay}
+                    />
+                  </>
+                
+                )}
+              </TouchableOpacity>
+    
               {/* Favourite */}
               <TouchableOpacity 
                 style={styles.favourite}

@@ -1,5 +1,5 @@
-import { ImageBackground, Text, View, TouchableOpacity, Modal } from "react-native";
-import { useState, useEffect, useRef } from "react";
+import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch } from "react-native";
+import { useState, useEffect } from "react";
 import { router, Link } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
@@ -17,6 +17,7 @@ import { getFonts } from "../../utils/FontFamily";
 import Button from "../../components/CustomButton/CustomButton";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import CardCollection from "../../components/Card/CardCollection";
+import SmallLoadingSpinner from "../../components/SmallLoadingSpinner";
 
 const fonts = getFonts();
 
@@ -97,8 +98,11 @@ const StickyHeader = ({
   setSetOptions,
   selectedSet,
   setSelectedSet,
-  handleChangeSetOption
+  handleChangeSetOption,
+  showFavourites,
+  setShowFavourites,
 }) => {
+  const lightYellow = tailwindConfig.theme.extend.colors.light.yellow;
   return (
     <View
       style={{
@@ -142,6 +146,35 @@ const StickyHeader = ({
           </Text>
         </View>
 
+        <View className="flex-1">
+
+        </View>
+        <Text
+          className="font-sans-semibold tracking-wide text-dark-text text-right"
+          style={{ fontFamily: fonts.sans }}
+        >
+          Show Favourites
+        </Text>
+        <View
+          style={{
+            justifyContent: "center", 
+            alignItems: "center",
+            height: 25 
+          }}
+        >
+          
+          <Switch
+            trackColor={{ false: '#767577', true: lightYellow }}
+            thumbColor={showFavourites? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={() => setShowFavourites(!showFavourites)}
+            value={showFavourites}
+            style={{ height: 15, width: 40}}
+          />
+        </View>
+
+      </View>
+      <View className="pl-6 pr-6 mt-2 flex-row gap-3 items-end" style={{ height: 32 }}>
         <View className="flex-1 justify-center">
           { setOptions.length > 0 && (
             <SetSelectionDropdown 
@@ -153,7 +186,6 @@ const StickyHeader = ({
             />
           )}
         </View>
-
       </View>
       
     </View>
@@ -166,38 +198,51 @@ const SortOptionsModal = ({
   sortType, 
   sortDirection, 
   sortIconMapping,
-  handleChangeSorting 
+  handleChangeSorting,
 }) => {
+
+  const [currentSortType, setCurrentSortType] = useState(sortType);
+  const [currentSortDirection, setCurrentSortDirection] = useState(sortDirection);
+  const [ isLoading, setIsLoading ] = useState(false);
 
   const darkYellow = tailwindConfig.theme.extend.colors.light["dark-yellow"];
 
-  const typeRef = useRef(sortType);
-  const directionRef = useRef(sortDirection);
-
-  const handleChangeSortOption = (selectedSortType) => {
-    if (selectedSortType !== sortType) {
-      typeRef.current = selectedSortType;
-      handleChangeSorting({
-        sortType: selectedSortType,
-        sortDirection: directionRef.current,
-      });
+  const handleUIUpdate = (selectedSortType, selectedSortDirection) => {
+    if (selectedSortType !== currentSortType) {
+      setCurrentSortType(selectedSortType);
     } else {
-      if (sortDirection === "asc") {
-        directionRef.current = "desc";
-        handleChangeSorting({
-          sortType: typeRef.current,
-          sortDirection: "desc",
-        });
-      } else {
-        directionRef.current = "asc";
-        handleChangeSorting({
-          sortType: typeRef.current,
-          sortDirection: "asc",
-        });
-      }
+      setCurrentSortDirection(selectedSortDirection);
     }
-    setTimeout(() => { setModalVisible(false) }, 500);
   };
+
+  const handleSortAndCloseModal = (selectedSortType, selectedSortDirection) => {
+    handleChangeSorting({
+      sortType: selectedSortType,
+      sortDirection: selectedSortDirection,
+    });
+    setTimeout(() => {
+      setIsLoading(false);
+      setModalVisible(false);
+    }, 10); // Slight delay for user to see the change before closing
+  };
+  
+  const handleChangeSortOption = async (selectedSortType) => {
+    setIsLoading(true);
+    let selectedSortDirection = currentSortDirection;
+    if (selectedSortType === currentSortType) {
+      selectedSortDirection = currentSortDirection === "asc" ? "desc" : "asc";
+    }
+    handleUIUpdate(selectedSortType, selectedSortDirection);
+    setTimeout(() => handleSortAndCloseModal(selectedSortType, selectedSortDirection), 20);
+  };
+
+  useEffect(() => {
+    // Keep the state in sync with props when modal opens
+    if (modalVisible) {
+      setCurrentSortType(sortType);
+      setCurrentSortDirection(sortDirection);
+    }
+  }, [modalVisible, sortType, sortDirection]);
 
   return (
     <Modal 
@@ -220,13 +265,17 @@ const SortOptionsModal = ({
         <View className="pl-5 pr-5 pt-8 h-1/2 bg-light-background">
           <View className="flex-row items-center">
             <Text 
-              className="flex-1 font-sans text-lg tracking-wide"
+              className="font-sans text-lg tracking-wide pr-2"
               style={{
                 fontFamily: fonts.sans
               }}
             >
               Sort by
             </Text>
+            {isLoading && (
+              <SmallLoadingSpinner />
+            )}
+            <View className="flex-1"></View>
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
             >
@@ -251,15 +300,15 @@ const SortOptionsModal = ({
                 key={key}
                 className="flex-row justify-end w-[100%] gap-2 items-center pr-5 pt-2 pb-2"
                 style={{ 
-                  backgroundColor: typeRef.current === key ? tailwindConfig.theme.extend.colors.dark.yellow : "transparent", 
+                  backgroundColor: currentSortType === key ? tailwindConfig.theme.extend.colors.dark.yellow : "transparent",
                   borderRadius: 8 
                 }}
                 onPress={() => handleChangeSortOption(key)}
               >
                 <Text className="text-lg tracking-wide"
                   style={{
-                    fontFamily: typeRef.current === key ? fonts.sansBold : fonts.sans,
-                    color: typeRef.current === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text
+                    fontFamily: currentSortType === key ? fonts.sansBold : fonts.sans,
+                    color: currentSortType === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text
                   }}
                 >
                   {key}
@@ -267,15 +316,16 @@ const SortOptionsModal = ({
                 <MaterialCommunityIcons  
                   name={sortIconMapping[key]} 
                   size={25} 
-                  color={typeRef.current === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text}
+                  // color={typeRef.current === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text}
+                  color={currentSortType === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text}
                 />
-                { typeRef.current === key && directionRef.current === "asc" && (
+                { currentSortType === key && currentSortDirection === "asc" && (
                   <Feather name="arrow-up" size={25} color="black"/>
                 )}
-                { typeRef.current === key && directionRef.current === "desc" && (
+                { currentSortType === key && currentSortDirection === "desc" && (
                   <Feather name="arrow-down" size={25} color="black"/>
                 )}
-                { typeRef.current !== key && (
+                { currentSortType !== key && (
                   <View style={{ width: 25 }}/>
                 )}
               </TouchableOpacity>
@@ -294,7 +344,7 @@ const SortButton = ({
   sortDirection, 
   sortIconName,
   sortIconMapping ,
-  handleChangeSorting
+  handleChangeSorting,
 }) => {
   const [ modalVisible, setModalVisible ] = useState(false);
   return (
@@ -341,7 +391,7 @@ const SortButton = ({
         sortType={sortType} 
         sortDirection={sortDirection} 
         sortIconMapping={sortIconMapping}
-        handleChangeSorting={handleChangeSorting} 
+        handleChangeSorting={handleChangeSorting}
       />
     </>
     
@@ -361,8 +411,9 @@ const Collection = () => {
   const [ sortType, setSortType ] = useState("time");
   const [ sortDirection, setSortDirection ] = useState("desc");
   const [ filteredCardList, setFilteredCardList ] = useState([]);
+  const [ showFavourites, setShowFavourites ] = useState(false);
 
-  const headerHeight = 150;
+  const headerHeight = 190;
   
   const sortIconMapping = {
     "time": "clock-outline",
@@ -425,7 +476,7 @@ const Collection = () => {
   };
 
   const handleChangeSorting = ({ sortType, sortDirection }) => {
-    let sortedCardList;
+    let sortedCardList = [];
     if (sortType === "time" && sortDirection === "desc") {
       sortedCardList = cardList.slice().sort((a, b) => {
         return Date.parse(b.latest_add_time) - Date.parse(a.latest_add_time);
@@ -474,7 +525,7 @@ const Collection = () => {
   const updateFavourite = (id) => {
     const index = cardList.findIndex(card => card._id === id);
     cardList[index].is_favourite = !cardList[index].is_favourite;
-  }; 
+  };
 
   return (
     <ImageBackground
@@ -494,12 +545,15 @@ const Collection = () => {
             setSetOptions={setSetOptions}
             selectedSet={selectedSet}
             setSelectedSet={setSelectedSet}
-            handleChangeSetOption={handleChangeSetOption} 
+            handleChangeSetOption={handleChangeSetOption}
+            showFavourites={showFavourites}
+            setShowFavourites={setShowFavourites} 
           />
           <CardCollection 
             cards={selectedSet === "all" ? cardList : filteredCardList } 
             headerHeight={headerHeight}
-            updateFavourite={updateFavourite} 
+            updateFavourite={updateFavourite}
+            showFavourites={showFavourites} 
           />
           <SortButton 
             sortType={sortType}

@@ -1,13 +1,6 @@
-import { View, Image, Platform, TouchableOpacity } from "react-native";
+import { View, Image, StyleSheet, Platform, TouchableOpacity, Animated } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, {
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 import Sparkles from "../Sparkles";
@@ -18,17 +11,13 @@ const END_DEFAULT = { x: 0.5, y: 1 };
 const GRADIENT_LOCATIONS = [0, 0.2, 0.4, 0.6, 0.8, 1, 1];
 
 const GRADIENT_COLORS = [
-  // "rgba(255, 0, 0, 0.1) 0%",
   "rgba(255, 154, 0, 0.2) 0%",
   "rgba(208, 222, 33, 0.3) 20%",
   "rgba(79, 220, 74, 0.5) 40%",
-  // "rgba(63, 218, 216, 0.5) 45%",
   "rgba(47, 201, 226, 0.3) 60%",
-  // "rgba(28, 127, 238, 0.2) 63%",
   "rgba(95, 21, 242, 0.5) 80%",
   "rgba(186, 12, 248, 0.5) 100%",
   "rgba(251, 7, 217, 0.5) 100%",
-  // "rgba(255, 0, 0, 0.1) 100%"
 ];
 
 const MOVEMENT = GRADIENT_LOCATIONS[1] / 20;
@@ -51,51 +40,50 @@ const CardDisplay = ({
   const { finish } = card;
   const isFirstCard = index !== null && currentIndex !== null && index === currentIndex;
 
-  const isFlipped = useSharedValue(false);
-  const duration = 500;
+  const [isFlipped, setIsFlipped] = useState(false);
+  const flipAnimation = useRef(new Animated.Value(0)).current // animated value for flip animation
 
   const handleFlip = () => {
-    console.log("handleFlip triggered");
-    // isFlipped.value = withTiming(isFlipped.value === 0 ? 1 : 0, { duration });
-    isFlipped.value = !isFlipped.value;
+    if(isFlipped) {
+      // animate back to the front side
+      Animated.spring(flipAnimation, {
+        toValue: 0,
+        friction: 8,
+        tension: 10,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // animate to the back side
+      Animated.spring(flipAnimation, {
+        toValue: 180,
+        friction: 8,
+        tension: 10,
+        useNativeDriver: true,
+      }).start();
+    }
+    setIsFlipped(!isFlipped);
   };
 
-  const frontCardAnimatedStyle = useAnimatedStyle(() => {
-    const spinValue = interpolate(Number(isFlipped.value), [0, 1], [0, 180]);
-    const rotateValue = withTiming(`${spinValue}deg`, { duration, easing: Easing.inOut(Easing.ease) });
-
-    return {
-      transform: [{ rotateY: rotateValue }],
-    };
+  // front card rotation
+  const frontInterpolate = flipAnimation.interpolate({
+    inputRange: [0, 180],
+    outputRange: ["0deg", "180deg"],
   });
 
-  const backCardAnimatedStyle = useAnimatedStyle(() => {
-    const spinValue = interpolate(Number(isFlipped.value), [0, 1], [180, 360]);
-    const rotateValue = withTiming(`${spinValue}deg`, { duration, duration, easing: Easing.inOut(Easing.ease) });
+  const flipToFrontStyle = {
+    transform: [{rotateY: frontInterpolate}]
+  };
 
-    return {
-      transform: [{ rotateY: rotateValue }],
-    };
+  // back card rotation
+  const backInterpolate = flipAnimation.interpolate({
+    inputRange: [0, 180],
+    outputRange: ["180deg", "360deg"],
   });
 
-  // Animated styles for the front and back cards
-  // const frontCardAnimatedStyle = useAnimatedStyle(() => {
-  //   const rotateY = interpolate(isFlipped.value, [0, 1], [0, 180]);
-  //   return {
-  //     transform: [{ rotateY: `${rotateY}deg` }],
-  //     backfaceVisibility: "hidden",
-  //   };
-  // });
-
-  // const backCardAnimatedStyle = useAnimatedStyle(() => {
-  //   const rotateY = interpolate(isFlipped.value, [0, 1], [180, 360]);
-  //   return {
-  //     transform: [{ rotateY: `${rotateY}deg` }],
-  //     backfaceVisibility: "hidden",
-  //   };
-  // });
+  const flipToBackStyle = {
+    transform: [{rotateY: backInterpolate}]
+  };
   
-
   const [gradientOptions, setGradientOptions] = useState({
     colors: GRADIENT_COLORS,
     locations: GRADIENT_LOCATIONS,
@@ -165,23 +153,21 @@ const CardDisplay = ({
       { Platform.OS !== "web" && (
         <View
           style={[
+            styles.shadowContainer,
             {
               width: maxWidth ? maxWidth : "100%",
               aspectRatio: 488 / 680,
               borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-              alignSelf: "center",
-              overflow: "visible", // Allows shadow to render outside bounds
-              position: "relative",
             },
           ]}
         >
 
           <View 
             style={{ 
-              width: "100%",  
+              width: "100%", 
+              height: "100%", 
               borderRadius: maxWidth ? maxWidth * 0.07 : 15,
               overflow: "visible",
-              position: "relative"
             }}
           >
             { shadow && (
@@ -226,16 +212,18 @@ const CardDisplay = ({
               && enableFlip 
               && ( index === null || isFirstCard )
               && (
-              <Animated.View 
+              <Animated.View
                 style={[
                   { 
-                    // position: "absolute",
+                    position: "absolute",
                     width: "100%", 
                     height: "100%",
-                    zIndex: 1,  
+                    justifyContent: "center",
+                    alignItems: "center",
+                    // zIndex: 1,  
                     backfaceVisibility: "hidden" 
-                  }, 
-                  frontCardAnimatedStyle
+                  },
+                  flipToFrontStyle
                 ]}
               >
                 <Image
@@ -255,16 +243,17 @@ const CardDisplay = ({
               && enableFlip 
               && ( index === null || isFirstCard )
               && (
-              <Animated.View 
+              <Animated.View
                 style={[
                   { 
                     position: "absolute",
                     width: "100%", 
                     height: "100%",
-                    zIndex: 2,
+                    justifyContent: "center",
+                    alignItems: "center",
                     backfaceVisibility: "hidden" 
                   }, 
-                  backCardAnimatedStyle
+                  flipToBackStyle
                 ]}
               >
                 <Image
@@ -285,22 +274,9 @@ const CardDisplay = ({
               && (
               <TouchableOpacity
                 onPress={() => {
-                  console.log("button pressed");
                   handleFlip();
                 }}
-                style={{
-                  position: "absolute",
-                  opacity: 0.8,
-                  height: 50,
-                  width: 50,
-                  right: 20,
-                  bottom: 50,
-                  borderRadius: 25,
-                  backgroundColor: "white",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 120,
-                }}
+                style={styles.flipButton}
               >
                 <FontAwesome6 name="rotate" size={24} color="black" />
               </TouchableOpacity>
@@ -355,7 +331,7 @@ const CardDisplay = ({
             {
               width: size && size === "small" ? maxWidth : "100%",
               aspectRatio: 488 / 680,
-              borderRadius: maxWidth ? maxWidth * 0.07 : 15,
+              borderRadius: maxWidth * 0.07,
             },
           ]}
         > 
@@ -365,7 +341,7 @@ const CardDisplay = ({
             style={{
               width: shadow ? "98%" : "100%",
               height: shadow ? "98%" : "100%",
-              borderRadius: maxWidth ? maxWidth * 0.07 : 15,
+              borderRadius: maxWidth * 0.07,
             }}
           />
 
@@ -377,17 +353,7 @@ const CardDisplay = ({
                 locations={gradientOptions.locations}
                 start={gradientOptions.start}
                 end={gradientOptions.end}
-                style={{
-                  position: "absolute",
-                  height: "100%",
-                  width: "100%",
-                  opacity: 0.4,
-                  top: "0%",
-                  left: "0%",
-                  right: 0,
-                  bottom: 0,
-                  borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-                }}
+                style={styles.gradientOverlay}
               />
             </>
           
@@ -399,5 +365,45 @@ const CardDisplay = ({
     
   );
 };
+
+const styles = StyleSheet.create({
+  shadowContainer: {
+    alignSelf: "center",
+    overflow: "visible", // Allows shadow to render outside bounds
+    position: "relative",
+  },
+  cardContainer: {
+    position: "relative",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 15,
+  },
+  gradientOverlay: {
+    position: "absolute",
+    height: "100%",
+    width: "100%",
+    opacity: 0.4,
+    top: "0%",
+    left: "0%",
+    right: 0,
+    bottom: 0,
+    borderRadius: 15,
+  },
+  flipButton: {
+    position: "absolute",
+    opacity: 0.8,
+    height: 50,
+    width: 50,
+    right: 20,
+    bottom: 50,
+    borderRadius: 25,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 500,
+  },
+});
 
 export default CardDisplay;

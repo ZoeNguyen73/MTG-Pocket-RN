@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { View, ScrollView, Platform, Pressable } from "react-native";
+import React, { useEffect } from "react";
+import { View, Platform, Pressable } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from "react-native-reanimated";
 
-import axios from "../../api/axios";
-
-import CardDisplay from "./CardDisplay";
+import SmallCardDisplay from "./SmallCardDisplay";
 
 const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress }) => {
   const cardNo = cards.length;
@@ -32,10 +30,9 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
       { cardNo > 0 &&  Platform.OS === "web" && (
         <View className="flex-row flex-nowrap gap-1">
           {cards.map(card => (
-            <CardDisplay 
+            <SmallCardDisplay 
               key={card._id}  
               card={card}
-              size="small"
               maxWidth={Math.min(Math.floor(width/8), Math.floor(height * (488/680)))}
               shadow={false}
             />
@@ -57,9 +54,8 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
                 delayLongPress={500} // Customize long press duration
                 key={card._id}               
               >
-                <CardDisplay  
+                <SmallCardDisplay  
                   card={card}
-                  size="small"
                   maxWidth={Math.min(Math.floor(width/2.6), height * (488/680))}
                   shadow={true}
                 />
