@@ -2,6 +2,7 @@
   "expo": {
     "name": "MTG-Pocket-RN",
     "slug": "MTG-Pocket-RN",
+    "scheme": "mtg-pocket-rn",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,9 +26,6 @@
       "bundler": "metro",
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      "expo-font"
-    ]
+    "plugins": ["expo-router", "expo-font"]
   }
 }
