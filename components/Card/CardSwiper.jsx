@@ -1,7 +1,6 @@
-import { View, Text } from "react-native";
-import { useMemo } from "react";
+import { View, Text, Dimensions } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
-import Swiper from "react-native-deck-swiper";
+// import Swiper from "react-native-deck-swiper";
 import LottieView from "lottie-react-native";
 import { router } from "expo-router";
 import * as Animatable from "react-native-animatable";
@@ -12,10 +11,10 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 import { Audio } from "expo-av";
 
 import CardDisplay from "./CardDisplay";
-import BareCardDisplay from "./BareCardDisplay";
 import Button from "../CustomButton/CustomButton";
 
 import tailwindConfig from "../../tailwind.config";
@@ -168,28 +167,31 @@ const CardSwiper = ({ cards, setCode }) => {
   const [ totalValue, setTotalValue ] = useState(parseFloat(firstCardPrice).toFixed(2));
   const [ swipedAllCards, setSwipedAllCards ] = useState(false);
   const [ topCard, setTopCard ] = useState(cards[0]);
+
+  // index to track what the current card (on top) is
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const bloopSoundRef = useRef(null);
   const highlightSoundRef = useRef(null);
   const summarySoundRef = useRef(null);
 
   const burstRef = useRef(null);
 
-  const cardsWithKeys = useMemo(
-    () =>
-      cards.map((card, index) => ({
-        ...card,
-        swiperKey: `${card._id}-${index}`,
-      })),
-    [cards]
-  );
+  const SCREEN_WIDTH = Dimensions.get("window").width;
+  const SWIPE_DURATION = 220;
+  // Reanimated shared values for the swipe animation
+  const translateX = useSharedValue(0);
+  const rotate = useSharedValue(0);
+
+  const animatedCardStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { rotateZ: `${rotate.value}deg` },
+    ],
+  }));
 
   useEffect(() => {
     console.log("CardSwiper mounts...")
-
-    // update key
-    
-
-    // console.log("updated cards with swiperKey: " + JSON.stringify(cards));
 
     const loadSounds = async () => {
       try {
@@ -257,8 +259,11 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const increaseCounter = async () => {
     let currentCardPrice = 0;
+
     if (counter < cards.length ) {
-      currentCardPrice = cards[counter].final_price || "0" ;
+      const nextIndex = counter;
+      const currentCard = cards[nextIndex];
+      currentCardPrice = currentCard.final_price || "0" ;
 
       if (parseFloat(currentCardPrice) > parseFloat(topCard.final_price)) {
         setTopCard(cards[counter]);
@@ -269,6 +274,15 @@ const CardSwiper = ({ cards, setCode }) => {
       }
 
       setTotalValue(prev => (parseFloat(prev) + parseFloat(currentCardPrice)).toFixed(2));
+
+      setCurrentIndex(nextIndex);
+
+      // Reset card transform for the next card
+      // timeout to give time for the new index to be updated
+      setTimeout(() => {
+        translateX.value = 0;
+        rotate.value = 0;
+      }, 0);
     }
 
     // play bloop sound
@@ -282,6 +296,28 @@ const CardSwiper = ({ cards, setCode }) => {
     // play summary sound
     await playSound(summarySoundRef);
     setSwipedAllCards(true);
+  };
+
+  const handleNextWithAnimation = () => {
+    const exitX = SCREEN_WIDTH * 1.2; // swipe right
+
+    translateX.value = withTiming(
+      exitX,
+      { duration: SWIPE_DURATION, easing: Easing.out(Easing.ease) },
+      (finished) => {
+        if (!finished) return;
+
+        // This runs as a worklet; schedule your JS logic on the RN thread:
+        if (currentIndex >= cards.length - 1) {
+          scheduleOnRN(openSummary);
+        } else {
+          scheduleOnRN(increaseCounter);
+        }
+      }
+    );
+
+    // Add a bit of tilt while it flies out
+    rotate.value = withTiming(8, { duration: SWIPE_DURATION });
   };
 
   return (
@@ -363,8 +399,28 @@ const CardSwiper = ({ cards, setCode }) => {
                 )}
               </View>
             </View>
+            <View className="mt-8 mb-8">
+              <Animated.View style={[{ alignItems: "center" }, animatedCardStyle]} key={currentIndex}>
+                <CardDisplay 
+                  card={cards[currentIndex]}
+                  // isFirstCard={index === counter - 1}
+                  sparklesOn={true}
+                  enableFlip={true}
+                  priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
+                  maxWidth={290}
+                />
+              </Animated.View>
+              
+            </View>
+            
 
-            <Swiper 
+            <Button
+              title="Next (simulate swipe)"
+              containerStyles={"mt-2"}
+              handlePress={handleNextWithAnimation}
+            />
+
+            {/* <Swiper 
               cards={cardsWithKeys}
               keyExtractor={(item) => item.swiperKey}
               cardIndex={0}
@@ -391,7 +447,9 @@ const CardSwiper = ({ cards, setCode }) => {
                 zIndex: 10,
               }}
               onSwipedAll={() => openSummary()}
-            />
+            /> */}
+
+
 
           </View>
 
