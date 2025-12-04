@@ -1,4 +1,5 @@
 import { View, Text } from "react-native";
+import { useMemo } from "react";
 import React, { useState, useRef, useEffect } from "react";
 import Swiper from "react-native-deck-swiper";
 import LottieView from "lottie-react-native";
@@ -14,6 +15,7 @@ import Animated, {
 import { Audio } from "expo-av";
 
 import CardDisplay from "./CardDisplay";
+import BareCardDisplay from "./BareCardDisplay";
 import Button from "../CustomButton/CustomButton";
 
 import tailwindConfig from "../../tailwind.config";
@@ -172,8 +174,22 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const burstRef = useRef(null);
 
+  const cardsWithKeys = useMemo(
+    () =>
+      cards.map((card, index) => ({
+        ...card,
+        swiperKey: `${card._id}-${index}`,
+      })),
+    [cards]
+  );
+
   useEffect(() => {
     console.log("CardSwiper mounts...")
+
+    // update key
+    
+
+    // console.log("updated cards with swiperKey: " + JSON.stringify(cards));
 
     const loadSounds = async () => {
       try {
@@ -306,24 +322,17 @@ const CardSwiper = ({ cards, setCode }) => {
           <View className="flex-1 mt-5" style={{ position: "relative", overflow: "visible" }}>
             
             <View className="flex-row px-10 items-center">
-              <View 
-                className="rounded-full bg-light-mauve justify-center items-center px-3 py-1"
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 3.84,
-                  elevation: 5,
-                }}
-              >
-                <Text className="font-sans-semibold tracking-wide text-base text-dark-text">
-                  New!
-                </Text>
-              </View>
+            { counter <= cards.length && cards[counter - 1].is_new && (
+              <ZoomOutText 
+                backgroundColor={tailwindConfig.theme.extend.colors.light.mauve}
+                textStyle="text-left text-base tracking-wide text-dark-text font-sans-semibold"
+                content="New!"
+                counter={counter}
+              />
+            )}
+              
               <View className="flex-1"></View>
+
               <View>
                 { counter <= cards.length && parseFloat(cards[counter - 1 ].final_price) < PRICE_HIGHLIGHT_THRESHOLD && (
                   <View 
@@ -356,20 +365,22 @@ const CardSwiper = ({ cards, setCode }) => {
             </View>
 
             <Swiper 
-              cards={cards}
-              keyExtractor={item=> `${item._id}-${counter - 1}`}
+              cards={cardsWithKeys}
+              keyExtractor={(item) => item.swiperKey}
               cardIndex={0}
               renderCard={(item, index) => (
                 <CardDisplay
                   card={item}
                   index={index}
-                  currentIndex={counter}
+                  isFirstCard={index === counter - 1}
                   priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
+                  sparklesOn={true}
+                  enableFlip={true}
                 />
               )}
-              stackSize={2}
+              stackSize={1}
               stackSeparation={2}
-              animateCardOpacity
+              animateCardOpacity={false}
               verticalSwipe={false}
               cardVerticalMargin={8}
               cardHorizontalMargin={30}

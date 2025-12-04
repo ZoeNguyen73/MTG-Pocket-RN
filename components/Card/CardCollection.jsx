@@ -7,9 +7,10 @@ import CardCollectionDisplay from "./CardCollectionDisplay";
 import { soundManager } from "../../utils/SoundManager";
 import { soundAssets } from "../../constants/sounds";
 
-const CardCollection = ({ cards, headerHeight, updateFavourite }) => {
+const CardCollection = ({ cards, headerHeight, updateFavourite, showFavourites }) => {
   const { width } = useWindowDimensions();
   const favSoundRef = useRef(null);
+  const [ filteredCards, setFilteredCards ] = useState([]);
 
   useEffect(() => {
     const loadSound = async () => {
@@ -26,13 +27,19 @@ const CardCollection = ({ cards, headerHeight, updateFavourite }) => {
 
     loadSound();
 
+    // filter to show only favourites
+    if (showFavourites) {
+      const filtered = cards.filter((card) => card.is_favourite);
+      setFilteredCards(filtered);
+    }
+
     return () => {
       if (favSoundRef.current) {
         favSoundRef.current.unloadAsync();
         favSoundRef.current = null;
       }
     };
-  }, [cards])
+  }, [cards, showFavourites])
 
   const playFavSound = async () => {
     try {
@@ -53,7 +60,7 @@ const CardCollection = ({ cards, headerHeight, updateFavourite }) => {
 
   return (
     <FlatList 
-      data={cards}
+      data={showFavourites ? filteredCards : cards}
       keyExtractor={card => card._id}
       numColumns={3}
       ListHeaderComponent={
