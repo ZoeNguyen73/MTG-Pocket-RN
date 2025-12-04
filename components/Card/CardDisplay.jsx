@@ -1,4 +1,5 @@
-import { View, Image, Platform, TouchableOpacity } from "react-native";
+import { View, Platform, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 import { useState, useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
@@ -41,7 +42,7 @@ const CardDisplay = ({
   maxWidth, 
   shadow = false, 
   index = null, 
-  currentIndex = null, 
+  isFirstCard = false, 
   priceThreshold = null,
   sparklesOn = false,
   enableFlip = false, 
@@ -49,7 +50,7 @@ const CardDisplay = ({
   const frontCardFace = card.card_faces[0];
   const backCardFace = card.card_faces.length > 1 ? card.card_faces[1] : card.card_faces[0];
   const { finish } = card;
-  const isFirstCard = index !== null && currentIndex !== null && index === currentIndex;
+  const shouldHighlight = index === null || isFirstCard;
 
   const isFlipped = useSharedValue(false);
   const duration = 500;
@@ -77,24 +78,6 @@ const CardDisplay = ({
       transform: [{ rotateY: rotateValue }],
     };
   });
-
-  // Animated styles for the front and back cards
-  // const frontCardAnimatedStyle = useAnimatedStyle(() => {
-  //   const rotateY = interpolate(isFlipped.value, [0, 1], [0, 180]);
-  //   return {
-  //     transform: [{ rotateY: `${rotateY}deg` }],
-  //     backfaceVisibility: "hidden",
-  //   };
-  // });
-
-  // const backCardAnimatedStyle = useAnimatedStyle(() => {
-  //   const rotateY = interpolate(isFlipped.value, [0, 1], [180, 360]);
-  //   return {
-  //     transform: [{ rotateY: `${rotateY}deg` }],
-  //     backfaceVisibility: "hidden",
-  //   };
-  // });
-  
 
   const [gradientOptions, setGradientOptions] = useState({
     colors: GRADIENT_COLORS,
@@ -143,9 +126,10 @@ const CardDisplay = ({
       }
     }
 
+    /* only the 1st card in the view can have foil animation - preventing the underneath cards from having animation */
     if ((finish === "foil" || finish === "etched") 
       && size !== "small"
-      && ( index === null || isFirstCard )) {
+      && shouldHighlight) {
       const intervalRef = setInterval(gradientAnimation, INTERVAL);
 
       // Clear interval after 5000ms
@@ -164,6 +148,7 @@ const CardDisplay = ({
     <>
       { Platform.OS !== "web" && (
         <View
+          key={card.swiperKey ?? card._id}
           style={[
             {
               width: maxWidth ? maxWidth : "100%",
@@ -206,13 +191,16 @@ const CardDisplay = ({
               />
             )}
             
+            {/* only the 1st card in the view can be flipped - preventing the underneath cards from being flipped */}
             { (card.card_faces.length === 1 
               || !enableFlip
-              || (enableFlip && index !== null && !isFirstCard)
+              || (enableFlip && !shouldHighlight)
             ) && (
-              <Image 
+              <Image
+                key={card.swiperKey ?? card._id} 
                 source={{ uri: frontCardFace[imgUri] }}
-                resizeMode="contain"
+                contentFit="contain"
+                cachePolicy="memory"
                 style={{
                   width: shadow ? "98%" : "100%",
                   height: shadow ? "98%" : "100%",
@@ -224,7 +212,7 @@ const CardDisplay = ({
             {/* front */}
             { card.card_faces.length > 1 
               && enableFlip 
-              && ( index === null || isFirstCard )
+              && shouldHighlight
               && (
               <Animated.View 
                 style={[
@@ -239,8 +227,10 @@ const CardDisplay = ({
                 ]}
               >
                 <Image
+                  key={card.swiperKey ?? card._id}
                   source={{ uri: frontCardFace[imgUri] }}
-                  resizeMode="contain"
+                  contentFit="contain"
+                  cachePolicy="memory"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -253,7 +243,7 @@ const CardDisplay = ({
             {/* back */}
             { card.card_faces.length > 1 
               && enableFlip 
-              && ( index === null || isFirstCard )
+              && shouldHighlight
               && (
               <Animated.View 
                 style={[
@@ -268,8 +258,10 @@ const CardDisplay = ({
                 ]}
               >
                 <Image
+                  key={card.swiperKey ?? card._id}
                   source={{ uri: backCardFace[imgUri] }}
-                  resizeMode="contain"
+                  contentFit="contain"
+                  cachePolicy="memory"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -281,7 +273,7 @@ const CardDisplay = ({
 
             { card.card_faces.length > 1 
               && enableFlip 
-              && ( index === null || isFirstCard )
+              && shouldHighlight
               && (
               <TouchableOpacity
                 onPress={() => {
@@ -308,7 +300,7 @@ const CardDisplay = ({
 
             { (finish === "foil" || finish === "etched") 
               && size !== "small"
-              && ( index === null || isFirstCard ) 
+              && shouldHighlight
               && (
               <>
                 <LinearGradient 
@@ -331,9 +323,9 @@ const CardDisplay = ({
               </>
             
             )}
-
+            {/* only the 1st card in the view can have sparkles animation - preventing the underneath cards from having animation */}
             { (priceThreshold !== null && card.final_price >= priceThreshold)
-              && ( index === null || isFirstCard ) 
+              && shouldHighlight
               && ( 
                 <Sparkles /> 
               )
@@ -359,9 +351,11 @@ const CardDisplay = ({
             },
           ]}
         > 
-          <Image 
+          <Image
+            key={card.swiperKey ?? card._id} 
             source={{ uri: frontCardFace[imgUri] }}
-            resizeMode="contain"
+            contentFit="contain"
+            cachePolicy="memory"
             style={{
               width: shadow ? "98%" : "100%",
               height: shadow ? "98%" : "100%",

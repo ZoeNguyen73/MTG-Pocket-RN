@@ -1,4 +1,5 @@
 import { View, Text } from "react-native";
+import { useMemo } from "react";
 import React, { useState, useRef, useEffect } from "react";
 import Swiper from "react-native-deck-swiper";
 import LottieView from "lottie-react-native";
@@ -14,6 +15,7 @@ import Animated, {
 import { Audio } from "expo-av";
 
 import CardDisplay from "./CardDisplay";
+import BareCardDisplay from "./BareCardDisplay";
 import Button from "../CustomButton/CustomButton";
 
 import tailwindConfig from "../../tailwind.config";
@@ -172,8 +174,22 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const burstRef = useRef(null);
 
+  const cardsWithKeys = useMemo(
+    () =>
+      cards.map((card, index) => ({
+        ...card,
+        swiperKey: `${card._id}-${index}`,
+      })),
+    [cards]
+  );
+
   useEffect(() => {
     console.log("CardSwiper mounts...")
+
+    // update key
+    
+
+    // console.log("updated cards with swiperKey: " + JSON.stringify(cards));
 
     const loadSounds = async () => {
       try {
@@ -349,22 +365,22 @@ const CardSwiper = ({ cards, setCode }) => {
             </View>
 
             <Swiper 
-              cards={cards}
-              keyExtractor={item=> `${item._id}-${counter - 1}`}
+              cards={cardsWithKeys}
+              keyExtractor={(item) => item.swiperKey}
               cardIndex={0}
               renderCard={(item, index) => (
                 <CardDisplay
                   card={item}
                   index={index}
-                  currentIndex={counter}
+                  isFirstCard={index === counter - 1}
                   priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
                   sparklesOn={true}
                   enableFlip={true}
                 />
               )}
-              stackSize={2}
+              stackSize={1}
               stackSeparation={2}
-              animateCardOpacity
+              animateCardOpacity={false}
               verticalSwipe={false}
               cardVerticalMargin={8}
               cardHorizontalMargin={30}
