@@ -181,20 +181,37 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const SCREEN_WIDTH = Dimensions.get("window").width;
   const SWIPE_DURATION = 220;
-  const SWIPE_THRESHOLD = 80; 
+  const SWIPE_THRESHOLD = 80;
+
   // Reanimated shared values for the swipe animation
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
 
+  // entry animation shared values
+  const entryScale = useSharedValue(1);
+  const entryOpacity = useSharedValue(1);
+  const entryTranslateY = useSharedValue(0);
+
   const animatedCardStyle = useAnimatedStyle(() => ({
+    opacity: entryOpacity.value,
     transform: [
       { translateX: translateX.value },
       { rotateZ: `${rotate.value}deg` },
+      { scale: entryScale.value },
+      { translateY: entryTranslateY.value },
     ],
   }));
 
   useEffect(() => {
-    console.log("CardSwiper mounts...")
+    console.log("CardSwiper mounts...");
+
+    // entry animation for the 1st card
+    entryScale.value = 0.9;
+    entryOpacity.value = 0;
+    entryTranslateY.value = 10;
+    entryScale.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
+    entryOpacity.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
+    entryTranslateY.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.ease) });
 
     const loadSounds = async () => {
       try {
@@ -283,8 +300,18 @@ const CardSwiper = ({ cards, setCode }) => {
       // Reset card transform for the next card
       // timeout to give time for the new index to be updated
       setTimeout(() => {
+        // reset position
         translateX.value = 0;
         rotate.value = 0;
+
+        // entry animation for the next card
+        entryScale.value = 0.9;
+        entryOpacity.value = 0;
+        entryTranslateY.value = 10;
+        entryScale.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
+        entryOpacity.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
+        entryTranslateY.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.ease) });
+
       }, 0);
     }
 
