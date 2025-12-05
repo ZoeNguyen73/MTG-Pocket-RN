@@ -1,7 +1,5 @@
-import { View, Text } from "react-native";
-import { useMemo } from "react";
+import { View, Text, Dimensions } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
-import Swiper from "react-native-deck-swiper";
 import LottieView from "lottie-react-native";
 import { router } from "expo-router";
 import * as Animatable from "react-native-animatable";
@@ -10,12 +8,14 @@ import Animated, {
   useAnimatedStyle,
   withSequence,
   withTiming,
+  withSpring,
   Easing,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 import { Audio } from "expo-av";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import CardDisplay from "./CardDisplay";
-import BareCardDisplay from "./BareCardDisplay";
 import Button from "../CustomButton/CustomButton";
 
 import tailwindConfig from "../../tailwind.config";
@@ -168,28 +168,53 @@ const CardSwiper = ({ cards, setCode }) => {
   const [ totalValue, setTotalValue ] = useState(parseFloat(firstCardPrice).toFixed(2));
   const [ swipedAllCards, setSwipedAllCards ] = useState(false);
   const [ topCard, setTopCard ] = useState(cards[0]);
+
+  // index to track what the current card (on top) is
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const currentCard = cards[currentIndex];
+  const nextCard =
+    currentIndex < cards.length - 1 ? cards[currentIndex + 1] : null;
+
   const bloopSoundRef = useRef(null);
   const highlightSoundRef = useRef(null);
   const summarySoundRef = useRef(null);
 
   const burstRef = useRef(null);
 
-  const cardsWithKeys = useMemo(
-    () =>
-      cards.map((card, index) => ({
-        ...card,
-        swiperKey: `${card._id}-${index}`,
-      })),
-    [cards]
-  );
+  const SCREEN_WIDTH = Dimensions.get("window").width;
+  const SWIPE_DURATION = 220;
+  const SWIPE_THRESHOLD = 80;
+
+  // Reanimated shared values for the swipe animation
+  const translateX = useSharedValue(0);
+  const rotate = useSharedValue(0);
+
+  // entry animation shared values
+  const entryScale = useSharedValue(1);
+  const entryOpacity = useSharedValue(1);
+  const entryTranslateY = useSharedValue(0);
+
+  const animatedCardStyle = useAnimatedStyle(() => ({
+    opacity: entryOpacity.value,
+    transform: [
+      { translateX: translateX.value },
+      { rotateZ: `${rotate.value}deg` },
+      { scale: entryScale.value },
+      { translateY: entryTranslateY.value },
+    ],
+  }));
 
   useEffect(() => {
-    console.log("CardSwiper mounts...")
+    console.log("CardSwiper mounts...");
 
-    // update key
-    
-
-    // console.log("updated cards with swiperKey: " + JSON.stringify(cards));
+    // entry animation for the 1st card
+    entryScale.value = 0.9;
+    entryOpacity.value = 0.7;
+    entryTranslateY.value = 10;
+    entryScale.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
+    entryOpacity.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
+    entryTranslateY.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.ease) });
 
     const loadSounds = async () => {
       try {
@@ -257,8 +282,11 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const increaseCounter = async () => {
     let currentCardPrice = 0;
+
     if (counter < cards.length ) {
-      currentCardPrice = cards[counter].final_price || "0" ;
+      const nextIndex = counter;
+      const currentCard = cards[nextIndex];
+      currentCardPrice = currentCard.final_price || "0" ;
 
       if (parseFloat(currentCardPrice) > parseFloat(topCard.final_price)) {
         setTopCard(cards[counter]);
@@ -269,6 +297,27 @@ const CardSwiper = ({ cards, setCode }) => {
       }
 
       setTotalValue(prev => (parseFloat(prev) + parseFloat(currentCardPrice)).toFixed(2));
+
+      // preconfigure the entry values of the next card
+      entryScale.value = 0.9;
+      entryOpacity.value = 0.9;
+      entryTranslateY.value = 10;
+
+      setCurrentIndex(nextIndex);
+
+      // Reset card transform for the next card
+      // timeout to give time for the new index to be updated
+      setTimeout(() => {
+        // reset position
+        translateX.value = 0;
+        rotate.value = 0;
+
+        // entry animation for the next card
+        entryScale.value = withTiming(1, { duration: 200, easing: Easing.out(Easing.ease) });
+        entryOpacity.value = withTiming(1, { duration: 200, easing: Easing.out(Easing.ease) });
+        entryTranslateY.value = withTiming(0, { duration: 200, easing: Easing.out(Easing.ease) });
+
+      }, 0);
     }
 
     // play bloop sound
@@ -283,6 +332,53 @@ const CardSwiper = ({ cards, setCode }) => {
     await playSound(summarySoundRef);
     setSwipedAllCards(true);
   };
+
+  const performSwipeAdvance = (direction) => {
+    const exitX = direction * SCREEN_WIDTH * 1.2;
+
+    // Start the animations (Reanimated will still handle these fine from JS)
+    translateX.value = withTiming(exitX, {
+      duration: SWIPE_DURATION,
+      easing: Easing.out(Easing.ease),
+    });
+
+    rotate.value = withTiming(8 * direction, {
+      duration: SWIPE_DURATION,
+      easing: Easing.out(Easing.ease),
+    });
+
+    // After animation, move to next card or summary
+    setTimeout(() => {
+      if (currentIndex >= cards.length - 1) {
+        openSummary();
+      } else {
+        increaseCounter();
+      }
+    }, SWIPE_DURATION);
+  };
+
+  const panGesture = Gesture.Pan()
+    .runOnJS(true)
+    .onUpdate((event) => {
+      // follow the finger
+      translateX.value = event.translationX;
+      // small tilt based on drag distance
+      rotate.value = event.translationX / 25;
+    })
+    .onEnd((event) => {
+      const dragX = event.translationX;
+      const shouldSwipe = Math.abs(dragX) > SWIPE_THRESHOLD;
+
+      if (shouldSwipe) {
+        const direction = dragX > 0 ? 1 : -1;
+        performSwipeAdvance(direction);
+      } else {
+        // snap back to center
+        translateX.value = withSpring(0);
+        rotate.value = withSpring(0);
+      }
+    });
+
 
   return (
     <View
@@ -364,34 +460,56 @@ const CardSwiper = ({ cards, setCode }) => {
               </View>
             </View>
 
-            <Swiper 
-              cards={cardsWithKeys}
-              keyExtractor={(item) => item.swiperKey}
-              cardIndex={0}
-              renderCard={(item, index) => (
-                <CardDisplay
-                  card={item}
-                  index={index}
-                  isFirstCard={index === counter - 1}
-                  priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
-                  sparklesOn={true}
-                  enableFlip={true}
-                />
-              )}
-              stackSize={1}
-              stackSeparation={2}
-              animateCardOpacity={false}
-              verticalSwipe={false}
-              cardVerticalMargin={8}
-              cardHorizontalMargin={30}
-              onSwiped={() => increaseCounter()}
-              containerStyle={{ 
-                backgroundColor: "transparent",
+            <View 
+              className="mt-8 mb-8"
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
                 position: "relative",
-                zIndex: 10,
-              }}
-              onSwipedAll={() => openSummary()}
-            />
+              }} 
+            >
+              {/* next card (behind) */}
+              {nextCard && (
+                <View
+                  pointerEvents="none" // no touch interaction
+                  style={{
+                    position: "absolute",
+                    transform: [
+                      { scale: 0.8 }, // slightly smaller
+                      { translateY: 18 }, // a bit lower
+                    ],
+                    opacity: 0.5, // slightly dimmed
+                    zIndex: 0,
+                  }}
+                >
+                  <CardDisplay
+                    card={nextCard}
+                    maxWidth={290} // same as 1st card
+                    enableFlip={false}   // no flip on preview
+                    sparklesOn={false}   // no sparkles on preview
+                    priceThreshold={null}
+                  />
+                </View>
+              )}
+
+              {/* Front, swipeable card */}
+              <GestureDetector gesture={panGesture}>
+                <Animated.View 
+                  style={[{ alignItems: "center" }, animatedCardStyle]} 
+                  key={currentIndex}
+                >
+                  <CardDisplay 
+                    card={currentCard}
+                    // isFirstCard={index === counter - 1}
+                    sparklesOn={true}
+                    enableFlip={true}
+                    priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
+                    maxWidth={290}
+                  />
+                </Animated.View>
+              </GestureDetector>
+            </View>
 
           </View>
 
