@@ -1,6 +1,5 @@
 import { View, Text, Dimensions } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
-// import Swiper from "react-native-deck-swiper";
 import LottieView from "lottie-react-native";
 import { router } from "expo-router";
 import * as Animatable from "react-native-animatable";
