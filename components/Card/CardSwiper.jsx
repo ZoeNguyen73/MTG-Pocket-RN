@@ -9,10 +9,12 @@ import Animated, {
   useAnimatedStyle,
   withSequence,
   withTiming,
+  withSpring,
   Easing,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { Audio } from "expo-av";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
@@ -179,6 +181,7 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const SCREEN_WIDTH = Dimensions.get("window").width;
   const SWIPE_DURATION = 220;
+  const SWIPE_THRESHOLD = 80; 
   // Reanimated shared values for the swipe animation
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
@@ -298,27 +301,52 @@ const CardSwiper = ({ cards, setCode }) => {
     setSwipedAllCards(true);
   };
 
-  const handleNextWithAnimation = () => {
-    const exitX = SCREEN_WIDTH * 1.2; // swipe right
+  const performSwipeAdvance = (direction) => {
+    const exitX = direction * SCREEN_WIDTH * 1.2;
 
-    translateX.value = withTiming(
-      exitX,
-      { duration: SWIPE_DURATION, easing: Easing.out(Easing.ease) },
-      (finished) => {
-        if (!finished) return;
+    // Start the animations (Reanimated will still handle these fine from JS)
+    translateX.value = withTiming(exitX, {
+      duration: SWIPE_DURATION,
+      easing: Easing.out(Easing.ease),
+    });
 
-        // This runs as a worklet; schedule your JS logic on the RN thread:
-        if (currentIndex >= cards.length - 1) {
-          scheduleOnRN(openSummary);
-        } else {
-          scheduleOnRN(increaseCounter);
-        }
+    rotate.value = withTiming(8 * direction, {
+      duration: SWIPE_DURATION,
+      easing: Easing.out(Easing.ease),
+    });
+
+    // After animation, move to next card or summary
+    setTimeout(() => {
+      if (currentIndex >= cards.length - 1) {
+        openSummary();
+      } else {
+        increaseCounter();
       }
-    );
-
-    // Add a bit of tilt while it flies out
-    rotate.value = withTiming(8, { duration: SWIPE_DURATION });
+    }, SWIPE_DURATION);
   };
+
+  const panGesture = Gesture.Pan()
+    .runOnJS(true)
+    .onUpdate((event) => {
+      // follow the finger
+      translateX.value = event.translationX;
+      // small tilt based on drag distance
+      rotate.value = event.translationX / 25;
+    })
+    .onEnd((event) => {
+      const dragX = event.translationX;
+      const shouldSwipe = Math.abs(dragX) > SWIPE_THRESHOLD;
+
+      if (shouldSwipe) {
+        const direction = dragX > 0 ? 1 : -1;
+        performSwipeAdvance(direction);
+      } else {
+        // snap back to center
+        translateX.value = withSpring(0);
+        rotate.value = withSpring(0);
+      }
+    });
+
 
   return (
     <View
@@ -399,26 +427,21 @@ const CardSwiper = ({ cards, setCode }) => {
                 )}
               </View>
             </View>
-            <View className="mt-8 mb-8">
-              <Animated.View style={[{ alignItems: "center" }, animatedCardStyle]} key={currentIndex}>
-                <CardDisplay 
-                  card={cards[currentIndex]}
-                  // isFirstCard={index === counter - 1}
-                  sparklesOn={true}
-                  enableFlip={true}
-                  priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
-                  maxWidth={290}
-                />
-              </Animated.View>
-              
-            </View>
-            
 
-            <Button
-              title="Next (simulate swipe)"
-              containerStyles={"mt-2"}
-              handlePress={handleNextWithAnimation}
-            />
+            <View className="mt-8 mb-8">
+              <GestureDetector gesture={panGesture}>
+                <Animated.View style={[{ alignItems: "center" }, animatedCardStyle]} key={currentIndex}>
+                  <CardDisplay 
+                    card={cards[currentIndex]}
+                    // isFirstCard={index === counter - 1}
+                    sparklesOn={true}
+                    enableFlip={true}
+                    priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
+                    maxWidth={290}
+                  />
+                </Animated.View>
+              </GestureDetector>
+            </View>
 
             {/* <Swiper 
               cards={cardsWithKeys}
@@ -448,8 +471,6 @@ const CardSwiper = ({ cards, setCode }) => {
               }}
               onSwipedAll={() => openSummary()}
             /> */}
-
-
 
           </View>
 
