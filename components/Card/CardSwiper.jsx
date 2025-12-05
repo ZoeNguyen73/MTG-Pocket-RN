@@ -173,6 +173,10 @@ const CardSwiper = ({ cards, setCode }) => {
   // index to track what the current card (on top) is
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const currentCard = cards[currentIndex];
+  const nextCard =
+    currentIndex < cards.length - 1 ? cards[currentIndex + 1] : null;
+
   const bloopSoundRef = useRef(null);
   const highlightSoundRef = useRef(null);
   const summarySoundRef = useRef(null);
@@ -207,7 +211,7 @@ const CardSwiper = ({ cards, setCode }) => {
 
     // entry animation for the 1st card
     entryScale.value = 0.9;
-    entryOpacity.value = 0;
+    entryOpacity.value = 0.7;
     entryTranslateY.value = 10;
     entryScale.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
     entryOpacity.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
@@ -295,6 +299,11 @@ const CardSwiper = ({ cards, setCode }) => {
 
       setTotalValue(prev => (parseFloat(prev) + parseFloat(currentCardPrice)).toFixed(2));
 
+      // preconfigure the entry values of the next card
+      entryScale.value = 0.9;
+      entryOpacity.value = 0.9;
+      entryTranslateY.value = 10;
+
       setCurrentIndex(nextIndex);
 
       // Reset card transform for the next card
@@ -305,12 +314,9 @@ const CardSwiper = ({ cards, setCode }) => {
         rotate.value = 0;
 
         // entry animation for the next card
-        entryScale.value = 0.9;
-        entryOpacity.value = 0;
-        entryTranslateY.value = 10;
-        entryScale.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
-        entryOpacity.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
-        entryTranslateY.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.ease) });
+        entryScale.value = withTiming(1, { duration: 200, easing: Easing.out(Easing.ease) });
+        entryOpacity.value = withTiming(1, { duration: 200, easing: Easing.out(Easing.ease) });
+        entryTranslateY.value = withTiming(0, { duration: 200, easing: Easing.out(Easing.ease) });
 
       }, 0);
     }
@@ -455,11 +461,47 @@ const CardSwiper = ({ cards, setCode }) => {
               </View>
             </View>
 
-            <View className="mt-8 mb-8">
+            <View 
+              className="mt-8 mb-8"
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+              }} 
+            >
+              {/* next card (behind) */}
+              {nextCard && (
+                <View
+                  pointerEvents="none" // no touch interaction
+                  style={{
+                    position: "absolute",
+                    transform: [
+                      { scale: 0.8 }, // slightly smaller
+                      { translateY: 18 }, // a bit lower
+                    ],
+                    opacity: 0.5, // slightly dimmed
+                    zIndex: 0,
+                  }}
+                >
+                  <CardDisplay
+                    card={nextCard}
+                    maxWidth={290} // same as 1st card
+                    enableFlip={false}   // no flip on preview
+                    sparklesOn={false}   // no sparkles on preview
+                    priceThreshold={null}
+                  />
+                </View>
+              )}
+
+              {/* Front, swipeable card */}
               <GestureDetector gesture={panGesture}>
-                <Animated.View style={[{ alignItems: "center" }, animatedCardStyle]} key={currentIndex}>
+                <Animated.View 
+                  style={[{ alignItems: "center" }, animatedCardStyle]} 
+                  key={currentIndex}
+                >
                   <CardDisplay 
-                    card={cards[currentIndex]}
+                    card={currentCard}
                     // isFirstCard={index === counter - 1}
                     sparklesOn={true}
                     enableFlip={true}
@@ -469,35 +511,6 @@ const CardSwiper = ({ cards, setCode }) => {
                 </Animated.View>
               </GestureDetector>
             </View>
-
-            {/* <Swiper 
-              cards={cardsWithKeys}
-              keyExtractor={(item) => item.swiperKey}
-              cardIndex={0}
-              renderCard={(item, index) => (
-                <CardDisplay
-                  card={item}
-                  index={index}
-                  isFirstCard={index === counter - 1}
-                  priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
-                  sparklesOn={true}
-                  enableFlip={true}
-                />
-              )}
-              stackSize={1}
-              stackSeparation={2}
-              animateCardOpacity={false}
-              verticalSwipe={false}
-              cardVerticalMargin={8}
-              cardHorizontalMargin={30}
-              onSwiped={() => increaseCounter()}
-              containerStyle={{ 
-                backgroundColor: "transparent",
-                position: "relative",
-                zIndex: 10,
-              }}
-              onSwipedAll={() => openSummary()}
-            /> */}
 
           </View>
 
