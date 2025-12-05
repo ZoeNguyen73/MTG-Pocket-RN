@@ -56,7 +56,7 @@ const CardDisplay = ({
   const duration = 500;
 
   const handleFlip = () => {
-    console.log("handleFlip triggered");
+    // console.log("handleFlip triggered");
     // isFlipped.value = withTiming(isFlipped.value === 0 ? 1 : 0, { duration });
     isFlipped.value = !isFlipped.value;
   };
@@ -89,12 +89,12 @@ const CardDisplay = ({
   const gradientOptionsRef = useRef(gradientOptions);
   gradientOptionsRef.current = gradientOptions;
 
-  console.log("card: " + frontCardFace.name + ", finish: " + finish);
+  // console.log("card: " + frontCardFace.name + ", finish: " + finish);
 
   const imgUri = "image_jpg_normal";
 
   useEffect(() => {
-    console.log("useEffect triggered in cardDisplay");
+    // console.log("useEffect triggered in cardDisplay");
     const gradientAnimation = () => {
       if (gradientOptionsRef.current.locations[1] - MOVEMENT <= 0) {
         // Shift colours and reset locations
@@ -277,7 +277,7 @@ const CardDisplay = ({
               && (
               <TouchableOpacity
                 onPress={() => {
-                  console.log("button pressed");
+                  // console.log("button pressed");
                   handleFlip();
                 }}
                 style={{
