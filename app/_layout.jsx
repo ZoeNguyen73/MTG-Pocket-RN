@@ -73,7 +73,7 @@ const RootLayout = () => {
   }
 
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
         <ErrorHandlerProvider>
           <ThemeProvider>
@@ -82,6 +82,7 @@ const RootLayout = () => {
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="pack" options={{ headerShown: false }} />
+              <Stack.Screen name="card" options={{ headerShown: false }} />
             </Stack>
           </ThemeProvider>
         </ErrorHandlerProvider>
