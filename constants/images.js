@@ -14,6 +14,7 @@ import dark_background_vertical_10 from "../assets/images/dark_background_vertic
 import dark_background_vertical_11 from "../assets/images/dark_background_vertical_11.jpg";
 import FDN_Key_Art_Wallpaper_1040x1536 from "../assets/images/FDN_Key_Art_Wallpaper_1040x1536.jpg";
 import FDN_Bundle_Wallpaper_1040x1536 from "../assets/images/FDN_Bundle_Wallpaper_1040x1536.jpg";
+import background_lowryn_eclipsed from "../assets/images/background_lowryn_eclipsed.jpg";
 
 export default {
   foundations_1,
@@ -32,4 +33,5 @@ export default {
   dark_background_vertical_11,
   dark_background,
   card_back,
+  background_lowryn_eclipsed,
 };
