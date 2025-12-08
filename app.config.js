@@ -3,6 +3,8 @@ export default ({ config }) => {
 
   return {
     ...config,
+    name: "MTG Pocket (App)",
+    web: { name: "MTG Pocket" },
     extra: {
       apiUrl: isDev
         ? process.env.DEV_API_URL
