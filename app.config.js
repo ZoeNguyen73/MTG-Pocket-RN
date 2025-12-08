@@ -5,8 +5,8 @@ export default ({ config }) => {
     ...config,
     extra: {
       apiUrl: isDev
-        ? "https://mtg-pocket-express.onrender.com/api/v1"
-        : "https://mtg-pocket-express.onrender.com/api/v1", // TO DO: update this after deploy
+        ? process.env.DEV_API_URL
+        : process.env.PROD_API_URL,
     },
   };
 };
