@@ -230,7 +230,7 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
 
   return (
     <View
-      className="h-[420px] w-[220px] justify-center mx-2 overflow-visible"
+      className="h-[340px] w-[200px] justify-center mx-2 overflow-visible"
       style={{
         transform: isHovered ? [{ scale: 1.1 }] : [{ scale : 1 }],
         transition: "transform 0.5s ease",
@@ -244,9 +244,9 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
           style={{
             position: "absolute",
             left: "50%",
-            transform: [{ translateX: -90 }], // Center glow
-            width: 180, // Width of the glow
-            height: 380, // Height of the glow
+            transform: [{ translateX: -70 }], // Center glow
+            width: 140, // Width of the glow
+            height: 300, // Height of the glow
             backgroundColor: "rgba(255, 215, 0, 0.05)", // Semi-transparent yellow
             borderRadius: 100, // Rounded edges for glow
             shadowColor: "yellow",
@@ -263,7 +263,7 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
         source={set.play_booster_image}
         resizeMode="contain"
         style={{
-          maxHeight: 400,
+          maxHeight: 350,
           width: "auto",
         }}
       />
@@ -302,8 +302,6 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
   const set = setList.filter(set => set.code === activeSetId)[0];
   const [ topCards, setTopCards ] = useState([]);
   const [animationKey, setAnimationKey] = useState(0);
-
-  const backgroundColor = tailwindConfig.theme.extend.colors.dark.yellow;
 
   useEffect(() => {
     const getTopCards = async () => {
@@ -359,8 +357,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
             >
               <View className="flex-row flex-wrap w-full gap-2 items-center mb-1 flex-1">
                 <Text
-                  className="font-mono-bold text-lg text-light-text tracking-wider flex-1"
-                  // style={{ fontFamily: fonts.monoBold }}
+                  className="font-sans-bold text-lg text-light-text tracking-wider flex-1"
                 >
                   {set.details?.name}
                 </Text>
@@ -369,8 +366,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
 
               <View className="mb-1">
                 <Text
-                  className="font-sans-light text-xs text-light-text tracking-wide"
-                  style={{ fontFamily: fonts.sansLight}}
+                  className="font-sans-light text-base text-light-text tracking-wide"
                 >
                   Most popular cards from this set:
                 </Text>
@@ -401,22 +397,6 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
                 zIndex: 2,
               }}
             />
-            {/* <View
-              style={{
-                width: 0,
-                height: 0,
-                borderLeftWidth: 13,
-                borderRightWidth: 13,
-                borderTopWidth: 13,
-                borderLeftColor: "transparent",
-                borderRightColor: "transparent",
-                borderTopColor: "rgba(0, 0, 0, 0.2)",
-                backgroundColor: "transparent",
-                position: "absolute",
-                bottom: -6,
-                zIndex: 1,
-              }}
-            /> */}
           </View>
         </Animatable.View>
       )}
@@ -426,18 +406,38 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
 
 const SetDetailsWeb = ({ sets, hoveredSetId}) => {
   const set = sets[hoveredSetId];
+  const [ topCards, setTopCards ] = useState([]);
   const [animationKey, setAnimationKey] = useState(0);
 
-  const backgroundColor = tailwindConfig.theme.extend.colors.dark.yellow;
+  const backgroundColor = "rgba(249, 226, 175, 0.4)";
 
   const { width, height } = useWindowDimensions();
 
-  const containerHeight = Math.floor(0.4 * height);
+  const containerHeight = Math.floor(0.35 * height);
   const containerWidth = Math.floor(0.7 * width);
 
   useEffect(() => {
     // Trigger a re-render of the Animatable.View to animate the component
     setAnimationKey((prevKey) => prevKey + 1);
+
+    const getTopCards = async () => {
+      const response = await axios.get(`/sets/${set.code}/top-cards`);
+      const cardData = response.data.top_cards;
+
+      if (cardData.length > 0) {
+        // reformat card data
+        const reformattedData = [];
+        for (let i = 0; i < cardData.length; i++) {
+          const card = cardData[i].card_id;
+          card.final_price = cardData[i].final_price;
+          card.finish = cardData[i].finish;
+          reformattedData.push(card);
+        }
+        setTopCards(reformattedData);
+      };
+    };
+
+    if (hoveredSetId) getTopCards();
   }, [hoveredSetId]);
 
   return (
@@ -491,34 +491,34 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
           />
 
           <View
-            className="bg-dark-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[30vh]
-            border border-b-8 border-black items-center"
+            className="rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[30vh]
+            border border-b-8 items-center"
             style={{
               height: containerHeight,
               width: containerWidth,
               paddingLeft: 10,
               paddingRight: 10,
+              backgroundColor: "rgba(249, 226, 175, 0.5)",
+              borderColor: "#00000020"
             }}
           >
-            <View className="w-full gap-2 items-center mb-2 w-[50%]">
+            <View className="flex-row w-full gap-2 items-center justify-center mb-2 w-full">
               <Text
-                className="font-mono-bold text-xl text-light-text dark:text-dark-text tracking-wider"
+                className="font-sans-bold text-xl text-black tracking-wider"
               >
                 {set.details?.name}
               </Text>
               <SvgUri width="20px" height="20px" uri={set.details?.icon_svg_uri} />
             </View>
 
-            <View
-              className="items-center"
-            >
+            <View className="items-center">
               <Text
-                className="font-sans-light text-base text-light-text tracking-wide mb-1 mt-2"
+                className="font-sans-light text-base tracking-wide mb-1 mt-2"
               >
                 Most popular cards from this set:
               </Text>
-              <CardHighlight 
-                setCode={set.code}
+              <CardHighlight
+                cards={topCards} 
                 containerWidth={containerWidth*0.9}
                 containerHeight={containerHeight*0.8}
               />
@@ -526,7 +526,6 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
             </View>
             
           </View>
-
 
         </View>
 
@@ -589,25 +588,14 @@ const SetSelector = ({ sets }) => {
   }, [sets]);
 
   return (
-    <View 
-      className="h-screen"
-      style={{
-        position: "absolute"
-      }}
-    >
-      <View
-        style={{ height: 130 }}
-      >
-
+    <View className="h-screen w-screen" style={{ position: "absolute"}}>
+      <View style={{ height: Platform.OS === "web" ? 100: 130 }}>
       </View>
       <Text
-        className="mb-5 text-center font-serif-bold text-3xl text-dark-green tracking-wider"
+        className="mb-5 text-center font-serif-bold text-3xl text-light-teal text-dark-teal tracking-wider"
         style={{
           textShadowColor: "#00000080",
-          textShadowOffset: {
-            width: 0,
-            height: 1,
-          },
+          textShadowOffset: { width: 0, height: 1, },
           textShadowRadius: 6,
         }}
       >

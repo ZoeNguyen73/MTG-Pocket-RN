@@ -1,4 +1,4 @@
-import { ImageBackground, View } from "react-native";
+import { ImageBackground, View, Platform } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -24,14 +24,18 @@ const Home = () => {
 
   return (
     <ImageBackground
-      source={images.dark_background_vertical_2}
+      source={Platform.OS === "web" ? images.background_lowryn_eclipsed : images.dark_background_vertical_2}
+      className="flex-1 w-full"
+      resizeMode="cover"
       style={{
-        resizeMode: "cover",
         overflow: "hidden",
       }}
     >
+      {Platform.OS === "web" && (
+        <View className="absolute inset-0 bg-black/75" />
+      )}
       <SafeAreaView className="h-full">
-        <View className="px-2 mb-10">
+        <View className={Platform.OS === "web" ? "px-5 py-5 mb-10" : "px-2 mb-10"}>
           <Header />
         </View>
         

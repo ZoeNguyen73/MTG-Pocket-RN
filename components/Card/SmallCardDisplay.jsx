@@ -5,7 +5,8 @@ const SmallCardDisplay = ({
   maxWidth, 
   shadow = false,
   isGreyscale = false,
-  label = null, 
+  label = null,
+  size = "small", 
 }) => {
   const frontCardFace = card.card_faces[0];
 
