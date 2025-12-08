@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { ImageBackground, View, Image, Text, useWindowDimensions} from "react-native";
+import { ImageBackground, View, Image, Text, useWindowDimensions, Platform } from "react-native";
 import { router, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
@@ -30,8 +30,19 @@ const App = () => {
       await soundManager.playBackgroundMusic();
     };
 
-    playBgMusic();
+    if (Platform.OS !== "web") playBgMusic(); // only auto play bg music on app, not on web
+    
   }, [])
+
+  const handleGetStarted = async () => {
+    try {
+      await soundManager.playBackgroundMusic();
+    } catch (error) {
+      console.log("Error playing background music on Get Started:", error);
+    }
+
+    router.push("/home");
+  };
 
   return (
     <ImageBackground
@@ -90,7 +101,7 @@ const App = () => {
 
             <Button 
               title="Get Started"
-              handlePress={() => router.push("/home")}
+              handlePress={handleGetStarted}
               containerStyles="w-fit px-6 py-4 mt-7 mb-7 w-[80%]"
               icon
             />
