@@ -1,5 +1,4 @@
-import { View, Text, useWindowDimensions, StyleSheet } from "react-native";
-import React from "react";
+import { View, useWindowDimensions, StyleSheet, Platform } from "react-native";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Feather from "@expo/vector-icons/Feather";
@@ -53,9 +52,8 @@ const TabsLayout = () => {
           tabBarActiveTintColor: activeTintColor,
           tabBarInactiveTintColor: inactiveTintColor,
           tabBarActiveBackgroundColor: "transparent",
-          tabBarPosition: width >= 1024 ? "left" : "bottom",
+          tabBarPosition: Platform.OS === "web" ? "top" : "bottom",
           tabBarStyle: {
-            // backgroundColor: "#161a21",
             height: width >= 1024 ? "100%" : 55,
             itemAlign: "center",
             display: "flex",

@@ -6,18 +6,16 @@ import {
   Image, 
   useWindowDimensions, 
   Platform, 
-  SafeAreaView,
   ScrollView, 
 } from "react-native";
 import * as Animatable from "react-native-animatable";
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SvgUri } from "react-native-svg";
 import { router } from "expo-router";
 import { Audio } from "expo-av";
 
 import axios from "../../api/axios";
 
-import tailwindConfig from "../../tailwind.config";
 import { getFonts } from "../../utils/FontFamily";
 import { soundManager } from "../../utils/SoundManager";
 import { soundAssets } from "../../constants/sounds";
@@ -217,7 +215,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
   )
 };
 
-const SetCardWeb = ({set, updateHoveredSetId, index}) => {
+const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => {
   const [ isHovered, setIsHovered] = useState(false);
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -228,9 +226,20 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
     updateHoveredSetId(null);
   };
 
+  // cardHeight: 360 cardWidth: 140
+  // const cardHeight = 350;
+  // const cardWidth = 200;
+
+  const setCardHeight = cardHeight.toString() + "px";
+  const setCardWidth = cardWidth.toString() + "px";
+
+  // shadow
+  const shadowHeight = 0.6 * cardHeight;
+  const shadowWidth = 0.8 * cardWidth;
+
   return (
     <View
-      className="h-[340px] w-[200px] justify-center mx-2 overflow-visible"
+      className={`h-[${setCardHeight}] w-[${setCardWidth}] justify-center mx-2 overflow-visible`}
       style={{
         transform: isHovered ? [{ scale: 1.1 }] : [{ scale : 1 }],
         transition: "transform 0.5s ease",
@@ -244,15 +253,15 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
           style={{
             position: "absolute",
             left: "50%",
-            transform: [{ translateX: -70 }], // Center glow
-            width: 140, // Width of the glow
-            height: 300, // Height of the glow
+            transform: [{ translateX: shadowWidth * (-0.5) }], // Center glow
+            width: shadowWidth, // Width of the glow
+            height: shadowHeight , // Height of the glow
             backgroundColor: "rgba(255, 215, 0, 0.05)", // Semi-transparent yellow
-            borderRadius: 100, // Rounded edges for glow
+            borderRadius: shadowWidth * 0.5, // Rounded edges for glow
             shadowColor: "yellow",
             shadowOffset: { width: 0, height: 0 },
             shadowOpacity: 0.6,
-            shadowRadius: 50, // Creates the "glow" effect
+            shadowRadius: shadowWidth * 0.5, // Creates the "glow" effect
             elevation: 6, // Android shadow
             zIndex: -1, // Place glow behind the content
           }}
@@ -263,7 +272,7 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
         source={set.play_booster_image}
         resizeMode="contain"
         style={{
-          maxHeight: 350,
+          maxHeight: cardHeight,
           width: "auto",
         }}
       />
@@ -274,9 +283,9 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
             position: "absolute", // Position on top of the image
             top: "80%", // Move to 50% of the parent height
             left: "50%", // Move to 50% of the parent width
-            transform: [{ translateX: -60 }, { translateY: -20 }], // Center it perfectly
-            height: 40,
-            width: 120,
+            transform: [{ translateX: -40 }, { translateY: -20 }], // Center it perfectly
+            height: 30,
+            width: 80,
             elevation: 5, // Shadow for Android
             shadowColor: "#000", // Shadow color
             shadowOffset: { width: 0, height: 2 }, // Offset
@@ -404,7 +413,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
   )
 };
 
-const SetDetailsWeb = ({ sets, hoveredSetId}) => {
+const SetDetailsWeb = ({ sets, hoveredSetId }) => {
   const set = sets[hoveredSetId];
   const [ topCards, setTopCards ] = useState([]);
   const [animationKey, setAnimationKey] = useState(0);
@@ -414,7 +423,7 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
   const { width, height } = useWindowDimensions();
 
   const containerHeight = Math.floor(0.35 * height);
-  const containerWidth = Math.floor(0.7 * width);
+  const containerWidth = Math.floor(0.65 * width);
 
   useEffect(() => {
     // Trigger a re-render of the Animatable.View to animate the component
@@ -482,7 +491,7 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
               borderBottomWidth: 13,
               borderLeftColor: "transparent",
               borderRightColor: "transparent",
-              borderBottomColor: "black",
+              // borderBottomColor: "black",
               backgroundColor: "transparent",
               position: "absolute",
               top: 9,
@@ -592,7 +601,9 @@ const SetSelector = ({ sets }) => {
       <View style={{ height: Platform.OS === "web" ? 100: 130 }}>
       </View>
       <Text
-        className="mb-5 text-center font-serif-bold text-3xl text-light-teal text-dark-teal tracking-wider"
+        className={`mb-5 text-center font-serif-bold tracking-wider
+          ${Platform.OS === "web"? "text-light-teal text-4xl" : "text-dark-teal text-3xl"}`
+        }
         style={{
           textShadowColor: "#00000080",
           textShadowOffset: { width: 0, height: 1, },
@@ -605,12 +616,7 @@ const SetSelector = ({ sets }) => {
       { Platform.OS === "web" && (
         <View
           onWheel={handleWheelScroll}
-          style={{ 
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: hoveredSetId === null ? "none" : "auto", // Hides scrollbar in Firefox
-            msOverflowStyle: hoveredSetId === null ? "none" : "auto", // Hides scrollbar in IE/Edge 
-          }}
-          className="overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4"
+          className="ml-16 mr-16 overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4 scrollbar-webkit"
         >
           {sets.map((set, index) => (
             <SetCardWeb 
@@ -618,6 +624,8 @@ const SetSelector = ({ sets }) => {
               index={index} 
               set={set} 
               updateHoveredSetId={updateHoveredSetId}
+              cardHeight={310}
+              cardWidth={200}
             />
             )
           )}
