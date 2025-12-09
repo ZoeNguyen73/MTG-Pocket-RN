@@ -15,6 +15,7 @@ const Home = () => {
   const [ setList, setSetList ] = useState([]);
   // const bgSoundRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(true);
+  const isWeb = Platform.OS === "web";
 
   // load set data
   useEffect(() => {
@@ -24,21 +25,22 @@ const Home = () => {
 
   return (
     <ImageBackground
-      source={Platform.OS === "web" ? images.background_lowryn_eclipsed : images.dark_background_vertical_2}
+      source={isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_2}
       className="flex-1 w-full"
       resizeMode="cover"
       style={{
         overflow: "hidden",
       }}
     >
-      {Platform.OS === "web" && (
+      {isWeb && (
         <View className="absolute inset-0 bg-black/75" />
       )}
       <SafeAreaView className="h-full">
-        <View className={Platform.OS === "web" ? "px-5 py-5 mb-10" : "px-2 mb-10"}>
-          <Header />
-        </View>
-        
+        { !isWeb && (
+          <View className="px-2 mb-10">
+            <Header />
+          </View>
+        )}
         { (setList.length > 0) && (
           <SetSelector sets={setList} />
         )}

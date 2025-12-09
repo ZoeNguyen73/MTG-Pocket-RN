@@ -37,13 +37,15 @@ const TabsLayout = () => {
 
   const font = tailwindConfig.theme.fontFamily.sans[0];
 
+  const isWeb = Platform.OS === "web";
+
   return (
     <>
       <Tabs
         backBehavior="history"
         screenOptions={{ 
           tabBarLabelStyle: {
-            fontSize: width >= 1024 ? 16 : 14,
+            fontSize: isWeb ? 16 : 14,
             fontFamily: font,
             fonWeight: 300,
             marginTop: 2,
@@ -52,19 +54,29 @@ const TabsLayout = () => {
           tabBarActiveTintColor: activeTintColor,
           tabBarInactiveTintColor: inactiveTintColor,
           tabBarActiveBackgroundColor: "transparent",
-          tabBarPosition: Platform.OS === "web" ? "top" : "bottom",
+          tabBarPosition: isWeb ? "top" : "bottom",
           tabBarStyle: {
-            height: width >= 1024 ? "100%" : 55,
+            height: 55,
             itemAlign: "center",
             display: "flex",
-            paddingTop: width >= 1024 ? 20 : 4,
-            paddingLeft: width >= 1024 ? 30 : 0,
+            paddingTop: isWeb ? 0 : 4,
             borderTopWidth: 0,
-            position: "absolute"
+            borderBottomWidth: 0,
+            position: isWeb ? "" : "absolute",
           },
-          tabBarBackground: () => (
-            <BlurView tint="dark" intensity={100} style={StyleSheet.absoluteFill} />
-          ),
+          tabBarBackground: () => {
+            if (!isWeb) {
+              return (
+                <BlurView tint="dark" intensity={100} style={StyleSheet.absoluteFill} />
+              )
+            } else {
+              return (
+                <BlurView tint="dark" intensity={90} style={StyleSheet.absoluteFill} />
+              )
+            }
+          }
+            
+          ,
           tabBarShowLabel: false
         }}
       >

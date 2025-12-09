@@ -226,7 +226,6 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
     updateHoveredSetId(null);
   };
 
-  // cardHeight: 360 cardWidth: 140
   // const cardHeight = 350;
   // const cardWidth = 200;
 
@@ -235,11 +234,11 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
 
   // shadow
   const shadowHeight = 0.6 * cardHeight;
-  const shadowWidth = 0.8 * cardWidth;
+  const shadowWidth = 0.7 * cardWidth;
 
   return (
     <View
-      className={`h-[${setCardHeight}] w-[${setCardWidth}] justify-center mx-2 overflow-visible`}
+      className={`h-[${setCardHeight}] w-[${setCardWidth}] justify-center overflow-visible pb-4`}
       style={{
         transform: isHovered ? [{ scale: 1.1 }] : [{ scale : 1 }],
         transition: "transform 0.5s ease",
@@ -257,7 +256,7 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
             width: shadowWidth, // Width of the glow
             height: shadowHeight , // Height of the glow
             backgroundColor: "rgba(255, 215, 0, 0.05)", // Semi-transparent yellow
-            borderRadius: shadowWidth * 0.5, // Rounded edges for glow
+            borderRadius: shadowWidth * 0., // Rounded edges for glow
             shadowColor: "yellow",
             shadowOffset: { width: 0, height: 0 },
             shadowOpacity: 0.6,
@@ -598,11 +597,11 @@ const SetSelector = ({ sets }) => {
 
   return (
     <View className="h-screen w-screen" style={{ position: "absolute"}}>
-      <View style={{ height: Platform.OS === "web" ? 100: 130 }}>
+      <View style={{ height: Platform.OS === "web" ? 30 : 130 }}>
       </View>
       <Text
-        className={`mb-5 text-center font-serif-bold tracking-wider
-          ${Platform.OS === "web"? "text-light-teal text-4xl" : "text-dark-teal text-3xl"}`
+        className={`text-center font-serif-bold tracking-wider
+          ${Platform.OS === "web"? "text-light-teal text-4xl mb-2" : "text-dark-teal text-3xl mb-5"}`
         }
         style={{
           textShadowColor: "#00000080",
