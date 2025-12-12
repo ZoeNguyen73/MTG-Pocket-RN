@@ -64,11 +64,13 @@ const FormField = ({
           ? "border-light-warning dark:border-light-warning"
           : "border-light-surface dark:border-dark-surface"
         }`}
-        backgroundColor={`${ theme === "dark" ? darkSurface : lightSurface}`}
-        style={{ minHeight: 40 }}
+        style={{ 
+          minHeight: 40,
+          backgroundColor: theme === "dark" ? darkSurface : lightSurface,
+       }}
       >
         <TextInput 
-          className="flex-1 font-sans-light text-light-text focus:outline-none"
+          className="flex-1 font-sans-light text-light-text dark:text-dark-text focus:outline-none"
           value={value}
           placeholder={isFocused ? "" : placeholder}
           placeholderTextColor={`${ theme === "dark" ? "#6c7086" : lightTextColor}`}
