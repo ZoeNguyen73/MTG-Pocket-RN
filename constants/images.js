@@ -15,6 +15,8 @@ import dark_background_vertical_11 from "../assets/images/dark_background_vertic
 import FDN_Key_Art_Wallpaper_1040x1536 from "../assets/images/FDN_Key_Art_Wallpaper_1040x1536.jpg";
 import FDN_Bundle_Wallpaper_1040x1536 from "../assets/images/FDN_Bundle_Wallpaper_1040x1536.jpg";
 import background_lowryn_eclipsed from "../assets/images/background_lowryn_eclipsed.jpg";
+import background_ATLA from "../assets/images/background_ATLA.jpg";
+import background_ATLA2 from "../assets/images/background_ATLA2.jpg";
 
 export default {
   foundations_1,
@@ -34,4 +36,6 @@ export default {
   dark_background,
   card_back,
   background_lowryn_eclipsed,
+  background_ATLA,
+  background_ATLA2,
 };

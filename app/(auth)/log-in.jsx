@@ -1,8 +1,9 @@
-import { View, Text, ScrollView, Keyboard, StyleSheet, Image, ImageBackground } from "react-native";
-import React, { useState } from "react";
+import { View, Text, ScrollView, Keyboard, StyleSheet, Platform, ImageBackground } from "react-native";
+import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Link } from "expo-router";
 import Feather from "@expo/vector-icons/Feather";
+import { LinearGradient } from "expo-linear-gradient";
 
 import { useAuthContext } from "../../context/AuthProvider";
 import { useThemeContext } from "../../context/ThemeProvider";
@@ -25,6 +26,8 @@ const LogIn = () => {
   
   const iconColor = tailwindConfig.theme.extend.colors.dark.text;
   const fonts = getFonts();
+
+  const isWeb = Platform.OS === "web";
 
   const [form, setForm] = useState({
     username: "",
@@ -133,39 +136,114 @@ const LogIn = () => {
 
   return (
     <ImageBackground
-      source={images.FDN_Bundle_Wallpaper_1040x1536}
+      source={isWeb ? images.background_ATLA2 : images.FDN_Bundle_Wallpaper_1040x1536}
+      resizeMode="cover"
       style={{
-        resizeMode: "cover",
         overflow: "hidden",
+        width: "100%",
+        height: "100%"
       }}
     >
-      <SafeAreaView 
-        className="items-center h-full"
-      >
-        <ScrollView className="w-full" contentContainerStyle={styles.scrollView}>
-          <View 
-            className="flex-column w-full h-full justify-between items-center"
-          >
+      <View className="absolute inset-0 bg-black/80" />
+      <SafeAreaView className="items-center h-full">
+        { !isWeb && (
+          <ScrollView className="w-full h-full" contentContainerStyle={styles.scrollView}>
+            <View 
+              className="flex-column w-full h-full justify-between items-center"
+            >
 
-            <View className="h-[35vh] w-full justify-center items-center flex">
-              {/* <Image 
-                source={images.FDN_Key_Art_Wallpaper_1040x1536}
-                resizeMode="center"
-                style={{ position: "absolute" }}
-              /> */}
+              <View className="h-[40vh] w-full justify-center items-center flex" />
+
+              <View
+                className="w-full h-[60vh] rounded-3xl justify-center items-center 
+                rounded-b-none border border-t-8 border-black"
+                style={{
+                  backgroundColor: "rgba(30, 30, 46, 0.90)"
+                }}
+              >
+                <View
+                  className="w-[85%] py-5 px-5"
+                >
+                  <View className="flex-row gap-2 items-center">
+                    <Text 
+                      className="text-dark-text font-serif-bold text-4xl tracking-wider"
+                      style={{ fontFamily: fonts.serifBold }}
+                    >
+                      Welcome Back!
+                    </Text>
+                    <Feather name="smile" size={32} color={iconColor} />
+                  </View>
+
+                  <FormField 
+                    title="Username"
+                    value={form.username}
+                    handleChangeText={(e) => {
+                      handleFormError(null, "username");
+                      setForm({ ...form, username: e });
+                    }}
+                    otherStyles="mt-10"
+                    error={formErrors.username}
+                  />
+                  <FormField 
+                    title="Password"
+                    value={form.password}
+                    handleChangeText={(e) => {
+                      handleFormError(null, "password");
+                      setForm({ ...form, password: e });
+                    }}
+                    otherStyles="mt-4"
+                    error={formErrors.password}
+                  />
+
+                  <Button 
+                    title="Log In"
+                    handlePress={validate}
+                    containerStyles="mt-12"
+                    isLoading={isSubmitting}
+                  />
+
+                  <View className="justify-center gap-2 pt-5 flex-row mt-1 mb-5">
+                    <Text 
+                      className="text-sm text-dark-text font-sans tracking-wide"
+                      style={{ fontFamily: fonts.sans }}
+                    >
+                      Don't have an account?
+                    </Text>
+                    <Link
+                      href="/register"
+                      className="text-sm font-sans-bold text-light-links dark:text-dark-links tracking-wide"
+                      style={{ fontFamily: fonts.sansBold }}
+                    > 
+                      Register for free
+                    </Link>
+                  </View>
+                </View>
+                
+              </View>
             </View>
+          </ScrollView>
+        )}
 
-            <View
-              className="w-full h-[50vh] rounded-3xl justify-center items-center 
-              rounded-b-none border border-t-8 border-black"
+        { isWeb && (
+          <View className="h-screen items-center justify-center">
+            <LinearGradient
+              colors={[
+                "rgba(251, 146, 60, 0.3)",   // orange-400/30
+                "rgba(192, 132, 252, 0.3)",  // purple-400/30
+              ]}
+              start={{ x: 0, y: 0.5 }}   // left
+              end={{ x: 1, y: 0.5 }}     // right
               style={{
-                backgroundColor: "rgba(30, 30, 46, 0.90)"
+                paddingHorizontal: 20,
+                paddingVertical: 40,
+                borderRadius: 24,
+                alignItems: "center",
+                alignSelf: "flex-start",
               }}
             >
-              <View
-                className="w-[85%] py-5 px-5"
-              >
-                <View className="flex-row gap-2 items-center">
+              <View className="flex-column min-w-[400px] py-10 px-10">
+                
+                <View className="flex-row gap-2 items-center justify-center">
                   <Text 
                     className="text-dark-text font-serif-bold text-4xl tracking-wider"
                     style={{ fontFamily: fonts.serifBold }}
@@ -174,7 +252,6 @@ const LogIn = () => {
                   </Text>
                   <Feather name="smile" size={32} color={iconColor} />
                 </View>
-                
 
                 <FormField 
                   title="Username"
@@ -220,11 +297,11 @@ const LogIn = () => {
                   </Link>
                 </View>
               </View>
-              
-            </View>
-            
+
+
+            </LinearGradient>
           </View>
-        </ScrollView>
+        )}
         
       </SafeAreaView>
 

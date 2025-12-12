@@ -1,4 +1,4 @@
-import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch } from "react-native";
+import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch, Platform } from "react-native";
 import { useState, useEffect } from "react";
 import { router, Link } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -414,6 +414,7 @@ const Collection = () => {
   const [ showFavourites, setShowFavourites ] = useState(false);
 
   const headerHeight = 190;
+  const isWeb = Platform.OS === "web";
   
   const sortIconMapping = {
     "time": "clock-outline",
@@ -529,12 +530,17 @@ const Collection = () => {
 
   return (
     <ImageBackground
-      source={images.dark_background_vertical_5}
+      source={isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_5}
+      className="flex-1 w-full"
+      resizeMode="cover"
       style={{
-        resizeMode: "cover",
         overflow: "hidden",
       }}
     >
+      {isWeb && (
+        <View className="absolute inset-0 bg-black/75" />
+      )}
+
       { auth?.username && !isLoading && cardList.length > 0 && (
         <View className="h-screen justify-center">
           <StickyHeader 
