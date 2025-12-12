@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import Feather from "@expo/vector-icons/Feather";
 import { BlurView } from "expo-blur";
 import { useState } from "react";
+import { router } from "expo-router";
 
 import tailwindConfig from "../../tailwind.config";
 import { useThemeContext } from "../../context/ThemeProvider";
