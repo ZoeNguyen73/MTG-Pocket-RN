@@ -1,5 +1,5 @@
 import { View, Text, Platform, Image, TouchableOpacity } from "react-native";
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -9,9 +9,12 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { images } from "../../constants";
+import { soundManager } from "../../utils/SoundManager";
 
 import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
+
+const PRICE_HIGHLIGHT_THRESHOLD = 5;
 
 const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip }) => {
   const isFlipped = useSharedValue(false);
@@ -113,6 +116,13 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip }) => {
           frontCardAnimatedStyle
         ]}
       >
+        <View 
+          className="bg-light-yellow rounded-full w-[33%] py-1 px-2 justify-center" 
+          style={{zIndex: 3, position: "absolute", right: "33%", bottom:"-5%"}}>
+          <Text className="text-xs font-sans-semibold">
+            {`$ ${(parseFloat(card.final_price)).toFixed(2)}`}
+          </Text>
+        </View>
         <CardDisplay card={card} maxWidth={width} shadow={false} />
       </Animated.View>
 
@@ -125,6 +135,12 @@ const CardFlipperWeb = ({ cards }) => {
   const [ totalValue, setTotalValue ] = useState(0);
   const [ topCard, setTopCard ] = useState(cards[0]);
 
+  const sounds = {
+    bloop: "paper-collect-3",
+    highlight: "charming-twinkle",
+    summary: "magical-twinkle",
+  };
+
   const flipAllCards = () => {
     cards.forEach((_, index) => {
       setTimeout(() => {
@@ -134,12 +150,16 @@ const CardFlipperWeb = ({ cards }) => {
   };
 
   const handleFlip = (cardIndex) => {
-    console.log("handleFlip cardIndex: " + cardIndex);
+    soundManager.playSfx(sounds.bloop);
     const card = cards[cardIndex];
     const price = card.final_price || 0;
 
     if (parseFloat(price) > parseFloat(topCard.final_price)) {
       setTopCard(cards[cardIndex]);
+    }
+
+    if (parseFloat(price) >= PRICE_HIGHLIGHT_THRESHOLD) {
+      soundManager.playSfx(sounds.highlight);
     }
 
     setTotalValue(prev => (parseFloat(prev) + parseFloat(price)).toFixed(2));
@@ -192,7 +212,7 @@ const CardFlipperWeb = ({ cards }) => {
         <Button 
           title="Reveal All Cards"
           handlePress={() => flipAllCards()}
-          containerStyles="mt-5 w-fit"
+          containerStyles="mt-12 w-fit"
           variant="small-primary"
         />
       </View>
