@@ -213,9 +213,26 @@ const CardFlipperWeb = ({ cards, setCode }) => {
           <Text className="text-center font-sans-semibold tracking-wide text-light-text dark:text-dark-text">
             Total Pack Value:
           </Text>
-          <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
-            {`USD ${totalValue}`}
-          </Text>
+          <View 
+            className="mt-1 rounded-full min-h-[45px] min-w-[200px] justify-center items-center"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 12,
+              },
+              shadowOpacity: 0.6,
+              shadowRadius: 16,
+              elevation: 24,
+            }}
+          >
+            <View className="justify-center items-center flex-row gap-1">
+              <Text className="text-light-yellow font-sans-bold text-2xl tracking-wider">
+                {`USD ${totalValue}`}
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View className="flex-1"/>
@@ -224,9 +241,26 @@ const CardFlipperWeb = ({ cards, setCode }) => {
           <Text className="text-center font-sans-semibold tracking-wide text-light-text dark:text-dark-text">
             Highest Card Value:
           </Text>
-          <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
-            {`USD ${parseFloat(cards[topCardIndex].final_price)}`}
-          </Text>
+          <View 
+            className="mt-1 rounded-full min-h-[45px] min-w-[200px] justify-center items-center"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 12,
+              },
+              shadowOpacity: 0.6,
+              shadowRadius: 16,
+              elevation: 24,
+            }}
+          >
+            <View className="justify-center items-center flex-row gap-1">
+              <Text className="text-dark-maroon font-sans-bold text-2xl tracking-wider">
+                {`USD ${parseFloat(cards[topCardIndex].final_price)}`}
+              </Text>
+            </View>
+          </View>
         </View>
       </View>
       

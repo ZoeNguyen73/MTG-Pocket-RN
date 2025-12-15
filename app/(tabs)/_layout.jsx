@@ -159,7 +159,7 @@ const CustomTabBar = ({
   return (
     <View
       className="absolute left-0 right-0 bottom-0 z-50 overflow-hidden"
-      style={{ height: 60 }}
+      style={{ height: 65 }}
     >
       <BlurView
         tint={theme === "dark" ? "dark" : "light"}
