@@ -577,6 +577,7 @@ const SetSelector = ({ sets }) => {
 
   useEffect(() => {
     const getSetDetails = async () => {
+      console.log("[SetSelector] useeEffect triggered - getting set details...");
       const updatedSets = await Promise.all(
         sets.map(async (set) => {
           const response = await axios.get(`/sets/${set.code}`);
