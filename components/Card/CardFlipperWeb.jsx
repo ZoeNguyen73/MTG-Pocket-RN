@@ -14,12 +14,16 @@ import { soundManager } from "../../utils/SoundManager";
 import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
 
+import Sparkles from "../Sparkles";
+
 const PRICE_HIGHLIGHT_THRESHOLD = 5;
 
-const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip }) => {
+const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, topCardIndex }) => {
   const isFlipped = useSharedValue(false);
   const scale = useSharedValue(1); // Scale value for hover animation
   const duration = 500;
+  const priceHightlight = parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD;
+  const isTopCard = cardIndex === topCardIndex;
 
   const handleFlipCard = () => {
     console.log("handleFlipCard triggered with cardIndex: " + cardIndex);
@@ -109,6 +113,12 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip }) => {
         </TouchableOpacity>
       </Animated.View>
 
+      { flippedAll && isTopCard && (
+        <View style={{position: "absolute", zIndex: 50, height: "100%", width: "100%"}}>
+          <Sparkles /> 
+        </View>
+      )}
+
       {/* Card front */}
       <Animated.View 
         style={[
@@ -117,14 +127,34 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip }) => {
         ]}
       >
         <View 
-          className="bg-light-yellow rounded-full w-[33%] py-1 px-2 justify-center" 
-          style={{zIndex: 3, position: "absolute", right: "33%", bottom:"-5%"}}>
-          <Text className="text-xs font-sans-semibold">
+          className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[40%] py-1 px-2`} 
+          style={{zIndex: 3, position: "absolute", right: "30%", bottom:"-5%"}}>
+          <Text className="text-xs font-sans-semibold text-center">
             {`$ ${(parseFloat(card.final_price)).toFixed(2)}`}
           </Text>
         </View>
         <CardDisplay card={card} maxWidth={width} shadow={false} />
       </Animated.View>
+      
+      { isFlipped.value && parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD && (
+        <View
+          style={{
+            position: "absolute",
+            left: "50%",
+            transform: [{ translateX: width * -0.5 }, { translateY: "10%" }], // Center glow
+            width: "100%", // Width of the glow
+            height: "80%", // Height of the glow
+            backgroundColor: "rgba(255, 215, 0, 0.01)", // Semi-transparent yellow
+            borderRadius: 70, // Rounded edges for glow
+            shadowColor: "yellow",
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.8,
+            shadowRadius: 40, // Creates the "glow" effect
+            elevation: 35, // Android shadow
+            zIndex: -1, // Place glow behind the content
+          }}
+        />
+      )}
 
     </Animated.View>
   );
@@ -133,7 +163,9 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip }) => {
 const CardFlipperWeb = ({ cards }) => {
   const [ autoFlipIndex, setAutoFlipIndex ] = useState(-1);
   const [ totalValue, setTotalValue ] = useState(0);
-  const [ topCard, setTopCard ] = useState(cards[0]);
+  const [ topCardIndex, setTopCardIndex ] = useState(0);
+  const [ flippedAll, setFlippedAll ] = useState(false);
+  const [ flipCount, setFlipCount ] = useState(0);
 
   const sounds = {
     bloop: "paper-collect-3",
@@ -154,8 +186,8 @@ const CardFlipperWeb = ({ cards }) => {
     const card = cards[cardIndex];
     const price = card.final_price || 0;
 
-    if (parseFloat(price) > parseFloat(topCard.final_price)) {
-      setTopCard(cards[cardIndex]);
+    if (parseFloat(price) > parseFloat(cards[topCardIndex].final_price)) {
+      setTopCardIndex(cardIndex);
     }
 
     if (parseFloat(price) >= PRICE_HIGHLIGHT_THRESHOLD) {
@@ -163,6 +195,10 @@ const CardFlipperWeb = ({ cards }) => {
     }
 
     setTotalValue(prev => (parseFloat(prev) + parseFloat(price)).toFixed(2));
+    setFlipCount(prev => prev + 1);
+    if (flipCount === cards.length - 1) {
+      setFlippedAll(true);
+    }
   }
 
   return (
@@ -185,7 +221,7 @@ const CardFlipperWeb = ({ cards }) => {
             Highest Card Value:
           </Text>
           <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
-            {`USD ${parseFloat(topCard.final_price)}`}
+            {`USD ${parseFloat(cards[topCardIndex].final_price)}`}
           </Text>
         </View>
       </View>
@@ -203,6 +239,8 @@ const CardFlipperWeb = ({ cards }) => {
               autoFlip={autoFlipIndex === index}
               handleFlip={handleFlip}
               cardIndex={index}
+              flippedAll={flippedAll}
+              topCardIndex={topCardIndex}
             />
           ))}
         </View>
