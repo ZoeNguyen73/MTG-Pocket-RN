@@ -13,13 +13,15 @@ import { images } from "../../constants";
 import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
 
-const FlipCard = ({ card, width, autoFlip }) => {
+const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip }) => {
   const isFlipped = useSharedValue(false);
   const scale = useSharedValue(1); // Scale value for hover animation
   const duration = 500;
 
-  const handleFlip = () => {
+  const handleFlipCard = () => {
+    console.log("handleFlipCard triggered with cardIndex: " + cardIndex);
     isFlipped.value = true;
+    handleFlip(cardIndex);
   };
 
   const handleMouseEnter = () => {
@@ -32,7 +34,7 @@ const FlipCard = ({ card, width, autoFlip }) => {
 
   useEffect(() => {
     if (autoFlip) {
-      handleFlip();
+      handleFlipCard();
     }
   }, [autoFlip]);
 
@@ -85,7 +87,7 @@ const FlipCard = ({ card, width, autoFlip }) => {
         ]}
       >
         <TouchableOpacity
-          onPress={handleFlip}
+          onPress={handleFlipCard}
           style={{
             width: "100%",
             height: "100%",
@@ -119,7 +121,9 @@ const FlipCard = ({ card, width, autoFlip }) => {
 };
 
 const CardFlipperWeb = ({ cards }) => {
-  const [autoFlipIndex, setAutoFlipIndex] = useState(-1);
+  const [ autoFlipIndex, setAutoFlipIndex ] = useState(-1);
+  const [ totalValue, setTotalValue ] = useState(0);
+  const [ topCard, setTopCard ] = useState(cards[0]);
 
   const flipAllCards = () => {
     cards.forEach((_, index) => {
@@ -129,14 +133,41 @@ const CardFlipperWeb = ({ cards }) => {
     });
   };
 
+  const handleFlip = (cardIndex) => {
+    console.log("handleFlip cardIndex: " + cardIndex);
+    const card = cards[cardIndex];
+    const price = card.final_price || 0;
+
+    if (parseFloat(price) > parseFloat(topCard.final_price)) {
+      setTopCard(cards[cardIndex]);
+    }
+
+    setTotalValue(prev => (parseFloat(prev) + parseFloat(price)).toFixed(2));
+  }
+
   return (
-    <View className="mt-10 h-screen">
-      <View className="justify-center items-center mb-2">
-        <Button 
-          title="Reveal All Cards"
-          handlePress={() => flipAllCards()}
-          containerStyles="mt-12 w-fit"
-        />
+    <View className="mt-24 h-screen items-center">
+      
+      <View className="flex-row w-[500px] justify-center items-center">
+        <View className="flex-column justify-center items-center gap-2">
+          <Text className="text-center font-sans-semibold tracking-wide text-light-text dark:text-dark-text">
+            Total Pack Value:
+          </Text>
+          <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
+            {`USD ${totalValue}`}
+          </Text>
+        </View>
+
+        <View className="flex-1"/>
+
+        <View className="flex-column justify-center items-center gap-2">
+          <Text className="text-center font-sans-semibold tracking-wide text-light-text dark:text-dark-text">
+            Highest Card Value:
+          </Text>
+          <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
+            {`USD ${parseFloat(topCard.final_price)}`}
+          </Text>
+        </View>
       </View>
       
       { Platform.OS === "web" && (
@@ -148,12 +179,23 @@ const CardFlipperWeb = ({ cards }) => {
             <FlipCard
               key={index} 
               card={card}
-              width={200}
+              width={180}
               autoFlip={autoFlipIndex === index}
+              handleFlip={handleFlip}
+              cardIndex={index}
             />
           ))}
         </View>
       )}
+
+      <View className="justify-center items-center mb-2">
+        <Button 
+          title="Reveal All Cards"
+          handlePress={() => flipAllCards()}
+          containerStyles="mt-5 w-fit"
+          variant="small-primary"
+        />
+      </View>
 
     </View>
   )

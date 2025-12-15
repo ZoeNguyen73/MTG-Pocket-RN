@@ -14,7 +14,6 @@ const Home = () => {
   const { isLoggedIn, isLoading } = useAuthContext();
   const [ setList, setSetList ] = useState([]);
   // const bgSoundRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(true);
   const isWeb = Platform.OS === "web";
 
   // load set data
