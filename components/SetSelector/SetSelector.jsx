@@ -12,13 +12,11 @@ import * as Animatable from "react-native-animatable";
 import { useState, useEffect, useRef } from "react";
 import { SvgUri } from "react-native-svg";
 import { router } from "expo-router";
-import { createAudioPlayer } from "expo-audio";
 
 import axios from "../../api/axios";
 
 import { getFonts } from "../../utils/FontFamily";
 import { soundManager } from "../../utils/SoundManager";
-import { soundAssets } from "../../constants/sounds";
 
 import Button from "../CustomButton/CustomButton";
 import CardHighlight from "./../Card/CardHighlight";
@@ -39,77 +37,38 @@ const fonts = getFonts();
 
 const SetCard = ({ activeSetId, set, lastSetId }) => {
   const [ selected, setSelected ] = useState(false);
-  const soundRef = useRef(null);
-
-  const handlePress = async () => {
-    const playSound = async () => {
-      try {
-        // const { sound } = await Audio.Sound.createAsync(
-        //   soundAssets["shine-8"],
-        //   { isLooping: false }
-        // );
-        
-        // soundRef.current = sound;
-        // await sound.setVolumeAsync(soundManager.getSoundEffectsVolume());
-        // await sound.playAsync();
-
-        const pressSound = createAudioPlayer(soundAssets["shine-8"]);
-        soundRef.current = pressSound;
-        pressSound.volume = soundManager.getSoundEffectsVolume();
-        pressSound.play(); 
-
-      } catch (error) {
-        console.error("Error playing sound:", error);
-      }
-    };
-
-    playSound();
-
-    setSelected(true); // Update the selected state
-
-    // Cleanup: Unload the sound when the component unmounts
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
-  };
-
-  const handleConfirmation = async () => {
-    const playSound = async () => {
-      try {
-        const confirmSound = createAudioPlayer(soundAssets["game-bonus"]);
-        soundRef.current = confirmSound;
-        confirmSound.volume = soundManager.getSoundEffectsVolume();
-        confirmSound.play();
-
-      } catch (error) {
-        console.error("Error playing sound:", error);
-      }
-    };
-
-    playSound();
-
-    const timeoutRef = setTimeout(
-      () => router.push(`/pack/play-booster/${set.code}`),
-      1000
-    );
-
-    // Cleanup: Unload the sound when the component unmounts
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-      clearTimeout(timeoutRef);
-    };
-  };
+  const timeoutRef = useRef(null);
 
   // Reset the selected state when the card is swiped away
   useEffect(() => {
+    
     if (activeSetId !== set.code) {
       setSelected(false);
     }
+
+    return () => {
+      // clear any pending navigation timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+
   }, [activeSetId, set.code])
+  
+
+  const handlePress = async () => {
+    soundManager.playSfx("shine-8");
+    setSelected(true); // Update the selected state
+  };
+
+  const handleConfirmation = async () => {
+    soundManager.playSfx("game-bonus");
+    timeoutRef.current = setTimeout(
+      () => router.push(`/pack/play-booster/${set.code}`),
+      1000
+    );
+  };
 
   return (
     <Animatable.View
@@ -229,6 +188,7 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
     setIsHovered(false);
     updateHoveredSetId(null);
   };
+  const timeoutRef = useRef(null);
 
   // const cardHeight = 350;
   // const cardWidth = 200;
@@ -295,7 +255,13 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
             shadowOpacity: 0.6, // Shadow opacity
             shadowRadius: 4, // Blur radius
           }}
-          onPress={() => router.push(`/pack/play-booster/${set.code}`)}
+          onPress={() => {
+            soundManager.playSfx("game-bonus");
+            timeoutRef.current = setTimeout(
+              () => router.push(`/pack/play-booster/${set.code}`),
+              1000
+            );
+          }}
         >
           <Text 
             className="text-base font-sans tracking-wide"
@@ -581,7 +547,7 @@ const SetSelector = ({ sets }) => {
 
   useEffect(() => {
     const getSetDetails = async () => {
-      console.log("[SetSelector] useeEffect triggered - getting set details...");
+      console.log("[SetSelector] useEffect triggered - getting set details...");
       const updatedSets = await Promise.all(
         sets.map(async (set) => {
           const response = await axios.get(`/sets/${set.code}`);
