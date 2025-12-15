@@ -7,6 +7,7 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import { router } from "expo-router";
 
 import { images } from "../../constants";
 import { soundManager } from "../../utils/SoundManager";
@@ -160,7 +161,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
   );
 };
 
-const CardFlipperWeb = ({ cards }) => {
+const CardFlipperWeb = ({ cards, setCode }) => {
   const [ autoFlipIndex, setAutoFlipIndex ] = useState(-1);
   const [ totalValue, setTotalValue ] = useState(0);
   const [ topCardIndex, setTopCardIndex ] = useState(0);
@@ -258,6 +259,21 @@ const CardFlipperWeb = ({ cards }) => {
           isDisabled={disableFlipAllButton}
         />
       </View>
+
+      { flippedAll && (
+        <View className="flex-row gap-3 mt-5 mb-5">
+          <Button 
+            title="Open Another Pack"
+            handlePress={() => router.replace(`/pack/play-booster/${setCode}`)}
+            variant="small-primary"
+          />
+          <Button 
+            variant="small-secondary"
+            title="Back to Home"
+            handlePress={() => router.replace(`/home`)}
+          />
+        </View>
+      )}
 
     </View>
   )
