@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import { View, Text, Switch, TouchableOpacity } from "react-native";
+import { useEffect, useState, useRef } from "react";
+import { View, Text, Switch, TouchableOpacity, Platform } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import DropDownPicker from "react-native-dropdown-picker";
 import { Audio } from "expo-av";
@@ -18,6 +18,8 @@ const SoundSettings = () => {
   const [ bgMusicOptions, setBgMusicOptions ] = useState([]);
   const [ sfxVolume, setSfxVolume ] = useState(1);
   const soundRef = useRef(null);
+
+  const isWeb = Platform.OS === "web";
 
   useEffect(() => {
     const options = [];
@@ -136,7 +138,7 @@ const SoundSettings = () => {
       )}
 
       { bgMusicPlaying && (
-        <View className="mt-5">
+        <View style={{ position: "relative", zIndex: 9999 }} className="mt-5">
           <View>
             <Text className="font-sans-light-italic text-sm text-dark-text tracking-wide">
               Choose another track
@@ -152,6 +154,8 @@ const SoundSettings = () => {
             setItems={setBgMusicOptions}
             multiple={false}
             onChangeValue={handleChangeMusicOption}
+            zIndex={9999}
+            zIndexInverse={1000}
             style={{ 
               backgroundColor: lightBackground,
               borderWidth: dropdownOpen ? 1 : 0,
@@ -161,10 +165,15 @@ const SoundSettings = () => {
               paddingLeft: 10,
               minHeight: 28,
               borderRadius: 14,
+              position: "relative",
+              zIndex: 9999,
             }}
             listMode="SCROLLVIEW"
             dropDownContainerStyle={{ 
-              backgroundColor: lightBackground, 
+              backgroundColor: lightBackground,
+              position: "absolute",
+              zIndex: 9999,
+              elevation: 9999, // harmless on web, helps on Android too
             }}
             textStyle={{
               color: lightText,
@@ -186,7 +195,7 @@ const SoundSettings = () => {
           <View
             className="flex-row w-100 py-2 items-center"
           >
-            <View className="flex-row w-100 gap-3 justify-center items-center">
+            <View className="flex-row w-100 gap-3 justify-center items-center" style={{ width: "100%" }}>
               <View
                 className="rounded-full h-[30] w-[30] bg-light-yellow justify-center items-center"
                 style={{
@@ -208,7 +217,7 @@ const SoundSettings = () => {
 
               <View 
                 className="flex-1 h-[15] rounded-full"
-                style={{ backgroundColor: `${lightBackground}50`}}
+                style={{ backgroundColor: `${lightBackground}50` }}
               >
                 <View
                   className="bg-light-background rounded-full"
@@ -253,7 +262,7 @@ const SoundSettings = () => {
           <View
             className="flex-row w-100 py-2 items-center"
           >
-            <View className="flex-row w-100 gap-3 justify-center items-center">
+            <View className="flex-row w-100 gap-3 justify-center items-center" style={{ width: "100%" }}>
               <View
                 className="rounded-full h-[30] w-[30] bg-light-yellow justify-center items-center"
                 style={{

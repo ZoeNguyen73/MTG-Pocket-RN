@@ -164,7 +164,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
 const CardFlipperWeb = ({ cards, setCode }) => {
   const [ autoFlipIndex, setAutoFlipIndex ] = useState(-1);
   const [ totalValue, setTotalValue ] = useState(0);
-  const [ topCardIndex, setTopCardIndex ] = useState(0);
+  const [ topCardIndex, setTopCardIndex ] = useState(-1);
   const [ flippedAll, setFlippedAll ] = useState(false);
   const [ flipCount, setFlipCount ] = useState(0);
   const [ disableFlipAllButton, setDisableFlipAllButton ] = useState(false);
@@ -189,7 +189,12 @@ const CardFlipperWeb = ({ cards, setCode }) => {
     const card = cards[cardIndex];
     const price = card.final_price || 0;
 
-    if (parseFloat(price) > parseFloat(cards[topCardIndex].final_price)) {
+    // if it is the first card that is flipped
+    if (topCardIndex === -1) {
+      setTopCardIndex(cardIndex);
+
+    // if current card's price is higher than current top card
+    } else if (parseFloat(price) > parseFloat(cards[topCardIndex].final_price)) {
       setTopCardIndex(cardIndex);
     }
 
@@ -257,7 +262,7 @@ const CardFlipperWeb = ({ cards, setCode }) => {
           >
             <View className="justify-center items-center flex-row gap-1">
               <Text className="text-dark-maroon font-sans-bold text-2xl tracking-wider">
-                {`USD ${parseFloat(cards[topCardIndex].final_price)}`}
+                {topCardIndex === -1 ? `USD 0.00` : `USD ${parseFloat(cards[topCardIndex].final_price)}`}
               </Text>
             </View>
           </View>
