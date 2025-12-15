@@ -12,7 +12,7 @@ import * as Animatable from "react-native-animatable";
 import { useState, useEffect, useRef } from "react";
 import { SvgUri } from "react-native-svg";
 import { router } from "expo-router";
-import { Audio } from "expo-av";
+import { createAudioPlayer } from "expo-audio";
 
 import axios from "../../api/axios";
 
@@ -23,6 +23,7 @@ import { soundAssets } from "../../constants/sounds";
 import Button from "../CustomButton/CustomButton";
 import CardHighlight from "./../Card/CardHighlight";
 import CardDisplay from "../Card/CardDisplay";
+
 
 const zoomIn = {
   0: { scale: 0.85 },
@@ -43,13 +44,19 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
   const handlePress = async () => {
     const playSound = async () => {
       try {
-        const { sound } = await Audio.Sound.createAsync(
-          soundAssets["shine-8"],
-          { isLooping: false }
-        );
-        soundRef.current = sound;
-        await sound.setVolumeAsync(soundManager.getSoundEffectsVolume());
-        await sound.playAsync();
+        // const { sound } = await Audio.Sound.createAsync(
+        //   soundAssets["shine-8"],
+        //   { isLooping: false }
+        // );
+        
+        // soundRef.current = sound;
+        // await sound.setVolumeAsync(soundManager.getSoundEffectsVolume());
+        // await sound.playAsync();
+
+        const pressSound = createAudioPlayer(soundAssets["shine-8"]);
+        soundRef.current = pressSound;
+        pressSound.volume = soundManager.getSoundEffectsVolume();
+        pressSound.play(); 
 
       } catch (error) {
         console.error("Error playing sound:", error);
@@ -71,13 +78,10 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
   const handleConfirmation = async () => {
     const playSound = async () => {
       try {
-        const { sound } = await Audio.Sound.createAsync(
-          soundAssets["game-bonus"],
-          { isLooping: false }
-        );
-        soundRef.current = sound;
-        await sound.setVolumeAsync(soundManager.getSoundEffectsVolume());
-        await sound.playAsync();
+        const confirmSound = createAudioPlayer(soundAssets["game-bonus"]);
+        soundRef.current = confirmSound;
+        confirmSound.volume = soundManager.getSoundEffectsVolume();
+        confirmSound.play();
 
       } catch (error) {
         console.error("Error playing sound:", error);
