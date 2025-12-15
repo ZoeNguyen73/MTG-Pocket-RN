@@ -166,6 +166,7 @@ const CardFlipperWeb = ({ cards }) => {
   const [ topCardIndex, setTopCardIndex ] = useState(0);
   const [ flippedAll, setFlippedAll ] = useState(false);
   const [ flipCount, setFlipCount ] = useState(0);
+  const [ disableFlipAllButton, setDisableFlipAllButton ] = useState(false);
 
   const sounds = {
     bloop: "paper-collect-3",
@@ -174,6 +175,7 @@ const CardFlipperWeb = ({ cards }) => {
   };
 
   const flipAllCards = () => {
+    setDisableFlipAllButton(true);
     cards.forEach((_, index) => {
       setTimeout(() => {
         setAutoFlipIndex(index);
@@ -198,6 +200,7 @@ const CardFlipperWeb = ({ cards }) => {
     setFlipCount(prev => prev + 1);
     if (flipCount === cards.length - 1) {
       setFlippedAll(true);
+      setDisableFlipAllButton(true);
     }
   }
 
@@ -252,6 +255,7 @@ const CardFlipperWeb = ({ cards }) => {
           handlePress={() => flipAllCards()}
           containerStyles="mt-12 w-fit"
           variant="small-primary"
+          isDisabled={disableFlipAllButton}
         />
       </View>
 

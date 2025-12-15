@@ -55,8 +55,16 @@ const Button = ({
     iconSize = 14;
   } 
 
+  if (isDisabled) {
+    backgroundColor = theme === "dark"
+      ? "bg-dark-grey1"
+      : "bg-light-grey1";
+    textColor = "text-dark-grey1 dark:text-light-grey1";
+  }
+
   return (
     <TouchableOpacity
+      disabled={isDisabled}
       onPress={handlePress}
       activeOpacity={0.7}
       className={`${backgroundColor} ${size} rounded-full justify-center items-center
