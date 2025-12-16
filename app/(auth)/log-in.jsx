@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Keyboard, StyleSheet, Platform, ImageBackground } from "react-native";
+import { View, Text, ScrollView, Keyboard, KeyboardAvoidingView, Platform, ImageBackground } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Link } from "expo-router";
@@ -23,7 +23,7 @@ const LogIn = () => {
   const { auth, logIn, isLoggedIn, isLoading, logOut} = useAuthContext();
   const { handleError } = useErrorHandler();
   const { theme } = useThemeContext();
-  
+
   const iconColor = tailwindConfig.theme.extend.colors.dark.text;
   const fonts = getFonts();
 
@@ -145,17 +145,21 @@ const LogIn = () => {
       }}
     >
       <View className="absolute inset-0 bg-black/80" />
-      <SafeAreaView className="items-center h-full">
+      <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]} className="items-center">
         { !isWeb && (
-          <ScrollView className="w-full h-full" contentContainerStyle={styles.scrollView}>
-            <View 
-              className="flex-column w-full h-full justify-between items-center"
+          <KeyboardAvoidingView
+            style={{ flex: 1, width: "100%" }}
+            behavior={Platform.OS === "ios" ? "position" : "height"}
+            keyboardVerticalOffset={0}
+          >
+            <ScrollView 
+              style={{ flex: 1, width: "100%" }}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
+              keyboardShouldPersistTaps="handled"
+              contentInsetAdjustmentBehavior="never" 
             >
-
-              <View className="h-[40vh] w-full justify-center items-center flex" />
-
               <View
-                className="w-full h-[60vh] rounded-3xl justify-center items-center 
+                className="w-full rounded-3xl justify-center items-center pt-12
                 rounded-b-none border border-t-8 border-black"
                 style={{
                   backgroundColor: "rgba(30, 30, 46, 0.90)"
@@ -220,8 +224,9 @@ const LogIn = () => {
                 </View>
                 
               </View>
-            </View>
-          </ScrollView>
+            </ScrollView>
+          </KeyboardAvoidingView>
+          
         )}
 
         { isWeb && (
@@ -312,12 +317,5 @@ const LogIn = () => {
   )
 
 };
-
-const styles = StyleSheet.create({
-  scrollView: {
-    flexGrow: 1,
-    justifyContent: "space-between",
-  },
-});
 
 export default LogIn;
