@@ -32,7 +32,7 @@ const SoundSettings = () => {
     });
 
     setBgMusicOptions(options);
-    setBgMusicDisplay(musicAssets[soundManager.backgroundMusicFileName].display);
+    setBgMusicDisplay(musicAssets[selectedBgMusic]?.display);
     setSfxVolume(soundManager.getSoundEffectsVolume());
   }, []);
 

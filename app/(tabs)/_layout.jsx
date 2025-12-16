@@ -10,6 +10,9 @@ import tailwindConfig from "../../tailwind.config";
 import { useThemeContext } from "../../context/ThemeProvider";
 import { useAuthContext } from "../../context/AuthProvider";
 
+import Avatar from "../../components/Avatar/Avatar";
+import Button from "../../components/CustomButton/CustomButton";
+
 const TabIcon = ({ color, icon }) => {
   return (
     <View 
@@ -34,16 +37,19 @@ const CustomTabBar = ({
   isWeb,
   theme
 }) => {
-  const { auth } = useAuthContext();
+  const { auth, logOut } = useAuthContext();
   const [ hoveredIndex, setHoveredIndex ] = useState(null);
+  const [ showConfirmPopup, setShowConfirmPopup ] = useState(false);
   
   const iconColor = theme === "dark"
     ? tailwindConfig.theme.extend.colors.light.text
     : tailwindConfig.theme.extend.colors.dark.text;
 
-  const barHeight = 55;
+  const handleLogOut = async () => {
+    await logOut();
+    router.replace("/")
+  };
 
-  // TO DO: implement actual auth logic
   const isLoggedIn = auth?.username; 
 
   // WEB LAYOUT: Navigation tabs on the left + Profile/Log in on the right
@@ -109,7 +115,6 @@ const CustomTabBar = ({
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
                   <TouchableOpacity
-                    
                     accessibilityRole="button"
                     accessibilityState={isFocused ? { selected: true } : {}}
                     accessibilityLabel={options.tabBarAccessibilityLabel}
@@ -129,26 +134,100 @@ const CustomTabBar = ({
                 </View>
               );
             })}
+              
           </View>
 
           {/* RIGHT: profile avatar / login icon */}
-          <View className="flex-row items-center gap-3">
-            <Text 
-              className="flex-1 font-sans text-sm text-dark-text tracking-wide" 
-            >
-              Log in to save cards to your collection
-            </Text>
-            <TouchableOpacity 
-              className="justify-center items-center w-[30px] h-[30px]"
+          { !isLoggedIn && (
+            <View className="flex-row items-center gap-3">
+              <Text 
+                className="flex-1 font-sans text-sm text-dark-text tracking-wide" 
+              >
+                Log in to save cards to your collection
+              </Text>
+              <TouchableOpacity 
+                className="justify-center items-center w-[30px] h-[30px]"
+                style={{
+                  borderRadius: 15,
+                  backgroundColor: `lightyellow`,
+                }}
+                onPress={() => router.push("/log-in")}
+              >
+                <Feather name="log-in" size={20} color={iconColor} />
+              </TouchableOpacity>
+            </View>
+          )}
+          
+          { isLoggedIn && (
+            <View className="flex-row items-center gap-3 cursor-default">
+              <Feather name="bell" size={22} color={iconColor} />
+              
+              <Avatar 
+                avatarName={auth?.avatar || "Planeswalker_1"}
+                withoutBorder={true}
+                size="extra small"
+                shadow={true}
+              />
+
+              <TouchableOpacity
+                className="justify-center items-center w-[30px] h-[30px]"
+                style={{
+                  borderRadius: 15,
+                  backgroundColor: "#FFFFFF80",
+                  marginRight: 5,
+                }}
+                onPress={() => setShowConfirmPopup(true)}
+              >
+                <Feather name="log-out" size={20} color={iconColor} />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Log out confirmation Popup */}
+          { showConfirmPopup && (
+            <View
               style={{
-                borderRadius: 15,
-                backgroundColor: `lightyellow`,
+                position: "absolute",
+                right: 5,
+                top: 45,
+                // transform: [{ translateX: }, { translateY: 100 }],
+                width: 300,
+                height: 120,
+                backgroundColor: "rgba(203, 166, 247, 0.95)",
+                borderRadius: 10,
+                justifyContent: "center",
+                alignItems: "center",
+                elevation: 5,
+                shadowColor: "black",
+                shadowOffset: { width: 0, height: 5 },
+                shadowOpacity: 0.2,
+                shadowRadius: 5,
+                borderBottomWidth: 6,
+                borderTopWidth: 1,
+                borderLeftWidth: 1,
+                borderRightWidth: 1,
+                borderColor: "black",
+                zIndex: 100,
               }}
-              onPress={() => router.push("/log-in")}
             >
-              <Feather name="log-in" size={20} color={iconColor} />
-            </TouchableOpacity>
-          </View>
+              <Text className="font-mono-bold text-lg text-light-text tracking-wider">
+                Confirm to Log Out?
+              </Text>
+
+              <View className="flex-row gap-3 mt-3">
+                <Button 
+                  title="Cancel"
+                  handlePress={() => setShowConfirmPopup(false)}
+                  variant="small-secondary"
+                />
+                <Button 
+                  title="Confirm"
+                  handlePress={handleLogOut}
+                  variant="small-primary"
+                />
+              </View>
+            </View>
+          )}
 
         </View>
       </View>
@@ -162,8 +241,8 @@ const CustomTabBar = ({
       style={{ height: 65 }}
     >
       <BlurView
-        tint={theme === "dark" ? "dark" : "light"}
-        intensity={20}
+        tint="dark"
+        intensity={100}
         style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
       />
 

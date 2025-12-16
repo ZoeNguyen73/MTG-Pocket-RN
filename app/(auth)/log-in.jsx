@@ -65,6 +65,7 @@ const LogIn = () => {
     setIsSubmitting(true);
 
     try {
+      console.log("[Log In submit] username: " + form.username + ", password: " + form.password);
       await logIn({ username: form.username, hash: form.password });
       setShowSuccessMessage(true);
       router.replace("/home");
