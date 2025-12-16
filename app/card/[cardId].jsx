@@ -283,7 +283,6 @@ const MoreInfoModal = ({
                 paddingTop: 5,
               }}
               renderItem={({item}) => {
-                console.log("FlatList item: " + JSON.stringify(item));
                 return (
                   <SmallCardDisplay 
                     key={item._id}
