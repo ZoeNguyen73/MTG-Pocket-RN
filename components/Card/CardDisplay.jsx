@@ -89,8 +89,6 @@ const CardDisplay = ({
   const gradientOptionsRef = useRef(gradientOptions);
   gradientOptionsRef.current = gradientOptions;
 
-  // console.log("card: " + frontCardFace.name + ", finish: " + finish);
-
   const imgUri = "image_jpg_normal";
 
   useEffect(() => {
@@ -340,53 +338,55 @@ const CardDisplay = ({
 
         </View>
       )}
-      { Platform.OS === "web" && (
-        <View
-          style={[
-            styles.shadowContainer,
-            {
-              width: size && size === "small" ? maxWidth : "100%",
-              aspectRatio: 488 / 680,
-              borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-            },
-          ]}
-        > 
-          <Image
-            key={card.swiperKey ?? card._id} 
-            source={{ uri: frontCardFace[imgUri] }}
-            contentFit="contain"
-            cachePolicy="memory"
-            style={{
-              width: shadow ? "98%" : "100%",
-              height: shadow ? "98%" : "100%",
-              borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-            }}
-          />
 
-          {/* Linear gradient overlay for foil or etched finish*/}
-          { (finish === "foil" || finish === "etched") && size !== "small" && (
-            <>
-              <LinearGradient 
-                colors={gradientOptions.colors}
-                locations={gradientOptions.locations}
-                start={gradientOptions.start}
-                end={gradientOptions.end}
-                style={{
-                  position: "absolute",
-                  height: "100%",
-                  width: "100%",
-                  opacity: 0.4,
-                  top: "0%",
-                  left: "0%",
-                  right: 0,
-                  bottom: 0,
-                  borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-                }}
-              />
-            </>
-          
-          )}
-        </View>
+      { Platform.OS === "web" && (
+      <View
+        style={[
+          {
+            width: size && size === "small" ? maxWidth : "100%",
+            aspectRatio: 488 / 680,
+            borderRadius: maxWidth ? maxWidth * 0.07 : 15,
+          },
+        ]}
+      > 
+        <Image
+          key={card.swiperKey ?? card._id} 
+          source={{ uri: frontCardFace[imgUri] }}
+          contentFit="contain"
+          cachePolicy="memory"
+          style={{
+            width: shadow ? "98%" : "100%",
+            height: shadow ? "98%" : "100%",
+            borderRadius: maxWidth ? maxWidth * 0.07 : 15,
+          }}
+        />
+
+        {/* Linear gradient overlay for foil or etched finish, no animation*/}
+        { (finish === "foil" || 
+          finish === "etched") && 
+          size !== "small" && (
+          <>
+            <LinearGradient 
+              colors={GRADIENT_COLORS}
+              locations={GRADIENT_LOCATIONS}
+              start={START_DEFAULT}
+              end={END_DEFAULT}
+              style={{
+                position: "absolute",
+                height: "100%",
+                width: "100%",
+                opacity: 0.4,
+                top: "0%",
+                left: "0%",
+                right: 0,
+                bottom: 0,
+                borderRadius: maxWidth ? maxWidth * 0.07 : 15,
+              }}
+            />
+          </>
+        
+        )}
+      </View>
         
       )}
     </>

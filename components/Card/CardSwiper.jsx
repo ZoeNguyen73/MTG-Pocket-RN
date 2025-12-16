@@ -1,5 +1,5 @@
 import { View, Text, Dimensions } from "react-native";
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import LottieView from "lottie-react-native";
 import { router } from "expo-router";
 import * as Animatable from "react-native-animatable";
@@ -11,8 +11,6 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
-import { Audio } from "expo-av";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import CardDisplay from "./CardDisplay";
@@ -20,7 +18,6 @@ import Button from "../CustomButton/CustomButton";
 
 import tailwindConfig from "../../tailwind.config";
 import { soundManager } from "../../utils/SoundManager";
-import { soundAssets } from "../../constants/sounds";
 
 const PRICE_HIGHLIGHT_THRESHOLD = 5;
 
@@ -176,9 +173,11 @@ const CardSwiper = ({ cards, setCode }) => {
   const nextCard =
     currentIndex < cards.length - 1 ? cards[currentIndex + 1] : null;
 
-  const bloopSoundRef = useRef(null);
-  const highlightSoundRef = useRef(null);
-  const summarySoundRef = useRef(null);
+  const sounds = {
+    bloop: "paper-collect-3",
+    highlight: "charming-twinkle",
+    summary: "magical-twinkle",
+  };
 
   const burstRef = useRef(null);
 
@@ -215,69 +214,15 @@ const CardSwiper = ({ cards, setCode }) => {
     entryScale.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
     entryOpacity.value = withTiming(1, { duration: 180, easing: Easing.out(Easing.ease) });
     entryTranslateY.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.ease) });
-
-    const loadSounds = async () => {
-      try {
-        const { sound: bloopSound } = await Audio.Sound.createAsync(
-          soundAssets["paper-collect-3"],
-          { isLooping: false }
-        );
-        bloopSoundRef.current = bloopSound;
-  
-        const { sound: highlightSound } = await Audio.Sound.createAsync(
-          soundAssets["charming-twinkle"],
-          { isLooping: false }
-        );
-        highlightSoundRef.current = highlightSound;
-  
-        const { sound: summarySound } = await Audio.Sound.createAsync(
-          soundAssets["magical-twinkle"],
-          { isLooping: false }
-        );
-        summarySoundRef.current = summarySound;
-      } catch (error) {
-        console.error("Error loading sounds:", error);
-      }
-    };
-
-    loadSounds();
-
-    return () => {
-      if (bloopSoundRef.current) {
-        bloopSoundRef.current.unloadAsync();
-        bloopSoundRef.current = null;
-      }
-      if (highlightSoundRef.current) {
-        highlightSoundRef.current.unloadAsync();
-        highlightSoundRef.current = null;
-      }
-      if (summarySoundRef.current) {
-        summarySoundRef.current.unloadAsync();
-        summarySoundRef.current = null;
-      }
-    };
-      
   }, []);
-  
-  const playSound = async (soundRef) => {
-    try {
-      if (soundRef.current) {
-        await soundRef.current.setPositionAsync(0); // Reset playback position
-        await soundRef.current.setVolumeAsync(soundManager.getSoundEffectsVolume());
-        await soundRef.current.playAsync();
-      }
-    } catch (error) {
-      console.error("Error playing sound:", error);
-    }
-  };
-  
+
   const triggerPriceHighlightAnimation = async () => {
     if (burstRef.current) {
       burstRef.current.play(); // Play the Lottie animation
     }
 
     // play highlight sound
-    await playSound(highlightSoundRef);
+    soundManager.playSfx(sounds.highlight);
   };
 
   const increaseCounter = async () => {
@@ -321,7 +266,7 @@ const CardSwiper = ({ cards, setCode }) => {
     }
 
     // play bloop sound
-    await playSound(bloopSoundRef);
+    soundManager.playSfx(sounds.bloop);
     
     setCounter(prev => prev + 1);
     
@@ -329,7 +274,7 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const openSummary = async () => {
     // play summary sound
-    await playSound(summarySoundRef);
+    soundManager.playSfx(sounds.summary);
     setSwipedAllCards(true);
   };
 

@@ -1,4 +1,4 @@
-import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch } from "react-native";
+import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch, Platform } from "react-native";
 import { useState, useEffect } from "react";
 import { router, Link } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -91,7 +91,8 @@ const SetSelectionDropdown = ({
 };
 
 const StickyHeader = ({ 
-  height, 
+  height,
+  width, 
   cardCount, 
   totalValue,
   setOptions,
@@ -115,6 +116,7 @@ const StickyHeader = ({
         zIndex: 5,
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
+        alignItems: "center"
       }}
     >
       <View>
@@ -126,7 +128,7 @@ const StickyHeader = ({
         </Text>
       </View>
 
-      <View className="pl-6 pr-6 mt-5 flex-row gap-3 items-end" style={{ height: 32 }}>
+      <View className="pl-6 pr-6 mt-5 flex-row gap-3 items-end" style={{ height: 32, width: width }}>
         <View className="flex-row gap-1">
           <MaterialCommunityIcons name="cards-outline" size={22} color="white" />
           <Text 
@@ -174,7 +176,8 @@ const StickyHeader = ({
         </View>
 
       </View>
-      <View className="pl-6 pr-6 mt-2 flex-row gap-3 items-end" style={{ height: 32 }}>
+
+      <View className="pl-6 pr-6 mt-2 flex-row gap-3 items-end" style={{ height: 32, width: width }}>
         <View className="flex-1 justify-center">
           { setOptions.length > 0 && (
             <SetSelectionDropdown 
@@ -413,7 +416,9 @@ const Collection = () => {
   const [ filteredCardList, setFilteredCardList ] = useState([]);
   const [ showFavourites, setShowFavourites ] = useState(false);
 
-  const headerHeight = 190;
+  
+  const isWeb = Platform.OS === "web";
+  const headerHeight = Platform.OS === "web" ? 210 : 190;
   
   const sortIconMapping = {
     "time": "clock-outline",
@@ -529,16 +534,24 @@ const Collection = () => {
 
   return (
     <ImageBackground
-      source={images.dark_background_vertical_5}
+      source={isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_5}
+      className="flex-1"
+      resizeMode="cover"
       style={{
-        resizeMode: "cover",
         overflow: "hidden",
       }}
     >
+      {isWeb && (
+        <View className="absolute inset-0 bg-black/75" />
+      )}
+
       { auth?.username && !isLoading && cardList.length > 0 && (
-        <View className="h-screen justify-center">
+        <View 
+          className="h-screen justify-center"
+        >
           <StickyHeader 
-            height={headerHeight} 
+            height={headerHeight}
+            width={ isWeb ? "80%" : "100%"} 
             cardCount={cardList.length} 
             totalValue={totalValue}
             setOptions={setOptions}
@@ -553,7 +566,8 @@ const Collection = () => {
             cards={selectedSet === "all" ? cardList : filteredCardList } 
             headerHeight={headerHeight}
             updateFavourite={updateFavourite}
-            showFavourites={showFavourites} 
+            showFavourites={showFavourites}
+            listWidth={ isWeb ? "80%" : "100%" } 
           />
           <SortButton 
             sortType={sortType}

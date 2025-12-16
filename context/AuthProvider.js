@@ -103,10 +103,12 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     }
 
-    useEffect(() => {
-      getCurrentUser();
-    }, [])
+    
   };
+
+  useEffect(() => {
+    getCurrentUser();
+  }, [])
   
   return (
     <AuthContext.Provider value={{ logIn, logOut, setAuth, auth, isLoggedIn, setIsLoggedIn, isLoading }}>

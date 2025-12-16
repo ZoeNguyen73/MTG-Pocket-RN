@@ -1,18 +1,23 @@
-import { Audio } from "expo-av";
-
 import { musicAssets } from "../constants/music";
+import { soundAssets } from "../constants/sounds";
+import { createAudioPlayer } from "expo-audio";
 
 const DEFAULT_BG_TRACK_FILENAME = "Adventure_remaster";
 
-// export as an object to manage states
+// sound manager object to manage different states
 export const soundManager = {
+  // background music
   backgroundMusic: null,
   backgroundMusicFileName: null,
-  backgroundMusicVolume: 1,
-  soundEffectsVolume: 1, // Global sound effects volume
+  backgroundMusicVolume: 1, 
   backgroundMusicPlaying: true,
 
-  // Methods to control sound effects volume
+  // sound effects
+  soundEffectsVolume: 1,
+  sfxPlayers: new Map(),
+  sfxPolicy: "restart",
+
+  // SOUND EFFECTs methods:
   getSoundEffectsVolume() {
     return this.soundEffectsVolume;
   },
@@ -25,61 +30,123 @@ export const soundManager = {
     }
   },
 
-  // Background music methods
+  playSfx(key, { volume, policy }={}) {
+    try {
+      const asset = soundAssets[key];
+      if (!asset) {
+        console.error(`SFX asset not found: ${key}`);
+        return;
+      }
+
+      const finalPolicy = policy ?? this.sfxPolicy;
+      
+      // if policy = overlap (create new player each time)
+      if (finalPolicy === "overlap") {
+        const p = createAudioPlayer(asset);
+        p.volume = volume ?? this.soundEffectsVolume;
+        p.play();
+        return;
+      }
+
+      // if policy = restart (stop the previous sound and reuse the player)
+      let player = this.sfxPlayers.get(key);
+      if (!player) {
+        player = createAudioPlayer(asset);
+        this.sfxPlayers.set(key, player);
+      } else {
+        // restart if it was already playing
+        try { player.pause(); } catch (e) {}
+      }
+
+      player.volume = volume ?? this.soundEffectsVolume;
+      player.seekTo(0);
+      player.play();
+
+    } catch (error) {
+      console.error(`SFX player error: ${error}`);
+    }
+  },
+
+  // stop 1 sfx player
+  stopSfx(key) {
+    const player = this.sfxPlayers.get(key);
+    if (player) {
+      try { player.pause(); } catch (e) {}
+    }
+  },
+
+  // stop all sfx (eg. leaving a screen)
+  stopAllSfx() {
+    for (const player of this.sfxPlayers.values()) {
+      try { player.pause(); } catch (e) {}
+    }
+  },
+
+  // clear cache
+  clearSfxCache() {
+    this.stopAllSfx();
+    this.sfxPlayers.clear();
+  },
+
+  // BACKGROUND MUSIC methods:
   async playBackgroundMusic(fileName) {
     const confirmedFileName = fileName ? fileName : DEFAULT_BG_TRACK_FILENAME;
     const confirmedTrack = musicAssets[confirmedFileName];
 
+    if (!confirmedTrack) {
+      console.error(`Music asset not found: ${confirmedFileName}`);
+      return;
+    }
+
     const filePath = confirmedTrack.path;
 
     try {
+      // first time creation of background music
       if (!this.backgroundMusic) {
-        const { sound } = await Audio.Sound.createAsync(
-          filePath,
-          { shouldPlay: true, isLooping: true }
-        );
-        this.backgroundMusic = sound;
+
+        this.backgroundMusic = createAudioPlayer(filePath);
+
+        this.backgroundMusic.loop = true;
+        this.backgroundMusic.volume = this.backgroundMusicVolume;
+
         this.backgroundMusicFileName = confirmedFileName;
+
+      // switching background music files
       } else if (fileName && fileName !== this.backgroundMusicFileName) {
-        await this.backgroundMusic.stopAsync();
-        await this.backgroundMusic.unloadAsync();
-        const { sound } = await Audio.Sound.createAsync(
-          filePath,
-          { shouldPlay: true, isLooping: true }
-        );
-        this.backgroundMusic = sound;
-        this.backgroundMusicFileName = fileName;
+        this.backgroundMusic.replace(filePath);
+        this.backgroundMusicFileName = confirmedFileName;
+
       }
 
-      await this.backgroundMusic.setVolumeAsync(this.backgroundMusicVolume);
-      await this.backgroundMusic.playAsync();
+      this.backgroundMusic.play();
       this.backgroundMusicPlaying = true;
+
       console.log("music play triggered");
+
     } catch (error) {
       console.error("Error playing background music:", error);
     }
   },
 
-  // stop music with an option to unload
-  async stopBackgroundMusic(unload = false) {
+  // stop background music
+  async stopBackgroundMusic() {
     if (this.backgroundMusic) {
-      await this.backgroundMusic.stopAsync();
-      if (unload) {
-        await this.backgroundMusic.unloadAsync();
-        this.backgroundMusic = null;
-        this.backgroundMusicFileName = null;
-      }
+      this.backgroundMusic.pause();
     }
-    console.log("music stop triggered");
+    
     this.backgroundMusicPlaying = false;
+    console.log("music stop triggered");
   },
 
+  // change background music volume
   async setBackgroundMusicVolume(volume) {
     if (volume >= 0 && volume <= 1) {
       this.backgroundMusicVolume = volume;
+
       if (this.backgroundMusic) {
-        await this.backgroundMusic.setVolumeAsync(volume);
+        this.backgroundMusic.volume = volume;
       }
+
     } else {
       console.error("Volume must be between 0 and 1");
     }

@@ -1,62 +1,73 @@
-import { ImageBackground, Text, View, FlatList, useWindowDimensions } from "react-native";
-import { useState, useEffect, useRef } from "react";
-import { Audio } from "expo-av";
+import {  View, FlatList, useWindowDimensions, Platform } from "react-native";
+import { useState, useEffect } from "react";
 
 import CardCollectionDisplay from "./CardCollectionDisplay";
 
 import { soundManager } from "../../utils/SoundManager";
-import { soundAssets } from "../../constants/sounds";
 
-const CardCollection = ({ cards, headerHeight, updateFavourite, showFavourites }) => {
+const CardCollection = ({ cards, headerHeight, listWidth, updateFavourite, showFavourites }) => {
   const { width } = useWindowDimensions();
-  const favSoundRef = useRef(null);
   const [ filteredCards, setFilteredCards ] = useState([]);
+  const isWeb = Platform.OS === "web";
 
   useEffect(() => {
-    const loadSound = async () => {
-      try {
-        const { sound } = await Audio.Sound.createAsync(
-          soundAssets["happy-pop-1"],
-          { isLooping: false }
-        );
-        favSoundRef.current = sound;
-      } catch (error) {
-        console.error("Error loading sounds:", error);
-      }
-    };
-
-    loadSound();
-
     // filter to show only favourites
     if (showFavourites) {
       const filtered = cards.filter((card) => card.is_favourite);
       setFilteredCards(filtered);
     }
-
-    return () => {
-      if (favSoundRef.current) {
-        favSoundRef.current.unloadAsync();
-        favSoundRef.current = null;
-      }
-    };
   }, [cards, showFavourites])
-
-  const playFavSound = async () => {
-    try {
-      if (favSoundRef.current) {
-        await favSoundRef.current.setPositionAsync(0); // Reset playback position
-        await favSoundRef.current.setVolumeAsync(soundManager.getSoundEffectsVolume());
-        await favSoundRef.current.playAsync();
-      }
-    } catch (error) {
-      console.error("Error playing sound:", error);
-    }
-  };
 
   const handleFavouriteToggle = async (id) => {
     updateFavourite(id);
-    await playFavSound();
+    soundManager.playSfx("happy-pop-1");
   };
+
+  if (isWeb) {
+    return (
+        <FlatList 
+          data={showFavourites ? filteredCards : cards}
+          keyExtractor={card => card._id}
+          numColumns={5}
+          ListHeaderComponent={
+            <View
+              style={{
+                height: headerHeight + 10,
+                width: "100%",
+              }}
+            />
+          }
+          ListFooterComponent={
+            <View
+              style={{
+                height: 10,
+                width: "100%",
+              }}
+            />
+          }
+          columnWrapperStyle={{
+            flex: "row",
+            justifyContent: "center",
+            paddingTop: 10,
+          }}
+          renderItem={({item}) => {
+            return (
+              <CardCollectionDisplay 
+                card={item.card_id} 
+                maxWidth={(width * 0.8) / 7}
+                quantity={item.quantity}
+                finish={item.finish}
+                finalPrice={item.final_price}
+                favourite={item.is_favourite}
+                id={item._id}
+                handleFavouriteToggle={() => handleFavouriteToggle(item._id)}
+              />
+            )
+          }}
+
+        />
+    )
+  }
 
   return (
     <FlatList 
@@ -84,7 +95,7 @@ const CardCollection = ({ cards, headerHeight, updateFavourite, showFavourites }
         justifyContent: "space-between",
         paddingLeft: 15,
         paddingRight: 15,
-        paddingTop: 10
+        paddingTop: 10,
       }}
       renderItem={({item}) => {
         return (

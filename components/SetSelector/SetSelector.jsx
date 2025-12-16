@@ -6,25 +6,22 @@ import {
   Image, 
   useWindowDimensions, 
   Platform, 
-  SafeAreaView,
   ScrollView, 
 } from "react-native";
 import * as Animatable from "react-native-animatable";
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SvgUri } from "react-native-svg";
 import { router } from "expo-router";
-import { Audio } from "expo-av";
 
 import axios from "../../api/axios";
 
-import tailwindConfig from "../../tailwind.config";
 import { getFonts } from "../../utils/FontFamily";
 import { soundManager } from "../../utils/SoundManager";
-import { soundAssets } from "../../constants/sounds";
 
 import Button from "../CustomButton/CustomButton";
 import CardHighlight from "./../Card/CardHighlight";
 import CardDisplay from "../Card/CardDisplay";
+
 
 const zoomIn = {
   0: { scale: 0.85 },
@@ -40,74 +37,38 @@ const fonts = getFonts();
 
 const SetCard = ({ activeSetId, set, lastSetId }) => {
   const [ selected, setSelected ] = useState(false);
-  const soundRef = useRef(null);
-
-  const handlePress = async () => {
-    const playSound = async () => {
-      try {
-        const { sound } = await Audio.Sound.createAsync(
-          soundAssets["shine-8"],
-          { isLooping: false }
-        );
-        soundRef.current = sound;
-        await sound.setVolumeAsync(soundManager.getSoundEffectsVolume());
-        await sound.playAsync();
-
-      } catch (error) {
-        console.error("Error playing sound:", error);
-      }
-    };
-
-    playSound();
-
-    setSelected(true); // Update the selected state
-
-    // Cleanup: Unload the sound when the component unmounts
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
-  };
-
-  const handleConfirmation = async () => {
-    const playSound = async () => {
-      try {
-        const { sound } = await Audio.Sound.createAsync(
-          soundAssets["game-bonus"],
-          { isLooping: false }
-        );
-        soundRef.current = sound;
-        await sound.setVolumeAsync(soundManager.getSoundEffectsVolume());
-        await sound.playAsync();
-
-      } catch (error) {
-        console.error("Error playing sound:", error);
-      }
-    };
-
-    playSound();
-
-    const timeoutRef = setTimeout(
-      () => router.push(`/pack/play-booster/${set.code}`),
-      1000
-    );
-
-    // Cleanup: Unload the sound when the component unmounts
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-      clearTimeout(timeoutRef);
-    };
-  };
+  const timeoutRef = useRef(null);
 
   // Reset the selected state when the card is swiped away
   useEffect(() => {
+    
     if (activeSetId !== set.code) {
       setSelected(false);
     }
+
+    return () => {
+      // clear any pending navigation timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+
   }, [activeSetId, set.code])
+  
+
+  const handlePress = async () => {
+    soundManager.playSfx("shine-8");
+    setSelected(true); // Update the selected state
+  };
+
+  const handleConfirmation = async () => {
+    soundManager.playSfx("game-bonus");
+    timeoutRef.current = setTimeout(
+      () => router.push(`/pack/play-booster/${set.code}`),
+      1000
+    );
+  };
 
   return (
     <Animatable.View
@@ -217,7 +178,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
   )
 };
 
-const SetCardWeb = ({set, updateHoveredSetId, index}) => {
+const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => {
   const [ isHovered, setIsHovered] = useState(false);
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -227,10 +188,21 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
     setIsHovered(false);
     updateHoveredSetId(null);
   };
+  const timeoutRef = useRef(null);
+
+  // const cardHeight = 350;
+  // const cardWidth = 200;
+
+  const setCardHeight = cardHeight.toString() + "px";
+  const setCardWidth = cardWidth.toString() + "px";
+
+  // shadow
+  const shadowHeight = 0.6 * cardHeight;
+  const shadowWidth = 0.7 * cardWidth;
 
   return (
     <View
-      className="h-[420px] w-[220px] justify-center mx-2 overflow-visible"
+      className={`h-[${setCardHeight}] w-[${setCardWidth}] justify-center overflow-visible pb-4`}
       style={{
         transform: isHovered ? [{ scale: 1.1 }] : [{ scale : 1 }],
         transition: "transform 0.5s ease",
@@ -244,15 +216,15 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
           style={{
             position: "absolute",
             left: "50%",
-            transform: [{ translateX: -90 }], // Center glow
-            width: 180, // Width of the glow
-            height: 380, // Height of the glow
+            transform: [{ translateX: shadowWidth * (-0.5) }], // Center glow
+            width: shadowWidth, // Width of the glow
+            height: shadowHeight , // Height of the glow
             backgroundColor: "rgba(255, 215, 0, 0.05)", // Semi-transparent yellow
-            borderRadius: 100, // Rounded edges for glow
+            borderRadius: shadowWidth * 0., // Rounded edges for glow
             shadowColor: "yellow",
             shadowOffset: { width: 0, height: 0 },
             shadowOpacity: 0.6,
-            shadowRadius: 50, // Creates the "glow" effect
+            shadowRadius: shadowWidth * 0.5, // Creates the "glow" effect
             elevation: 6, // Android shadow
             zIndex: -1, // Place glow behind the content
           }}
@@ -263,7 +235,7 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
         source={set.play_booster_image}
         resizeMode="contain"
         style={{
-          maxHeight: 400,
+          maxHeight: cardHeight,
           width: "auto",
         }}
       />
@@ -274,16 +246,22 @@ const SetCardWeb = ({set, updateHoveredSetId, index}) => {
             position: "absolute", // Position on top of the image
             top: "80%", // Move to 50% of the parent height
             left: "50%", // Move to 50% of the parent width
-            transform: [{ translateX: -60 }, { translateY: -20 }], // Center it perfectly
-            height: 40,
-            width: 120,
+            transform: [{ translateX: -40 }, { translateY: -20 }], // Center it perfectly
+            height: 30,
+            width: 80,
             elevation: 5, // Shadow for Android
             shadowColor: "#000", // Shadow color
             shadowOffset: { width: 0, height: 2 }, // Offset
             shadowOpacity: 0.6, // Shadow opacity
             shadowRadius: 4, // Blur radius
           }}
-          onPress={() => router.push(`/pack/play-booster/${set.code}`)}
+          onPress={() => {
+            soundManager.playSfx("game-bonus");
+            timeoutRef.current = setTimeout(
+              () => router.push(`/pack/play-booster/${set.code}`),
+              1000
+            );
+          }}
         >
           <Text 
             className="text-base font-sans tracking-wide"
@@ -302,8 +280,6 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
   const set = setList.filter(set => set.code === activeSetId)[0];
   const [ topCards, setTopCards ] = useState([]);
   const [animationKey, setAnimationKey] = useState(0);
-
-  const backgroundColor = tailwindConfig.theme.extend.colors.dark.yellow;
 
   useEffect(() => {
     const getTopCards = async () => {
@@ -359,8 +335,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
             >
               <View className="flex-row flex-wrap w-full gap-2 items-center mb-1 flex-1">
                 <Text
-                  className="font-mono-bold text-lg text-light-text tracking-wider flex-1"
-                  // style={{ fontFamily: fonts.monoBold }}
+                  className="font-sans-bold text-lg text-light-text tracking-wider flex-1"
                 >
                   {set.details?.name}
                 </Text>
@@ -369,8 +344,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
 
               <View className="mb-1">
                 <Text
-                  className="font-sans-light text-xs text-light-text tracking-wide"
-                  style={{ fontFamily: fonts.sansLight}}
+                  className="font-sans-light text-base text-light-text tracking-wide"
                 >
                   Most popular cards from this set:
                 </Text>
@@ -401,22 +375,6 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
                 zIndex: 2,
               }}
             />
-            {/* <View
-              style={{
-                width: 0,
-                height: 0,
-                borderLeftWidth: 13,
-                borderRightWidth: 13,
-                borderTopWidth: 13,
-                borderLeftColor: "transparent",
-                borderRightColor: "transparent",
-                borderTopColor: "rgba(0, 0, 0, 0.2)",
-                backgroundColor: "transparent",
-                position: "absolute",
-                bottom: -6,
-                zIndex: 1,
-              }}
-            /> */}
           </View>
         </Animatable.View>
       )}
@@ -424,20 +382,40 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
   )
 };
 
-const SetDetailsWeb = ({ sets, hoveredSetId}) => {
+const SetDetailsWeb = ({ sets, hoveredSetId }) => {
   const set = sets[hoveredSetId];
+  const [ topCards, setTopCards ] = useState([]);
   const [animationKey, setAnimationKey] = useState(0);
 
-  const backgroundColor = tailwindConfig.theme.extend.colors.dark.yellow;
+  const backgroundColor = "rgba(249, 226, 175, 0.4)";
 
   const { width, height } = useWindowDimensions();
 
-  const containerHeight = Math.floor(0.4 * height);
-  const containerWidth = Math.floor(0.7 * width);
+  const containerHeight = Math.floor(0.35 * height);
+  const containerWidth = Math.floor(0.65 * width);
 
   useEffect(() => {
     // Trigger a re-render of the Animatable.View to animate the component
     setAnimationKey((prevKey) => prevKey + 1);
+
+    const getTopCards = async () => {
+      const response = await axios.get(`/sets/${set.code}/top-cards`);
+      const cardData = response.data.top_cards;
+
+      if (cardData.length > 0) {
+        // reformat card data
+        const reformattedData = [];
+        for (let i = 0; i < cardData.length; i++) {
+          const card = cardData[i].card_id;
+          card.final_price = cardData[i].final_price;
+          card.finish = cardData[i].finish;
+          reformattedData.push(card);
+        }
+        setTopCards(reformattedData);
+      };
+    };
+
+    if (hoveredSetId) getTopCards();
   }, [hoveredSetId]);
 
   return (
@@ -482,7 +460,7 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
               borderBottomWidth: 13,
               borderLeftColor: "transparent",
               borderRightColor: "transparent",
-              borderBottomColor: "black",
+              // borderBottomColor: "black",
               backgroundColor: "transparent",
               position: "absolute",
               top: 9,
@@ -491,34 +469,34 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
           />
 
           <View
-            className="bg-dark-yellow rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[30vh]
-            border border-b-8 border-black items-center"
+            className="rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[30vh]
+            border border-b-8 items-center"
             style={{
               height: containerHeight,
               width: containerWidth,
               paddingLeft: 10,
               paddingRight: 10,
+              backgroundColor: "rgba(249, 226, 175, 0.5)",
+              borderColor: "#00000020"
             }}
           >
-            <View className="w-full gap-2 items-center mb-2 w-[50%]">
+            <View className="flex-row w-full gap-2 items-center justify-center mb-2 w-full">
               <Text
-                className="font-mono-bold text-xl text-light-text dark:text-dark-text tracking-wider"
+                className="font-sans-bold text-xl text-black tracking-wider"
               >
                 {set.details?.name}
               </Text>
               <SvgUri width="20px" height="20px" uri={set.details?.icon_svg_uri} />
             </View>
 
-            <View
-              className="items-center"
-            >
+            <View className="items-center">
               <Text
-                className="font-sans-light text-base text-light-text tracking-wide mb-1 mt-2"
+                className="font-sans-light text-base tracking-wide mb-1 mt-2"
               >
                 Most popular cards from this set:
               </Text>
-              <CardHighlight 
-                setCode={set.code}
+              <CardHighlight
+                cards={topCards} 
                 containerWidth={containerWidth*0.9}
                 containerHeight={containerHeight*0.8}
               />
@@ -526,7 +504,6 @@ const SetDetailsWeb = ({ sets, hoveredSetId}) => {
             </View>
             
           </View>
-
 
         </View>
 
@@ -570,6 +547,7 @@ const SetSelector = ({ sets }) => {
 
   useEffect(() => {
     const getSetDetails = async () => {
+      console.log("[SetSelector] useEffect triggered - getting set details...");
       const updatedSets = await Promise.all(
         sets.map(async (set) => {
           const response = await axios.get(`/sets/${set.code}`);
@@ -589,25 +567,16 @@ const SetSelector = ({ sets }) => {
   }, [sets]);
 
   return (
-    <View 
-      className="h-screen"
-      style={{
-        position: "absolute"
-      }}
-    >
-      <View
-        style={{ height: 130 }}
-      >
-
+    <View className="h-screen w-screen" style={{ position: "absolute"}}>
+      <View style={{ height: Platform.OS === "web" ? 90 : 130 }}>
       </View>
       <Text
-        className="mb-5 text-center font-serif-bold text-3xl text-dark-green tracking-wider"
+        className={`text-center font-serif-bold tracking-wider
+          ${Platform.OS === "web"? "text-light-teal text-4xl mb-2" : "text-dark-teal text-3xl mb-5"}`
+        }
         style={{
           textShadowColor: "#00000080",
-          textShadowOffset: {
-            width: 0,
-            height: 1,
-          },
+          textShadowOffset: { width: 0, height: 1, },
           textShadowRadius: 6,
         }}
       >
@@ -617,12 +586,7 @@ const SetSelector = ({ sets }) => {
       { Platform.OS === "web" && (
         <View
           onWheel={handleWheelScroll}
-          style={{ 
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: hoveredSetId === null ? "none" : "auto", // Hides scrollbar in Firefox
-            msOverflowStyle: hoveredSetId === null ? "none" : "auto", // Hides scrollbar in IE/Edge 
-          }}
-          className="overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4"
+          className="ml-16 mr-16 overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4 scrollbar-webkit"
         >
           {sets.map((set, index) => (
             <SetCardWeb 
@@ -630,6 +594,8 @@ const SetSelector = ({ sets }) => {
               index={index} 
               set={set} 
               updateHoveredSetId={updateHoveredSetId}
+              cardHeight={310}
+              cardWidth={200}
             />
             )
           )}

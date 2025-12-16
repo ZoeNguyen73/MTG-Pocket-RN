@@ -1,4 +1,4 @@
-import { View, ScrollView, Text, useWindowDimensions, Keyboard } from "react-native";
+import { View, ScrollView, Text, Platform, Keyboard, ImageBackground } from "react-native";
 import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,9 +15,13 @@ import Avatar from "../../components/Avatar/Avatar";
 
 import axios from "../../api/axios";
 
+import { images } from "../../constants";
+
 const Register = () => {
   const { theme } = useThemeContext();
   const { handleError } = useErrorHandler();
+
+  const isWeb = Platform.OS === "web";
 
   const { auth, logOut, isLoggedIn, isLoading } = useAuthContext();
   
@@ -151,15 +155,24 @@ const Register = () => {
   }
 
   return (
-    <>
-      <SafeAreaView className="bg-light-background dark:bg-dark-background h-full">
+    <ImageBackground
+      source={isWeb ? images.background_ATLA2 : images.FDN_Bundle_Wallpaper_1040x1536}
+      resizeMode="cover"
+      style={{
+        overflow: "hidden",
+        width: "100%",
+        height: "100%"
+      }}
+    >
+      <View className="absolute inset-0 bg-black/80" />
+      <SafeAreaView className="h-full">
         <ScrollView contentContainerStyle={{ alignItems: "center" }}>
           <View
             className="w-full justify-center px-8 my-14 lg:max-w-screen-sm"
           >
             <Text 
-              className="font-serif-bold text-5xl lg:text-6xl text-light-mauve
-              dark:text-dark-mauve tracking-wider"
+              className="font-serif-bold text-5xl lg:text-6xl
+              text-dark-mauve tracking-wider"
             >
               Sign Up to{"\n"}
               MTG Pocket
@@ -261,7 +274,7 @@ const Register = () => {
         
       </SafeAreaView>
       { isSubmitting && (<LoadingSpinner />) }
-    </>
+    </ImageBackground>
   )
 
 };

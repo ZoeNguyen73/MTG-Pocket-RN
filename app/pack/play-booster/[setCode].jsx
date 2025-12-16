@@ -1,5 +1,5 @@
-import { Platform, ImageBackground } from "react-native";
-import React, { useState, useEffect, useRef } from "react";
+import { Platform, ImageBackground, View } from "react-native";
+import { useState, useEffect, useRef } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -23,6 +23,8 @@ const PlayBoosterPackOpening = () => {
   const [ isLoading, setIsLoading ] = useState(false);
 
   const axiosPrivate = useAxiosPrivate();
+
+  const isWeb = Platform.OS === "web";
 
   useEffect(() => {
     // get cards
@@ -48,13 +50,18 @@ const PlayBoosterPackOpening = () => {
 
   return (
     <ImageBackground
-      source={images.dark_background_vertical_10}
+      source={ isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_10}
+      className="flex-1 w-full"
+      resizeMode="cover"
       style={{
-        resizeMode: "cover",
         overflow: "hidden",
       }}
     >
-       <SafeAreaView className="h-screen justify-center">
+      {isWeb && (
+        <View className="absolute inset-0 bg-black/75" />
+      )}
+
+      <SafeAreaView className="h-screen justify-center">
   
         { cards.length > 0 && Platform.OS !== "web" && (
           <CardSwiper cards={cards} setCode={setCode}/>
