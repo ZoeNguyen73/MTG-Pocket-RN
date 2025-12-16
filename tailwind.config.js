@@ -95,6 +95,25 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      const newUtilities = {
+        ".scrollbar-webkit": {
+          "&::-webkit-scrollbar": {
+            height: "10px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "lightblue",
+            borderRadius: "5px",
+          },
+        }
+      }
+      addUtilities(newUtilities, ["responsive", "hover"]);
+    }
+    
+  ],
 };
 

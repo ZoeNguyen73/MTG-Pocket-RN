@@ -5,7 +5,8 @@ const SmallCardDisplay = ({
   maxWidth, 
   shadow = false,
   isGreyscale = false,
-  label = null, 
+  label = null,
+  size = "small", 
 }) => {
   const frontCardFace = card.card_faces[0];
 
@@ -93,6 +94,7 @@ const SmallCardDisplay = ({
 
         </View>
       )}
+
       { Platform.OS === "web" && (
         <View
           style={[
@@ -104,6 +106,31 @@ const SmallCardDisplay = ({
             },
           ]}
         > 
+          { label !== null && label !== "" && (
+            <View
+              style={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                paddingTop: 2,
+                paddingBottom: 2,
+                paddingLeft: 6,
+                paddingRight: 6,
+                borderRadius: 999,
+                zIndex: 5,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                className="text-xs font-sans text-dark-text"
+              >
+                {label}
+              </Text>
+            </View>
+          )}
+          
           <Image 
             source={{ uri: frontCardFace[imgUri] }}
             resizeMode="contain"
@@ -111,6 +138,7 @@ const SmallCardDisplay = ({
               width: shadow ? "98%" : "100%",
               height: shadow ? "98%" : "100%",
               borderRadius: maxWidth * 0.07,
+              filter: isGreyscale ? "grayscale(100%)" : null,
             }}
           />
         </View>

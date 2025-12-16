@@ -1,4 +1,4 @@
-import { ImageBackground, View } from "react-native";
+import { ImageBackground, View, Platform } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,7 +14,7 @@ const Home = () => {
   const { isLoggedIn, isLoading } = useAuthContext();
   const [ setList, setSetList ] = useState([]);
   // const bgSoundRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const isWeb = Platform.OS === "web";
 
   // load set data
   useEffect(() => {
@@ -24,17 +24,22 @@ const Home = () => {
 
   return (
     <ImageBackground
-      source={images.dark_background_vertical_2}
+      source={isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_2}
+      className="flex-1 w-full"
+      resizeMode="cover"
       style={{
-        resizeMode: "cover",
         overflow: "hidden",
       }}
     >
+      {isWeb && (
+        <View className="absolute inset-0 bg-black/75" />
+      )}
       <SafeAreaView className="h-full">
-        <View className="px-2 mb-10">
-          <Header />
-        </View>
-        
+        { !isWeb && (
+          <View className="px-2 mb-10">
+            <Header />
+          </View>
+        )}
         { (setList.length > 0) && (
           <SetSelector sets={setList} />
         )}

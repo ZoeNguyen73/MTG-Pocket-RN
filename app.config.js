@@ -3,10 +3,12 @@ export default ({ config }) => {
 
   return {
     ...config,
+    name: "MTG Pocket (App)",
+    web: { name: "MTG Pocket" },
     extra: {
       apiUrl: isDev
-        ? "http://192.168.0.238:3000/api/v1"
-        : "https://mtg-pocket-express.onrender.com/api/v1", // TO DO: update this after deploy
+        ? process.env.DEV_API_URL
+        : process.env.PROD_API_URL,
     },
   };
 };

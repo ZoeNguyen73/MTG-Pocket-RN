@@ -1,14 +1,19 @@
-import { View, Text, useWindowDimensions, StyleSheet } from "react-native";
-import React from "react";
+import { View, Platform, TouchableOpacity, Text } from "react-native";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Feather from "@expo/vector-icons/Feather";
 import { BlurView } from "expo-blur";
+import { useState } from "react";
+import { router } from "expo-router";
 
 import tailwindConfig from "../../tailwind.config";
 import { useThemeContext } from "../../context/ThemeProvider";
+import { useAuthContext } from "../../context/AuthProvider";
 
-const TabIcon = ({ color, icon, name, focused }) => {
+import Avatar from "../../components/Avatar/Avatar";
+import Button from "../../components/CustomButton/CustomButton";
+
+const TabIcon = ({ color, icon }) => {
   return (
     <View 
       className="items-center justify-center"
@@ -23,9 +28,280 @@ const TabIcon = ({ color, icon, name, focused }) => {
   )
 };
 
+const CustomTabBar = ({
+  state,
+  descriptors,
+  navigation,
+  activeTintColor,
+  inactiveTintColor,
+  isWeb,
+  theme
+}) => {
+  const { auth, logOut } = useAuthContext();
+  const [ hoveredIndex, setHoveredIndex ] = useState(null);
+  const [ showConfirmPopup, setShowConfirmPopup ] = useState(false);
+  
+  const iconColor = theme === "dark"
+    ? tailwindConfig.theme.extend.colors.light.text
+    : tailwindConfig.theme.extend.colors.dark.text;
+
+  const handleLogOut = async () => {
+    await logOut();
+    router.replace("/")
+  };
+
+  const isLoggedIn = auth?.username; 
+
+  // WEB LAYOUT: Navigation tabs on the left + Profile/Log in on the right
+  if (isWeb) {
+    return (
+      <View
+        className={`h-[55px] absolute left-0 right-0 z-50 overflow-hidden px-12 overflow-visible`}
+      >
+        <BlurView 
+          tint={theme === "dark" ? "dark" : "light"}
+          intensity={90}
+          style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
+        />
+
+        <View
+          className={`flex-row items-center justify-between py-2 px-6`}
+        >
+
+          {/* LEFT: Tabs */}
+          <View className="flex-row items-center">
+            { state.routes.map((route, index) => {
+              const { options } = descriptors[route.key];
+
+              const isFocused = state.index === index;
+              const color = isFocused ? activeTintColor : inactiveTintColor;
+
+              const label =
+                options.tabBarLabel !== undefined
+                  ? options.tabBarLabel
+                  : options.title !== undefined
+                  ? options.title
+                  : route.name;
+
+              const onPress = () => {
+                const event = navigation.emit({
+                  type: "tabPress",
+                  target: route.key,
+                  canPreventDefault: true,
+                });
+
+                if (!isFocused && !event.defaultPrevented) {
+                  navigation.navigate(route.name);
+                };
+              };
+
+              const onLongPress = () => {
+                navigation.emit({
+                  type: "tabLongPress",
+                  target: route.key,
+                })
+              };
+
+              const icon = options.tabBarIcon && options.tabBarIcon({ focused: isFocused, color });
+
+              return (
+                <View
+                  key={route.key}
+                  className="relative items-center justify-center"
+                  style={{
+                    marginRight: index === state.routes.length - 1 ? 0 : 30,
+                  }}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                >
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityState={isFocused ? { selected: true } : {}}
+                    accessibilityLabel={options.tabBarAccessibilityLabel}
+                    testID={options.tabBarTestID}
+                    onPress={onPress}
+                    onLongPress={onLongPress}
+                    className="items-center justify-center"
+                  >
+                    {icon}
+                  </TouchableOpacity>
+
+                  {hoveredIndex === index && (
+                    <View className="absolute -bottom-10 px-2 py-1 rounded bg-black/80">
+                      <Text className="text-sm text-white">{label}</Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+              
+          </View>
+
+          {/* RIGHT: profile avatar / login icon */}
+          { !isLoggedIn && (
+            <View className="flex-row items-center gap-3">
+              <Text 
+                className="flex-1 font-sans text-sm text-dark-text tracking-wide" 
+              >
+                Log in to save cards to your collection
+              </Text>
+              <TouchableOpacity 
+                className="justify-center items-center w-[30px] h-[30px]"
+                style={{
+                  borderRadius: 15,
+                  backgroundColor: `lightyellow`,
+                }}
+                onPress={() => router.push("/log-in")}
+              >
+                <Feather name="log-in" size={20} color={iconColor} />
+              </TouchableOpacity>
+            </View>
+          )}
+          
+          { isLoggedIn && (
+            <View className="flex-row items-center gap-3 cursor-default">
+              <Feather name="bell" size={22} color={iconColor} />
+              
+              <Avatar 
+                avatarName={auth?.avatar || "Planeswalker_1"}
+                withoutBorder={true}
+                size="extra small"
+                shadow={true}
+              />
+
+              <TouchableOpacity
+                className="justify-center items-center w-[30px] h-[30px]"
+                style={{
+                  borderRadius: 15,
+                  backgroundColor: "#FFFFFF80",
+                  marginRight: 5,
+                }}
+                onPress={() => setShowConfirmPopup(true)}
+              >
+                <Feather name="log-out" size={20} color={iconColor} />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Log out confirmation Popup */}
+          { showConfirmPopup && (
+            <View
+              style={{
+                position: "absolute",
+                right: 5,
+                top: 45,
+                // transform: [{ translateX: }, { translateY: 100 }],
+                width: 300,
+                height: 120,
+                backgroundColor: "rgba(203, 166, 247, 0.95)",
+                borderRadius: 10,
+                justifyContent: "center",
+                alignItems: "center",
+                elevation: 5,
+                shadowColor: "black",
+                shadowOffset: { width: 0, height: 5 },
+                shadowOpacity: 0.2,
+                shadowRadius: 5,
+                borderBottomWidth: 6,
+                borderTopWidth: 1,
+                borderLeftWidth: 1,
+                borderRightWidth: 1,
+                borderColor: "black",
+                zIndex: 100,
+              }}
+            >
+              <Text className="font-mono-bold text-lg text-light-text tracking-wider">
+                Confirm to Log Out?
+              </Text>
+
+              <View className="flex-row gap-3 mt-3">
+                <Button 
+                  title="Cancel"
+                  handlePress={() => setShowConfirmPopup(false)}
+                  variant="small-secondary"
+                />
+                <Button 
+                  title="Confirm"
+                  handlePress={handleLogOut}
+                  variant="small-primary"
+                />
+              </View>
+            </View>
+          )}
+
+        </View>
+      </View>
+    )
+  }
+
+   // NATIVE LAYOUT: bottom bar, 4 tabs evenly spaced, NO profile/login
+  return (
+    <View
+      className="absolute left-0 right-0 bottom-0 z-50 overflow-hidden"
+      style={{ height: 65 }}
+    >
+      <BlurView
+        tint="dark"
+        intensity={100}
+        style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }}
+      />
+
+      <View className="flex-row items-center justify-around px-5 pt-2 pb-4">
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+
+          const isFocused = state.index === index;
+          const color = isFocused ? activeTintColor : inactiveTintColor;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: "tabPress",
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          const onLongPress = () => {
+            navigation.emit({
+              type: "tabLongPress",
+              target: route.key,
+            });
+          };
+
+          const icon =
+            options.tabBarIcon &&
+            options.tabBarIcon({
+              focused: isFocused,
+              color,
+            });
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={options.tabBarAccessibilityLabel}
+              testID={options.tabBarTestID}
+              onPress={onPress}
+              onLongPress={onLongPress}
+              className="flex-1 items-center justify-center"
+            >
+              {icon}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+
+};
+
 const TabsLayout = () => {
   const { theme } = useThemeContext();
-  const { width } = useWindowDimensions();
 
   const lightBackgroundColor = tailwindConfig.theme.extend.colors.light.background;
   const darkBackgroundColor = tailwindConfig.theme.extend.colors.dark.background;
@@ -33,42 +309,32 @@ const TabsLayout = () => {
   const backgroundColor = theme === "dark" 
     ? tailwindConfig.theme.extend.colors.dark.surface
     : tailwindConfig.theme.extend.colors.dark.background;
+
   const activeTintColor = tailwindConfig.theme.extend.colors.light.yellow;
   const inactiveTintColor = tailwindConfig.theme.extend.colors.dark.grey1;
 
   const font = tailwindConfig.theme.fontFamily.sans[0];
 
+  const isWeb = Platform.OS === "web";
+
   return (
     <>
       <Tabs
         backBehavior="history"
-        screenOptions={{ 
-          tabBarLabelStyle: {
-            fontSize: width >= 1024 ? 16 : 14,
-            fontFamily: font,
-            fonWeight: 300,
-            marginTop: 2,
-            letterSpacing: 0.3,
-          },
-          tabBarActiveTintColor: activeTintColor,
-          tabBarInactiveTintColor: inactiveTintColor,
-          tabBarActiveBackgroundColor: "transparent",
-          tabBarPosition: width >= 1024 ? "left" : "bottom",
-          tabBarStyle: {
-            // backgroundColor: "#161a21",
-            height: width >= 1024 ? "100%" : 55,
-            itemAlign: "center",
-            display: "flex",
-            paddingTop: width >= 1024 ? 20 : 4,
-            paddingLeft: width >= 1024 ? 30 : 0,
-            borderTopWidth: 0,
-            position: "absolute"
-          },
-          tabBarBackground: () => (
-            <BlurView tint="dark" intensity={100} style={StyleSheet.absoluteFill} />
-          ),
-          tabBarShowLabel: false
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarPosition: isWeb ? "top" : "bottom", 
         }}
+        tabBar={(props) => (
+          <CustomTabBar 
+            {...props}
+            activeTintColor={activeTintColor}
+            inactiveTintColor={inactiveTintColor}
+            isWeb={isWeb}
+            theme={theme}
+          />
+        )}
       >
         <Tabs.Screen 
           name="home"

@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import { useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 
