@@ -266,8 +266,8 @@ const CardCollectionDisplay = ({
           )}
 
           <TouchableOpacity
-            style={[{ height: "100%", width: "100%" }, zoomAnimatedStyle]}
-            onPress={() => {}}
+            style={[{ height: "100%", width: "100%" }]}
+            onPress={() => router.push(`/card/${id}`)}
           >
 
             {/* Linear gradient overlay for foil or etched finish*/}

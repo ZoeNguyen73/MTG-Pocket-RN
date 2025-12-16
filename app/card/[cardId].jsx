@@ -1,4 +1,4 @@
-import { ImageBackground, useWindowDimensions, View, Text, Modal, TouchableOpacity, ScrollView } from "react-native";
+import { ImageBackground, FlatList, useWindowDimensions, View, Text, Modal, TouchableOpacity, ScrollView, Platform } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,6 +17,7 @@ import { getFonts } from "../../utils/FontFamily";
 import CardDisplay from "../../components/Card/CardDetailsDisplay";
 import SmallCardDisplay from "../../components/Card/SmallCardDisplay";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import Button from "../../components/CustomButton/CustomButton";
 
 import { images } from "../../constants";
 
@@ -33,6 +34,7 @@ const MoreInfoModal = ({
   finalPrice,
   relatedCards,
   set,
+  direction = "up",
 }) => {
 
   const lightTeal = tailwindConfig.theme.extend.colors.light.teal;
@@ -51,7 +53,7 @@ const MoreInfoModal = ({
 
   return (
     <Modal
-      animationType="slide"
+      animationType={direction === "up" ? "slide" : "fade"}
       visible={modalVisible}
       onRequestClose={() => {
         handleModalVisibilityChange(false);
@@ -64,27 +66,31 @@ const MoreInfoModal = ({
     >
       <View
         style={{
+          flexDirection: direction === "up" ? "" : "row",
           flex: 1,
-          justifyContent: "flex-end",
+          justifyContent: direction === "up" ? "flex-end" : "flex-start",
         }}
       >
         <View
-          className="pt-5 h-[50vh] w-full"
+          className="pt-5"
           style={{ 
             backgroundColor: "rgba(30, 30, 46, 0.90)",
             borderTopRightRadius: 20,
-            borderTopLeftRadius: 20,
-            paddingLeft: padding,
-            paddingRight: padding
+            borderTopLeftRadius: direction === "up" ? 20 : 0,
+            borderBottomRightRadius: direction === "up" ? 0 : 20,
+            paddingLeft: direction === "up" ? padding : 30,
+            paddingRight: direction === "up" ? padding : 30,
+            width: direction === "up" ? "100%" : "30%",
+            height: direction === "up" ? "50%" : "100%",
           }}
         >
-          <View className="flex-row">
+          <View className="flex-row justify-between">
             <View className="flex-1 flex-column">
               <Text
                 className="text-3xl tracking-wide text-light-yellow"
                 style={{ fontFamily: fonts.serifSemibold}}
               >
-                {cardName}
+                {cardName} 
               </Text>
               <View className="flex-row gap-1 mt-1">
                 <SvgXml
@@ -92,9 +98,10 @@ const MoreInfoModal = ({
                     .replace(/fill=(["'])(?:(?=(\\?))\2.)*?\1/g, `fill="white"`)}
                   width={15}
                   height={15}
+                  fill={"white"}
                 />
                 <Text
-                  className="text-xs tracking-wide text-dark-text font-sans-italic"
+                  className="text-xs tracking-wide text-dark-text font-sans-italic border-2 border-transparent"
                 >
                   {set.name}
                 </Text>
@@ -180,20 +187,27 @@ const MoreInfoModal = ({
               
             </View>
             
-            <TouchableOpacity
-              onPress={() => handleModalVisibilityChange(false)}
-              style={{
-                height: 30,
-                width: 30,
-                borderRadius: 15,
-                backgroundColor: "rgba(253, 253, 253, 0.5)",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 10
-              }}
-            >
-              <Feather name="chevron-down" size={25} color="black" />
-            </TouchableOpacity>
+            {direction === "up" && (
+              <TouchableOpacity
+                onPress={() => handleModalVisibilityChange(false)}
+                style={{
+                  height: 30,
+                  width: 30,
+                  borderRadius: 15,
+                  backgroundColor: "rgba(253, 253, 253, 0.5)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 10
+                }}
+              >
+                <Feather 
+                  name={direction === "up" ? "chevron-down" : "chevron-left"} 
+                  size={25} 
+                  color="black" 
+                />
+              </TouchableOpacity>
+            )}
+            
           </View>
 
           <View className="flex-row gap-2 mt-5">
@@ -218,6 +232,7 @@ const MoreInfoModal = ({
               Other Variants:
             </Text>
           </View>
+
           { relatedCards.length === 0 && (
             <View className="mt-2">
               <Text
@@ -228,7 +243,8 @@ const MoreInfoModal = ({
               </Text>
             </View>
           )}
-          { relatedCards.length > 0 && (
+
+          { relatedCards.length > 0 && direction === "up" && (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -254,8 +270,49 @@ const MoreInfoModal = ({
               </View>
             </ScrollView>
           )}
+
+          { relatedCards.length > 0 && direction !== "up" && (
+            <FlatList 
+              data={relatedCards}
+              keyExtractor={card => card._id}
+              numColumns={3}
+              columnWrapperStyle={{
+                flex: "row",
+                gap: 5,
+                justifyContent: "between",
+                paddingTop: 5,
+              }}
+              renderItem={({item}) => {
+                console.log("FlatList item: " + JSON.stringify(item));
+                return (
+                  <SmallCardDisplay 
+                    key={item._id}
+                    card={item}
+                    maxWidth={140}
+                    isGreyscale={!item.is_owned}
+                    label={ item.is_owned ? "owned" : "not owned"}
+                  />
+                )
+              }}
+            
+            />
+          )}
           
         </View>
+
+        { direction !== "up" && <View className="flex-1" />}
+
+        { direction !== "up" && (
+           <View>
+            <Button 
+              variant="small-primary"
+              title="Back"
+              containerStyles={"mt-5 mr-5"}
+              handlePress={() => router.back()}
+            />
+          </View>
+        )}
+
       </View>
     </Modal>
   )
@@ -269,6 +326,8 @@ const CardDetailsPage = () => {
   const { cardId } = useLocalSearchParams();
   const handleError = useErrorHandler();
   const { width, height } = useWindowDimensions();
+
+  const isWeb = Platform.OS === "web";
   
   const zoomIn = {
     0: { scale: 0.6, translateY: -0.4 * height },
@@ -278,6 +337,26 @@ const CardDetailsPage = () => {
   const zoomOut = {
     0: { scale: 1, translateY: -0.05  * height }, 
     1: { scale: 0.6, translateY: -0.4 * height },
+  };
+
+  const expand = {
+    0: { scale: 0.9, translateX: 0.15 * width },
+    1: { scale: 1, translateX: 0 }, 
+  };
+
+  const collapse  = {
+    0: { scale: 1, translateX: 0 }, 
+    1: { scale: 0.9, translateX: 0.15 * width },
+  };
+
+  const animation = (modalVisible) => {
+    if (modalVisible) {
+      if (isWeb) return collapse;
+      return zoomOut;
+    } else {
+      if (isWeb) return expand;
+      return zoomIn;
+    }
   };
 
   useEffect(() => {
@@ -308,25 +387,45 @@ const CardDetailsPage = () => {
 
   return (
     <ImageBackground
-      source={images.dark_background_vertical_3}
+      source={isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_3}
+      className="flex-1"
+      resizeMode="cover"
       style={{
-        resizeMode: "cover",
         overflow: "hidden",
       }}
     >
+      {isWeb && (
+        <View className="absolute inset-0 bg-black/75" />
+      )}
+
       { card !== null && !isLoading && (
         <SafeAreaView
           className="h-screen justify-center items-center"
         >
           <Animatable.View
-            animation={ modalVisible ? zoomOut : zoomIn }
+            animation={ animation(modalVisible) }
             duration={300}
+            style={{
+              height: isWeb ? "80%" : "auto",
+              width: isWeb ? 450 : width,
+            }}
           >
-            <CardDisplay 
-              card={card.card_id}
-              enableFlip={ modalVisible ? false : true }
-              maxWidth={0.8 * width}
-            />
+            { !isWeb && (
+              <CardDisplay 
+                card={card.card_id}
+                enableFlip={ modalVisible ? false : true }
+                maxWidth={0.8 * width}
+              />
+            )}
+
+            { isWeb && (
+              <CardDisplay 
+                card={card.card_id}
+                enableFlip={ modalVisible ? false : true }
+                maxWidth={240}
+              />
+            )}
+            
           </Animatable.View>
 
           <MoreInfoModal 
@@ -340,9 +439,10 @@ const CardDetailsPage = () => {
             finalPrice={card.final_price}
             relatedCards={card.related_cards}
             set={card.card_id.set_id}
+            direction={isWeb ? "right" : "up"}
           />
 
-          { !modalVisible && (
+          { !modalVisible && !isWeb && (
             <TouchableOpacity
               onPress={() => handleModalVisibilityChange(true)}
               style={{
@@ -356,7 +456,31 @@ const CardDetailsPage = () => {
                 alignItems: "center"
               }}
             >
-              <Feather name="chevron-up" size={28} color="black"/>
+              <Feather name="chevron-up" size={28} color="black"/>  
+            </TouchableOpacity>
+          )}
+
+          { !modalVisible && isWeb && (
+            <TouchableOpacity
+              onPress={() => handleModalVisibilityChange(true)}
+              style={{
+                position: "absolute",
+                top: 50,
+                left: 50,
+                height: 40,
+                width: 120,
+                borderRadius: 20,
+                backgroundColor: "rgba(253, 253, 253, 0.5)",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View className="flex-row justify-between items-center">
+                <Text className="text-sm text-black font-sans">More info</Text>
+                <Feather name="chevron-right" size={28} color="black"/>
+              </View>
+              
+
             </TouchableOpacity>
           )}
         </SafeAreaView>
