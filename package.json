@@ -13,7 +13,7 @@
     "@expo-google-fonts/noto-sans-mono": "^0.2.3",
     "@expo-google-fonts/poppins": "^0.2.3",
     "@expo/metro-runtime": "^6.1.2",
-    "@lottiefiles/dotlottie-react": "^0.6.5",
+    "@lottiefiles/dotlottie-react": "^0.13.5",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/slider": "5.0.1",
     "axios": "^1.7.8",

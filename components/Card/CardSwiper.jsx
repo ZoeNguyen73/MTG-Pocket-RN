@@ -205,8 +205,6 @@ const CardSwiper = ({ cards, setCode }) => {
   }));
 
   useEffect(() => {
-    console.log("CardSwiper mounts...");
-
     // entry animation for the 1st card
     entryScale.value = 0.9;
     entryOpacity.value = 0.7;
