@@ -4,7 +4,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } 
 
 import SmallCardDisplay from "./SmallCardDisplay";
 
-const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress, isDesktopWeb }) => {
+const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress, isDesktopWeb = true }) => {
   const cardNo = cards.length;
 
   // Shared value for horizontal translation
@@ -28,18 +28,19 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
   return (
     <>
       { cardNo > 0 &&  isDesktopWeb && (
-        <View className="flex-row flex-nowrap gap-1 border-2 border-light-red">
+        <View className="flex-row flex-nowrap gap-1">
           {cards.map(card => (
             <SmallCardDisplay 
               key={card._id}  
               card={card}
-              // maxWidth={Math.min(Math.floor(width/8), Math.floor(cardHeight * (488/680)))}
-              maxWidth={cardWidth}
+              maxWidth={Math.min(Math.floor(containerWidth/8), Math.floor(cardHeight * (488/680)))}
+              // maxWidth={cardWidth}
               shadow={false}
             />
           ))}
         </View>
       )}
+
       { cardNo > 0 &&  !isDesktopWeb && (
         <Animated.ScrollView
           horizontal

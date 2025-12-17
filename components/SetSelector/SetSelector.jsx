@@ -182,7 +182,7 @@ const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => 
 };
 
 const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => {
-  const [ isHovered, setIsHovered] = useState(false);
+  const [ isHovered, setIsHovered ] = useState(false);
   const handleMouseEnter = () => {
     setIsHovered(true);
     updateHoveredSetId(index);
@@ -205,14 +205,17 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
 
   return (
     <View
-      className={`h-[${setCardHeight}] w-[${setCardWidth}] justify-center overflow-visible pb-4`}
+      className={`justify-center overflow-visible pb-4`}
       style={{
         transform: isHovered ? [{ scale: 1.1 }] : [{ scale : 1 }],
         transition: "transform 0.5s ease",
+        height: setCardHeight,
+        width: setCardWidth,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      <Text>{set.name}</Text>
       {/* Glowing Highlight */}
       {isHovered && (
         <View
