@@ -1,4 +1,4 @@
-import { View, ScrollView, Text, Platform, Keyboard, ImageBackground } from "react-native";
+import { View, ScrollView, Text, Keyboard, ImageBackground } from "react-native";
 import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeContext } from "../../context/ThemeProvider";
 import { useAuthContext } from "../../context/AuthProvider";
 import { useErrorHandler } from "../../context/ErrorHandlerProvider";
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import Button from "../../components/CustomButton/CustomButton";
 import FormField from "../../components/CustomForm/FormField";
@@ -20,8 +21,7 @@ import { images } from "../../constants";
 const Register = () => {
   const { theme } = useThemeContext();
   const { handleError } = useErrorHandler();
-
-  const isWeb = Platform.OS === "web";
+  const { isDesktopWeb } = useDeviceLayout();
 
   const { auth, logOut, isLoggedIn, isLoading } = useAuthContext();
   
@@ -156,7 +156,7 @@ const Register = () => {
 
   return (
     <ImageBackground
-      source={isWeb ? images.background_ATLA2 : images.FDN_Bundle_Wallpaper_1040x1536}
+      source={isDesktopWeb ? images.background_ATLA2 : images.FDN_Bundle_Wallpaper_1040x1536}
       resizeMode="cover"
       style={{
         overflow: "hidden",

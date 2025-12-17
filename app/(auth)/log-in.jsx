@@ -8,6 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useAuthContext } from "../../context/AuthProvider";
 import { useThemeContext } from "../../context/ThemeProvider";
 import { useErrorHandler } from "../../context/ErrorHandlerProvider";
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import tailwindConfig from "../../tailwind.config";
 import { getFonts } from "../../utils/FontFamily";
@@ -27,7 +28,7 @@ const LogIn = () => {
   const iconColor = tailwindConfig.theme.extend.colors.dark.text;
   const fonts = getFonts();
 
-  const isWeb = Platform.OS === "web";
+  const { isDesktopWeb } = useDeviceLayout();
 
   const [form, setForm] = useState({
     username: "",
@@ -137,7 +138,7 @@ const LogIn = () => {
 
   return (
     <ImageBackground
-      source={isWeb ? images.background_ATLA2 : images.FDN_Bundle_Wallpaper_1040x1536}
+      source={isDesktopWeb ? images.background_ATLA2 : images.FDN_Bundle_Wallpaper_1040x1536}
       resizeMode="cover"
       style={{
         overflow: "hidden",
@@ -147,7 +148,7 @@ const LogIn = () => {
     >
       <View className="absolute inset-0 bg-black/80" />
       <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]} className="items-center">
-        { !isWeb && (
+        { !isDesktopWeb && (
           <KeyboardAvoidingView
             style={{ flex: 1, width: "100%" }}
             behavior={Platform.OS === "ios" ? "position" : "height"}
@@ -230,7 +231,7 @@ const LogIn = () => {
           
         )}
 
-        { isWeb && (
+        { isDesktopWeb && (
           <View className="h-screen items-center justify-center">
             <LinearGradient
               colors={[
