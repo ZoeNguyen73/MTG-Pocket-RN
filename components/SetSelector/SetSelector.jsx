@@ -654,8 +654,6 @@ const SetSelector = ({ sets }) => {
   
   return (
     <View className="h-screen w-screen" style={{ position: "absolute"}}>
-      <View style={{ height: isDesktopWeb ? 90 : height * 0.15 }}>
-      </View>
       <Text
         className={`text-center font-serif-bold tracking-wider
           ${ isDesktopWeb ? "text-light-teal text-4xl mb-2" : width >= 415 ? "text-dark-teal text-3xl mb-5" : "text-dark-teal text-2xl mb-5"}`

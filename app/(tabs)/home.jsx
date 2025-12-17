@@ -15,7 +15,7 @@ const Home = () => {
   const { isLoggedIn, isLoading } = useAuthContext();
   const [ setList, setSetList ] = useState([]);
   // const bgSoundRef = useRef(null);
-  const { isDesktopWeb } = useDeviceLayout();
+  const { isDesktopWeb, height } = useDeviceLayout();
 
   // load set data
   useEffect(() => {
@@ -36,12 +36,18 @@ const Home = () => {
 
       <SafeAreaView className="h-full">
         { !isDesktopWeb && (
-          <View className="px-2 mb-4">
+          <View className="px-2">
             <Header />
           </View>
         )}
+        {/* <View  /> */}
         { (setList.length > 0) && (
-          <SetSelector sets={setList} />
+          <View
+            style={{ marginTop: isDesktopWeb ? 90 : 30 }}
+          >
+            <SetSelector sets={setList} />
+          </View>
+          
         )}
       </SafeAreaView>
      
