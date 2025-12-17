@@ -495,11 +495,18 @@ const SetDetailsWeb = ({ sets, hoveredSetId }) => {
               >
                 Most popular cards from this set:
               </Text>
-              <CardHighlight
-                cards={topCards} 
-                containerWidth={containerWidth*0.9}
-                containerHeight={containerHeight*0.8}
-              />
+              { topCards && topCards.length > 0 && (
+                <CardHighlight
+                  cards={topCards} 
+                  containerWidth={containerWidth*0.9}
+                  containerHeight={containerHeight*0.8}
+                />
+              )}
+              { (!topCards || topCards.length === 0) && (
+                <Text className="mt-10 mb-5 text-lg font-sans-bold text-light-text text-center">
+                  Loading...
+                </Text>
+              )}
 
             </View>
             
