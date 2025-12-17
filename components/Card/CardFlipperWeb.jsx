@@ -134,6 +134,16 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
             {`$ ${(parseFloat(card.final_price)).toFixed(2)}`}
           </Text>
         </View>
+
+        { card.is_new && (
+          <View 
+            className={`bg-light-blue rounded-full w-[40%] py-1 px-2`} 
+            style={{zIndex: 3, position: "absolute", right: "30%", top:"-5%"}}>
+            <Text className="text-xs font-sans-semibold text-center text-dark-text">
+              New!
+            </Text>
+          </View>
+        )}
         <CardDisplay card={card} maxWidth={width} shadow={false} />
       </Animated.View>
       

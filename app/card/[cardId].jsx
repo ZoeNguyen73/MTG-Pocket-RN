@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SvgXml } from "react-native-svg";
 import * as Animatable from "react-native-animatable";
 import { router } from "expo-router";
@@ -32,6 +33,7 @@ const MoreInfoModal = ({
   rarity,
   finish,
   finalPrice,
+  isFavourite,
   relatedCards,
   set,
   direction = "up",
@@ -158,6 +160,7 @@ const MoreInfoModal = ({
                     {finish}
                   </Text>
                 </View>
+
                 <View
                   style={{
                     borderRadius: 999, // rounded-full
@@ -182,6 +185,10 @@ const MoreInfoModal = ({
                     {`USD ${finalPrice}`}
                   </Text>
                 </View>
+
+                { isFavourite && (
+                  <MaterialCommunityIcons name="heart" size={24} color="#dc8a78" />
+                )}
               </View>
               
               
@@ -436,6 +443,7 @@ const CardDetailsPage = () => {
             rarity={card.card_id.rarity}
             finish={card.finish}
             finalPrice={card.final_price}
+            isFavourite={card.is_favourite}
             relatedCards={card.related_cards}
             set={card.card_id.set_id}
             direction={isWeb ? "right" : "up"}
