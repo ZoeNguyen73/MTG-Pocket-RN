@@ -92,7 +92,6 @@ const CardDisplay = ({
   const imgUri = "image_jpg_normal";
 
   useEffect(() => {
-    // console.log("useEffect triggered in cardDisplay");
     const gradientAnimation = () => {
       if (gradientOptionsRef.current.locations[1] - MOVEMENT <= 0) {
         // Shift colours and reset locations
