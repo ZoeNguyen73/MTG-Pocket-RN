@@ -8,11 +8,11 @@ const breakpoints = Object.fromEntries(
 );
 
 export const getBreakpoint = (width) => {
-  if (width < breakpoints.sm) return "sm";
-  if (width < breakpoints.md) return "md";
-  if (width < breakpoints.lg) return "lg";
-  if (width < breakpoints.xl) return "xl";
-  return "2xl";
+  if (width < breakpoints.sm) return "sm"; //640px
+  if (width < breakpoints.md) return "md"; //768px
+  if (width < breakpoints.lg) return "lg"; //1024px
+  if (width < breakpoints.xl) return "xl"; //1280px
+  return "2xl"; //1536px
 };
 
 export const getBreakpointPx = () => breakpoints;

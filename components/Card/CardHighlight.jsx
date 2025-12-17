@@ -4,13 +4,13 @@ import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } 
 
 import SmallCardDisplay from "./SmallCardDisplay";
 
-const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress }) => {
+const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress, isDesktopWeb }) => {
   const cardNo = cards.length;
 
   // Shared value for horizontal translation
   const translateX = useSharedValue(0);
-  const height = Math.min(Math.floor(680 / 488 * (containerWidth/2.6)), containerHeight);
-  const width = containerWidth;
+  const cardHeight = Math.min(Math.floor(680 / 488 * (containerWidth/3)), containerHeight);
+  const cardWidth = 488 / 680 * cardHeight;
 
   useEffect(() => {
     translateX.value = withSequence(
@@ -27,23 +27,27 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
 
   return (
     <>
-      { cardNo > 0 &&  Platform.OS === "web" && (
-        <View className="flex-row flex-nowrap gap-1">
+      { cardNo > 0 &&  isDesktopWeb && (
+        <View className="flex-row flex-nowrap gap-1 border-2 border-light-red">
           {cards.map(card => (
             <SmallCardDisplay 
               key={card._id}  
               card={card}
-              maxWidth={Math.min(Math.floor(width/8), Math.floor(height * (488/680)))}
+              // maxWidth={Math.min(Math.floor(width/8), Math.floor(cardHeight * (488/680)))}
+              maxWidth={cardWidth}
               shadow={false}
             />
           ))}
         </View>
       )}
-      { cardNo > 0 &&  Platform.OS !== "web" && (
+      { cardNo > 0 &&  !isDesktopWeb && (
         <Animated.ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={[{ maxWidth: containerWidth, maxHeight: height }, animatedStyle]}
+          style={[
+            { maxWidth: containerWidth, height: cardHeight }, 
+            animatedStyle
+          ]}
         >
           <View
             className="flex-row flex-nowrap gap-3"
@@ -56,7 +60,7 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
               >
                 <SmallCardDisplay  
                   card={card}
-                  maxWidth={Math.min(Math.floor(width/2.6), height * (488/680))}
+                  maxWidth={cardWidth}
                   shadow={true}
                 />
               </Pressable>

@@ -1,7 +1,7 @@
 import { Platform, useWindowDimensions } from "react-native";
 import { useMemo } from "react";
 
-import { getBreakpointPx } from "../utils/Breakpoints";
+import { getBreakpoint, getBreakpointPx } from "../utils/Breakpoints";
 
 const useDeviceLayout = () => {
   const { width, height } = useWindowDimensions();
@@ -10,6 +10,7 @@ const useDeviceLayout = () => {
   const isNative = !isWeb;
 
   const bp = getBreakpointPx();
+  const breakpoint = getBreakpoint();
   const isMobileWidth = width < bp.md; // tailwind md = 768px
 
   const canHover = isWeb &&
@@ -47,8 +48,9 @@ const useDeviceLayout = () => {
       // dimensions
       width,
       height,
+      breakpoint,
     }),
-    [isWeb, isNative, isCompact, isWide, isDesktopWeb, isMobileWeb, canHover, width, height]
+    [isWeb, isNative, isCompact, isWide, isDesktopWeb, isMobileWeb, canHover, width, height, breakpoint]
   );
 
 };
