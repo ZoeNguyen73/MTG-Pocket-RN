@@ -4,6 +4,7 @@ import { router, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
 import { LinearGradient } from "expo-linear-gradient";
+
 import { useThemeContext } from "../context/ThemeProvider";
 
 import tailwindConfig from "../tailwind.config";

@@ -1,4 +1,4 @@
-import { View, Platform, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Feather from "@expo/vector-icons/Feather";
@@ -9,6 +9,7 @@ import { router } from "expo-router";
 import tailwindConfig from "../../tailwind.config";
 import { useThemeContext } from "../../context/ThemeProvider";
 import { useAuthContext } from "../../context/AuthProvider";
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import Avatar from "../../components/Avatar/Avatar";
 import Button from "../../components/CustomButton/CustomButton";
@@ -34,7 +35,7 @@ const CustomTabBar = ({
   navigation,
   activeTintColor,
   inactiveTintColor,
-  isWeb,
+  isDesktopWeb,
   theme
 }) => {
   const { auth, logOut } = useAuthContext();
@@ -53,7 +54,7 @@ const CustomTabBar = ({
   const isLoggedIn = auth?.username; 
 
   // WEB LAYOUT: Navigation tabs on the left + Profile/Log in on the right
-  if (isWeb) {
+  if (isDesktopWeb) {
     return (
       <View
         className={`h-[55px] absolute left-0 right-0 z-50 overflow-hidden px-12 overflow-visible`}
@@ -137,11 +138,17 @@ const CustomTabBar = ({
               
           </View>
 
+          <View className="flex-1">
+            <Text className="text-lg text-center font-serif-bold text-light-yellow dark:text-dark-yellow tracking-wider">
+              Magic: the Gathering Pocket
+            </Text>
+          </View>
+
           {/* RIGHT: profile avatar / login icon */}
           { !isLoggedIn && (
             <View className="flex-row items-center gap-3">
               <Text 
-                className="flex-1 font-sans text-sm text-dark-text tracking-wide" 
+                className="flex-1 font-sans text-sm text-light-text dark:text-dark-text tracking-wide" 
               >
                 Log in to save cards to your collection
               </Text>
@@ -302,6 +309,7 @@ const CustomTabBar = ({
 
 const TabsLayout = () => {
   const { theme } = useThemeContext();
+  const { isDesktopWeb } = useDeviceLayout();
 
   const lightBackgroundColor = tailwindConfig.theme.extend.colors.light.background;
   const darkBackgroundColor = tailwindConfig.theme.extend.colors.dark.background;
@@ -313,10 +321,6 @@ const TabsLayout = () => {
   const activeTintColor = tailwindConfig.theme.extend.colors.light.yellow;
   const inactiveTintColor = tailwindConfig.theme.extend.colors.dark.grey1;
 
-  const font = tailwindConfig.theme.fontFamily.sans[0];
-
-  const isWeb = Platform.OS === "web";
-
   return (
     <>
       <Tabs
@@ -324,14 +328,14 @@ const TabsLayout = () => {
         screenOptions={{
           headerShown: false,
           tabBarShowLabel: false,
-          tabBarPosition: isWeb ? "top" : "bottom", 
+          tabBarPosition: isDesktopWeb ? "top" : "bottom", 
         }}
         tabBar={(props) => (
           <CustomTabBar 
             {...props}
             activeTintColor={activeTintColor}
             inactiveTintColor={inactiveTintColor}
-            isWeb={isWeb}
+            isDesktopWeb={isDesktopWeb}
             theme={theme}
           />
         )}
@@ -396,7 +400,23 @@ const TabsLayout = () => {
             ),
           }}
         />
+        <Tabs.Screen 
+          name="about"
+          options={{
+            title: "About",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon 
+                name="About"
+                icon="info"
+                color={color}
+                focused={focused}
+              />
+            ),
+          }}
+        />
       </Tabs>
+      
       <StatusBar 
         // backgroundColor={`${ theme === "dark" ? darkBackgroundColor : darkBackgroundColor }`} 
         // style={`${ theme === "dark" ? "light" : "light"}`}
