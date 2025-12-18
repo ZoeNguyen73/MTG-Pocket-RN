@@ -53,6 +53,21 @@ const Button = ({
     size = "min-h-[20px] min-w-[60px] px-3 py-1";
     textSize = "text-sm";
     iconSize = 14;
+  } else if (variant === "extra-small-primary") {
+    size = "min-h-[15px] min-w-[40px] px-2 py-1";
+    textSize = "text-xs";
+    iconSize = 8;
+  } else if (variant === "extra-small-secondary") {
+    backgroundColor = theme === "dark"
+      ? "bg-dark-surface"
+      : "bg-light-surface";
+    textColor = "text-light-text dark:text-dark-text";
+    iconColor = theme === "dark"
+      ? tailwindConfig.theme.extend.colors.dark.text
+      : tailwindConfig.theme.extend.colors.light.text;
+    size = "min-h-[15px] min-w-[40px] px-2 py-1";
+    textSize = "text-xs";
+    iconSize = 8;
   } 
 
   if (isDisabled) {

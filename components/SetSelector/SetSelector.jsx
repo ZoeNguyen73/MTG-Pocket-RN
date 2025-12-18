@@ -5,11 +5,10 @@ import {
   TouchableOpacity, 
   Image, 
   useWindowDimensions, 
-  Platform, 
   ScrollView, 
 } from "react-native";
 import * as Animatable from "react-native-animatable";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { SvgUri } from "react-native-svg";
 import { router } from "expo-router";
 
@@ -17,11 +16,12 @@ import axios from "../../api/axios";
 
 import { getFonts } from "../../utils/FontFamily";
 import { soundManager } from "../../utils/SoundManager";
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import Button from "../CustomButton/CustomButton";
 import CardHighlight from "./../Card/CardHighlight";
 import CardDisplay from "../Card/CardDisplay";
-
+import LoadingSpinner from "../LoadingSpinner";
 
 const zoomIn = {
   0: { scale: 0.85 },
@@ -35,9 +35,12 @@ const zoomOut = {
 
 const fonts = getFonts();
 
-const SetCard = ({ activeSetId, set, lastSetId }) => {
+const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => {
   const [ selected, setSelected ] = useState(false);
   const timeoutRef = useRef(null);
+
+  const cardWidth = Math.min(Math.floor(screenWidth / 2.3), 200);
+  const cardHeight = Math.floor(cardWidth * 2);
 
   // Reset the selected state when the card is swiped away
   useEffect(() => {
@@ -76,7 +79,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
       animation={activeSetId === set.code ? zoomIn : zoomOut}
       duration={500}
     >
-      <View className="h-[400px] w-[200px] overflow-visible">
+      <View className="overflow-visible" style={{width: cardWidth, height: cardHeight}}>
 
         {/* Glowing Highlight */}
         {activeSetId === set.code && (
@@ -84,16 +87,16 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
             style={{
               position: "absolute",
               left: "50%",
-              transform: [{ translateX: -100 }, { translateY: 55 }], // Center glow
-              width: "100%", // Width of the glow
+              transform: [{ translateX: -0.4 * cardWidth }, { translateY: 0.1 * cardHeight }], // Center glow
+              width: "80%", // Width of the glow
               height: "60%", // Height of the glow
               backgroundColor: "rgba(255, 215, 0, 0.01)", // Semi-transparent yellow
-              borderRadius: 70, // Rounded edges for glow
+              borderRadius: cardWidth / 2, // Rounded edges for glow
               shadowColor: "yellow",
               shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.5,
-              shadowRadius: 30, // Creates the "glow" effect
-              elevation: 35, // Android shadow
+              shadowOpacity: 0.8,
+              shadowRadius: cardWidth / 4, // Creates the "glow" effect
+              elevation: cardWidth / 4, // Android shadow
               zIndex: -1, // Place glow behind the content
             }}
           />
@@ -107,7 +110,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
               source={set.play_booster_image}
               resizeMode="contain"
               style={{
-                maxHeight: 380,
+                maxHeight: cardHeight,
                 width: "auto",
               }}
             />
@@ -119,7 +122,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
             source={set.play_booster_image}
             resizeMode="contain"
             style={{
-              maxHeight: 380,
+              maxHeight: cardHeight,
               width: "auto",
             }}
           />
@@ -132,8 +135,8 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
               position: "absolute",
               top: "80%",
               left: "50%",
-              transform: [{ translateX: -100 }, { translateY: -100 }],
-              width: 200,
+              transform: [{ translateX: -0.5 * cardWidth}, { translateY: -0.4 * cardHeight }],
+              width: cardWidth,
               height: 110,
               backgroundColor: "rgba(203, 166, 247, 0.95)",
               borderRadius: 10,
@@ -152,22 +155,22 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
             }}
           >
             <Text 
-              className="font-mono-bold text-lg text-light-text tracking-wider"
+              className={`${screenWidth < 415 ? "text-sm" : "text-base"} font-mono-bold text-light-text tracking-wider`}
               style={{ fontFamily: fonts.monoBold }}
             >
               Open this pack?
             </Text>
 
-            <View className="flex-row gap-3 mt-3">
+            <View className="flex-row gap-2 mt-3">
               <Button 
                 title="Cancel"
                 handlePress={() => setSelected(false)}
-                variant="small-secondary"
+                variant={screenWidth < 415 ? "extra-small-secondary" : "small-secondary"}
               />
               <Button 
                 title="Confirm"
                 handlePress={handleConfirmation}
-                variant="small-primary"
+                variant={screenWidth < 415 ? "extra-small-primary" : "small-primary"}
               />
             </View>
           </View>  
@@ -179,7 +182,7 @@ const SetCard = ({ activeSetId, set, lastSetId }) => {
 };
 
 const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => {
-  const [ isHovered, setIsHovered] = useState(false);
+  const [ isHovered, setIsHovered ] = useState(false);
   const handleMouseEnter = () => {
     setIsHovered(true);
     updateHoveredSetId(index);
@@ -202,14 +205,17 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
 
   return (
     <View
-      className={`h-[${setCardHeight}] w-[${setCardWidth}] justify-center overflow-visible pb-4`}
+      className={`justify-center overflow-visible pb-4`}
       style={{
         transform: isHovered ? [{ scale: 1.1 }] : [{ scale : 1 }],
         transition: "transform 0.5s ease",
+        height: setCardHeight,
+        width: setCardWidth,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      <Text>{set.name}</Text>
       {/* Glowing Highlight */}
       {isHovered && (
         <View
@@ -276,10 +282,13 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
   )
 };
 
-const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHighlight }) => {
+const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHighlight, screenWidth, screenHeight, isDesktopWeb }) => {
   const set = setList.filter(set => set.code === activeSetId)[0];
   const [ topCards, setTopCards ] = useState([]);
   const [animationKey, setAnimationKey] = useState(0);
+
+  const containerHeight = Math.min(Math.floor(screenHeight / 6), 120);
+  const containerWidth = screenWidth * 0.7;
 
   useEffect(() => {
     const getTopCards = async () => {
@@ -326,16 +335,17 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
           <View className="items-center">
 
             <View
-              className="rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5 h-[25vh]
-              border border-b-4 flex-column"
+              className="rounded-3xl overflow-hidden px-8 py-5 mx-5 md:mt-5
+              border border-b-4 flex-column justify-between"
               style={{
-                backgroundColor: "rgba(249, 226, 175, 0.4)",
-                borderColor: "#00000020"
+                backgroundColor: "rgba(249, 226, 175, 0.7)",
+                borderColor: "#00000020",
+                maxHeight: containerHeight * 2,
               }}
             >
-              <View className="flex-row flex-wrap w-full gap-2 items-center mb-1 flex-1">
+              <View className="flex-row flex-wrap w-full gap-2 items-center mb-2 flex-1">
                 <Text
-                  className="font-sans-bold text-lg text-light-text tracking-wider flex-1"
+                  className="font-sans-bold text-base text-light-text tracking-wider flex-1"
                 >
                   {set.details?.name}
                 </Text>
@@ -344,7 +354,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
 
               <View className="mb-1">
                 <Text
-                  className="font-sans-light text-base text-light-text tracking-wide"
+                  className={`${screenWidth < 415 ? "text-sm" : "text-base"} font-sans-light text-light-text tracking-wide`}
                 >
                   Most popular cards from this set:
                 </Text>
@@ -352,9 +362,10 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
               
               <CardHighlight 
                 cards={topCards}
-                containerWidth={320}
-                containerHeight={120}
+                containerWidth={containerWidth}
+                containerHeight={containerHeight * 0.9}
                 handleLongPress={enlargeCardHighlight}
+                isDesktopWeb={isDesktopWeb}
               />
               
             </View>
@@ -521,28 +532,53 @@ const SetDetailsWeb = ({ sets, hoveredSetId }) => {
 };
 
 const SetSelector = ({ sets }) => {
-  const [ activeSetId, setActiveSetId ] = useState(sets[0].code);
+  const stableSets = useMemo(() => sets, [sets]);
+
+  const [ setsWithDetails, setSetsWithDetails ] = useState([]);
+  const [ activeSetId, setActiveSetId ] = useState(stableSets?.[0]?.code);
   const [ lastSetId, setLastSetId ] = useState(null);
   const [ setDetailsLoaded, setSetDetailsLoaded ] = useState(false);
+
   const [ hoveredSetId, setHoveredSetId ] = useState(null);
   const [ enlargedCardHighlight, setEnlargedCardHighlight ] = useState(false);
   const [ activeSetTopCards, setActiveSetTopCards ] = useState([]);
   
-  const viewableSetsChanges = ({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-      const firstVisibleItem = viewableItems[0].item;
-      const lastVisibleItem = viewableItems[viewableItems.length - 1].item;
+  const { isDesktopWeb, height, width } = useDeviceLayout();
 
-      // If the last visible item is the last item in the list, make it active
-      if (lastVisibleItem.code === sets[sets.length - 1].code) {
+
+  // Keep latest sets (with details) in a ref so the viewability handler
+  // never needs to close over changing arrays.
+  const setsRef = useRef(setsWithDetails);
+
+  useEffect(() => {
+    setsRef.current = setsWithDetails;
+  }, [setsWithDetails]);
+
+  // ----- Stable FlatList onViewableItemsChanged (fixes mobile web crash) -----
+  const viewableSetsChangesRef = useRef(null);
+
+  useEffect(() => {
+    viewableSetsChangesRef.current = ({ viewableItems }) => {
+      const currentSets = setsRef.current || [];
+      if (!viewableItems?.length || !currentSets.length) return;
+
+      const firstVisibleItem = viewableItems[0]?.item;
+      const lastVisibleItem = viewableItems[viewableItems.length - 1]?.item;
+      const lastSetCode = currentSets[currentSets.length - 1]?.code;
+
+      if (lastVisibleItem?.code && lastVisibleItem.code === lastSetCode) {
         setActiveSetId(lastVisibleItem.code);
-      } else {
+      } else if (firstVisibleItem?.code) {
         setActiveSetId(firstVisibleItem.code);
       }
-    }
+    };
+  }, []);
 
-  };
+  const stableOnViewableItemsChanged = useRef((info) => {
+    viewableSetsChangesRef.current?.(info);
+  }).current;
 
+  // ----- Desktop web wheel scroll -----
   const handleWheelScroll = (event) => {
     // Adjust the scroll position horizontally
     event.currentTarget.scrollLeft += event.deltaY;
@@ -552,34 +588,75 @@ const SetSelector = ({ sets }) => {
     setHoveredSetId(index);
   };
 
+  // ----- Fetch set details -----
   useEffect(() => {
+    let cancelled = false;
+
     const getSetDetails = async () => {
-      console.log("[SetSelector] useEffect triggered - getting set details...");
-      const updatedSets = await Promise.all(
-        sets.map(async (set) => {
-          const response = await axios.get(`/sets/${set.code}`);
-          return { ...set, details: response.data };
-        })
-      );
 
-      // Replace `sets` with the updated version containing details
-      sets.splice(0, sets.length, ...updatedSets);
+      try {
 
-      // Mark details as loaded and ensure the active set is ready
-      setLastSetId(sets[sets.length - 1].code);
-      setSetDetailsLoaded(true);
+        setSetDetailsLoaded(false);
+
+        const updatedSets = await Promise.all(
+          sets.map(async (set) => {
+            const response = await axios.get(`/sets/${set.code}`);
+            return { ...set, details: response.data };
+          })
+        );
+
+        if (cancelled) return;
+
+        setSetsWithDetails(updatedSets);
+        setLastSetId(updatedSets[updatedSets.length - 1]?.code ?? null);
+        setSetDetailsLoaded(true);
+
+      } catch (error) {
+        console.error("[SetSelector] Failed to get set details:", error);
+        if (!cancelled) setSetDetailsLoaded(false);
+      }
     };
 
-    getSetDetails();
-  }, [sets]);
+    if (sets?.length) {
+      getSetDetails();
+    } else {
+      setSetsWithDetails([]);
+      setLastSetId(null);
+      setSetDetailsLoaded(true);
+    }
 
+    return () => {
+      cancelled = true;
+    };
+
+  }, [sets.map(s => s.code).join(",")]); // IMPORTANT: don't depend on the whole `sets` array if it is recreated often
+
+  // ----- Ensure activeSetId is valid when setsWithDetails changes -----
+  useEffect(() => {
+    if (!setsWithDetails?.length) return;
+
+    // If activeSetId not set yet, set default
+    if (!activeSetId) {
+      setActiveSetId(setsWithDetails[0].code);
+      return;
+    }
+
+    // If current activeSetId no longer exists, reset
+    const stillExists = setsWithDetails.some((s) => s.code === activeSetId);
+    if (!stillExists) {
+      setActiveSetId(setsWithDetails[0].code);
+    }
+  }, [setsWithDetails, activeSetId]);
+  
+  // Prefer rendering from the detailed list once loaded,
+  // but fall back to stableSets so UI isn't empty.
+  const listData = setDetailsLoaded ? setsWithDetails : stableSets;
+  
   return (
     <View className="h-screen w-screen" style={{ position: "absolute"}}>
-      <View style={{ height: Platform.OS === "web" ? 90 : 130 }}>
-      </View>
       <Text
         className={`text-center font-serif-bold tracking-wider
-          ${Platform.OS === "web"? "text-light-teal text-4xl mb-2" : "text-dark-teal text-3xl mb-5"}`
+          ${ isDesktopWeb ? "text-light-teal text-4xl mb-2" : width >= 415 ? "text-dark-teal text-3xl mb-5" : "text-dark-teal text-2xl mb-5"}`
         }
         style={{
           textShadowColor: "#00000080",
@@ -590,12 +667,13 @@ const SetSelector = ({ sets }) => {
         Open a Booster Pack
       </Text> 
 
-      { Platform.OS === "web" && (
+      {/* DESKTOP WEB */}  
+      { isDesktopWeb && setDetailsLoaded && (
         <View
           onWheel={handleWheelScroll}
           className="ml-16 mr-16 overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4 scrollbar-webkit"
         >
-          {sets.map((set, index) => (
+          {listData.map((set, index) => (
             <SetCardWeb 
               key={index} 
               index={index} 
@@ -609,33 +687,39 @@ const SetSelector = ({ sets }) => {
         </View>
       )}
 
-      { Platform.OS === "web" && (
-        <SetDetailsWeb sets={sets} hoveredSetId={hoveredSetId}/>
+      { isDesktopWeb && setDetailsLoaded && (
+        <SetDetailsWeb sets={listData} hoveredSetId={hoveredSetId}/>
       )}
 
-      { Platform.OS !== "web" && setDetailsLoaded && activeSetId && (
+      {/* MOBILE (APP + MOBILE WEB) */}
+      { !isDesktopWeb && setDetailsLoaded && activeSetId && (
         <SetDetails 
-          setList={sets} 
+          setList={listData} 
           activeSetId={activeSetId} 
           enlargeCardHighlight={() => setEnlargedCardHighlight(true)}
           setActiveSetTopCards={setActiveSetTopCards}
+          screenWidth={width}
+          screenHeight={height}
+          isDesktopWeb={isDesktopWeb}
         />
       )}
 
-      { Platform.OS !== "web" && (
+      { !isDesktopWeb && setDetailsLoaded && (
         <View className="zIndex-10">
           <FlatList
-            data={sets}
+            data={listData}
             keyExtractor={(item) => item.code}
             renderItem={({ item }) => (
               <SetCard 
                 activeSetId={activeSetId}
                 set={item}
                 lastSetId={lastSetId}
+                screenWidth={width}
+                screenHeight={height}
               />
               
             )}
-            onViewableItemsChanged={viewableSetsChanges}
+            onViewableItemsChanged={stableOnViewableItemsChanged}
             viewabilityConfig={{
               itemVisiblePercentThreshold: 90
             }}
@@ -643,10 +727,10 @@ const SetSelector = ({ sets }) => {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-        
       )}
 
-      { Platform.OS !== "web" 
+      {/* Enlarged highlight overlay */}
+      { !isDesktopWeb 
         && setDetailsLoaded 
         && activeSetId
         && enlargedCardHighlight 
@@ -726,6 +810,8 @@ const SetSelector = ({ sets }) => {
           
           </View>
       )}
+
+      {!setDetailsLoaded && (<LoadingSpinner />)}
       
     </View>
     

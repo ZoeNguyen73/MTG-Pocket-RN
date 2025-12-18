@@ -205,8 +205,6 @@ const CardSwiper = ({ cards, setCode }) => {
   }));
 
   useEffect(() => {
-    console.log("CardSwiper mounts...");
-
     // entry animation for the 1st card
     entryScale.value = 0.9;
     entryOpacity.value = 0.7;
@@ -459,7 +457,7 @@ const CardSwiper = ({ cards, setCode }) => {
           </View>
 
           {/* Sparkle Burst Animation */}
-          <LottieView
+          {/* <LottieView
             ref={burstRef}
             source={require("../../assets/lottie-files/fireworks_shortened.json")} // Provide the Lottie JSON file as a prop
             autoPlay={false} // Do not autoplay
@@ -471,7 +469,7 @@ const CardSwiper = ({ cards, setCode }) => {
               height: "130%",
               zIndex: 1,
             }}
-          />
+          /> */}
 
           <View className="flex-row-reverse justify-start border border-transparent h-[25vh] my-1 px-12">
             
