@@ -138,11 +138,17 @@ const CustomTabBar = ({
               
           </View>
 
+          <View className="flex-1">
+            <Text className="text-lg text-center font-serif-bold text-light-yellow dark:text-dark-yellow tracking-wider">
+              Magic: the Gathering Pocket
+            </Text>
+          </View>
+
           {/* RIGHT: profile avatar / login icon */}
           { !isLoggedIn && (
             <View className="flex-row items-center gap-3">
               <Text 
-                className="flex-1 font-sans text-sm text-dark-text tracking-wide" 
+                className="flex-1 font-sans text-sm text-light-text dark:text-dark-text tracking-wide" 
               >
                 Log in to save cards to your collection
               </Text>

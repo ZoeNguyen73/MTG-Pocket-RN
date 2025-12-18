@@ -36,7 +36,7 @@ const About = () => {
       <View className="absolute inset-0 bg-black/80" />
 
       <SafeAreaView 
-        className="h-[95%] py-4 px-4 items-center"
+        className="h-[95%] mx-4 py-4 px-4 items-center"
       >
         <ScrollView
           contentContainerStyle={{
