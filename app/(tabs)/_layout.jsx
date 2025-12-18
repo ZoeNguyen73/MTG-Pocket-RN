@@ -394,7 +394,23 @@ const TabsLayout = () => {
             ),
           }}
         />
+        <Tabs.Screen 
+          name="about"
+          options={{
+            title: "About",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon 
+                name="About"
+                icon="info"
+                color={color}
+                focused={focused}
+              />
+            ),
+          }}
+        />
       </Tabs>
+      
       <StatusBar 
         // backgroundColor={`${ theme === "dark" ? darkBackgroundColor : darkBackgroundColor }`} 
         // style={`${ theme === "dark" ? "light" : "light"}`}
