@@ -460,6 +460,7 @@ const CardDetailsPage = () => {
                 height: 40,
                 width: 40,
                 borderRadius: 20,
+                marginBottom: 60,
                 backgroundColor: "rgba(253, 253, 253, 0.5)",
                 justifyContent: "center",
                 alignItems: "center"
