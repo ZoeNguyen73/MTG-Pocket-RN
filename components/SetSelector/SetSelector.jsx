@@ -18,10 +18,12 @@ import { getFonts } from "../../utils/FontFamily";
 import { soundManager } from "../../utils/SoundManager";
 import useDeviceLayout from "../../hooks/useDeviceLayout";
 
+import { devDelay } from "../../utils/DevDelay";
+
 import Button from "../CustomButton/CustomButton";
 import CardHighlight from "./../Card/CardHighlight";
 import CardDisplay from "../Card/CardDisplay";
-import LoadingSpinner from "../LoadingSpinner";
+import LoadingSpinnerWithMessages from "../LoadingSpinner/LoadingSpinnerWithMessages";
 
 const zoomIn = {
   0: { scale: 0.85 },
@@ -600,6 +602,8 @@ const SetSelector = ({ sets }) => {
 
         setSetDetailsLoaded(false);
 
+        await devDelay(10000);
+
         const updatedSets = await Promise.all(
           sets.map(async (set) => {
             const response = await axios.get(`/sets/${set.code}`);
@@ -813,7 +817,11 @@ const SetSelector = ({ sets }) => {
           </View>
       )}
 
-      {!setDetailsLoaded && (<LoadingSpinner />)}
+      {!setDetailsLoaded && (
+        <LoadingSpinnerWithMessages
+          intervalMs={3500}
+        />
+      )}
       
     </View>
     

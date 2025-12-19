@@ -1,14 +1,14 @@
 import { View, StyleSheet } from "react-native";
 import React from "react";
 
-import LottieAnimation from "./Lottie/LottieAnimation";
+import LottieAnimation from "../Lottie/LottieAnimation";
 
 const LoadingSpinner = () => {
 
   return (
     <View style={styles.container}>
       <LottieAnimation
-        source={require("./../assets/lottie-files/loading.json")}
+        source={require("../../assets/lottie-files/loading.json")}
         style={styles.lottie}
       />
     </View>

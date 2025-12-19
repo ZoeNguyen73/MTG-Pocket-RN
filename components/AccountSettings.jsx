@@ -11,7 +11,7 @@ import tailwindConfig from "../tailwind.config";
 
 import Avatar from "./Avatar/Avatar";
 import Button from "./CustomButton/CustomButton";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "./LoadingSpinner/LoadingSpinner";
 
 const AccountSettings = () => {
   const { auth, logOut } = useAuthContext();

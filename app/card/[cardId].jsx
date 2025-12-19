@@ -18,7 +18,7 @@ import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import CardDisplay from "../../components/Card/CardDetailsDisplay";
 import SmallCardDisplay from "../../components/Card/SmallCardDisplay";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import Button from "../../components/CustomButton/CustomButton";
 
 import { images } from "../../constants";
