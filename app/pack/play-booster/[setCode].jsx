@@ -12,7 +12,7 @@ import { useErrorHandler } from "../../../context/ErrorHandlerProvider";
 import { useThemeContext } from "../../../context/ThemeProvider";
 import useDeviceLayout from "../../../hooks/useDeviceLayout";
 
-import LoadingSpinner from "../../../components/LoadingSpinner";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import CardSwiper from "../../../components/Card/CardSwiper";
 import CardFlipperWeb from "../../../components/Card/CardFlipperWeb";
 

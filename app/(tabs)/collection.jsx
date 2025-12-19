@@ -16,7 +16,7 @@ import tailwindConfig from "../../tailwind.config";
 import { getFonts } from "../../utils/FontFamily";
 
 import Button from "../../components/CustomButton/CustomButton";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import CardCollection from "../../components/Card/CardCollection";
 import SmallLoadingSpinner from "../../components/SmallLoadingSpinner";
 

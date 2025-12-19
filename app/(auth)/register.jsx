@@ -11,7 +11,7 @@ import useDeviceLayout from "../../hooks/useDeviceLayout";
 import Button from "../../components/CustomButton/CustomButton";
 import FormField from "../../components/CustomForm/FormField";
 import MessageBox from "../../components/MessageBox";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import Avatar from "../../components/Avatar/Avatar";
 
 import axios from "../../api/axios";
