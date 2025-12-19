@@ -1,28 +1,28 @@
-import { View, Image, useWindowDimensions, Platform } from "react-native";
+import { View, Image } from "react-native";
 import React from "react";
 
 import { useThemeContext } from "../../context/ThemeProvider";
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import tailwindConfig from "../../tailwind.config";
 
 import { avatars } from "../../constants";
 
 const Avatar = ({ avatarName, size, withoutBorder, shadow = false }) => {
-  const { width } = useWindowDimensions();
-  const isWeb = Platform.OS === "web";
+  const { isDesktopWeb } = useDeviceLayout();
 
-  let dimension = isWeb ? 100 : 80;
-  let borderRadius = isWeb ? 50 : 40;
+  let dimension = isDesktopWeb ? 100 : 80;
+  let borderRadius = isDesktopWeb ? 50 : 40;
 
   if (size && size === "extra small") {
-    dimension = isWeb ? 36 : 50; // 2.75rem 44px
-    borderRadius = isWeb ? 18 : 25;
+    dimension = isDesktopWeb ? 36 : 50; // 2.75rem 44px
+    borderRadius = isDesktopWeb ? 18 : 25;
   } else if (size && size === "small") {
-    dimension = isWeb ? 80 : 60; // 4rem 64px
-    borderRadius = isWeb ? 40 : 30;
+    dimension = isDesktopWeb ? 80 : 60; // 4rem 64px
+    borderRadius = isDesktopWeb ? 40 : 30;
   } else if (size && size === "large") {
-    dimension = isWeb ? 140 : 112; // 7rem 112px
-    borderRadius = isWeb ? 70 : 56;
+    dimension = isDesktopWeb ? 140 : 112; // 7rem 112px
+    borderRadius = isDesktopWeb ? 70 : 56;
   }
 
   const { theme } = useThemeContext();
