@@ -1,9 +1,11 @@
-import { View, Image, StyleSheet, Platform, TouchableOpacity, Animated } from "react-native";
+import { View, Image, StyleSheet, TouchableOpacity, Animated } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 import Sparkles from "../Sparkles";
+
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 const START_DEFAULT = { x: 0.5, y: 0 };
 const END_DEFAULT = { x: 0.5, y: 1 };
@@ -94,7 +96,7 @@ const CardDisplay = ({
   const gradientOptionsRef = useRef(gradientOptions);
   gradientOptionsRef.current = gradientOptions;
 
-  console.log("card: " + frontCardFace.name + ", finish: " + finish);
+  const { isDesktopWeb } = useDeviceLayout(); 
 
   const imgUri = "image_jpg_normal";
 
@@ -150,7 +152,7 @@ const CardDisplay = ({
 
   return (
     <>
-      { Platform.OS !== "web" && (
+      { !isDesktopWeb && (
         <View
           style={[
             styles.shadowContainer,
@@ -324,7 +326,7 @@ const CardDisplay = ({
 
         </View>
       )}
-      { Platform.OS === "web" && (
+      { isDesktopWeb && (
         <View
           style={[
             styles.shadowContainer,

@@ -360,6 +360,8 @@ const SortButton = ({
   sortIconName,
   sortIconMapping ,
   handleChangeSorting,
+  isDesktopWeb,
+  screenWidth,
 }) => {
   const [ modalVisible, setModalVisible ] = useState(false);
   return (
@@ -367,8 +369,8 @@ const SortButton = ({
       <View
         style={{
           position: "absolute",
-          right: 20,
-          bottom: 100,
+          right: isDesktopWeb ? screenWidth / 8 : 20,
+          bottom: isDesktopWeb ? 50 : 150,
           height: 40,
           width: 80,
           backgroundColor: "#FFFFFF",
@@ -587,6 +589,8 @@ const Collection = () => {
             sortDirection={sortDirection}
             sortIconMapping={sortIconMapping}
             handleChangeSorting={handleChangeSorting}
+            isDesktopWeb={isDesktopWeb}
+            screenWidth={width}
           />
         </View>
       )}
