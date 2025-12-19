@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 export default ({ config }) => {
   const isDev = process.env.APP_ENV !== "production";
 

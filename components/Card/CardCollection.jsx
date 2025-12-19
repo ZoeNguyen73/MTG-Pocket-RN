@@ -81,7 +81,6 @@ const CardCollection = ({ cards, headerHeight, listWidth, updateFavourite, showF
         <View
           style={{
             height: headerHeight + 10,
-            width: "100%"
           }}
         />
       }
@@ -96,9 +95,10 @@ const CardCollection = ({ cards, headerHeight, listWidth, updateFavourite, showF
       columnWrapperStyle={{
         flex: "row",
         justifyContent: "space-between",
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingTop: 10,
+        paddingLeft: 8,
+        paddingRight: 8,
+        paddingTop: 8,
+        maxWidth: width,
       }}
       renderItem={({item}) => {
         return (
