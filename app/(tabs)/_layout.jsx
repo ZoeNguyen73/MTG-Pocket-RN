@@ -70,7 +70,7 @@ const CustomTabBar = ({
         >
 
           {/* LEFT: Tabs */}
-          <View className="flex-row items-center">
+          <View className="flex-row items-center flex-1">
             { state.routes.map((route, index) => {
               const { options } = descriptors[route.key];
 
@@ -138,7 +138,7 @@ const CustomTabBar = ({
               
           </View>
 
-          <View className="flex-1">
+          <View className="flex-2">
             <Text className="text-lg text-center font-serif-bold text-light-yellow dark:text-dark-yellow tracking-wider">
               Magic: the Gathering Pocket
             </Text>
@@ -146,7 +146,7 @@ const CustomTabBar = ({
 
           {/* RIGHT: profile avatar / login icon */}
           { !isLoggedIn && (
-            <View className="flex-row items-center gap-3">
+            <View className="flex-row items-center gap-3 flex-1">
               <Text 
                 className="flex-1 font-sans text-sm text-light-text dark:text-dark-text tracking-wide" 
               >
@@ -166,7 +166,7 @@ const CustomTabBar = ({
           )}
           
           { isLoggedIn && (
-            <View className="flex-row items-center gap-3 cursor-default">
+            <View className="flex-row justify-end items-center gap-3 cursor-default flex-1">
               <Feather name="bell" size={22} color={iconColor} />
               
               <Avatar 
