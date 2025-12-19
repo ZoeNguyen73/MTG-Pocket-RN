@@ -32,19 +32,17 @@ const Home = () => {
         overflow: "hidden",
       }}
     >
-      <View className="absolute inset-0 bg-black/75" />
+      <View className="absolute inset-0 bg-black/75" pointerEvents="none" />
 
-      <SafeAreaView className="h-full">
+      <SafeAreaView className="h-full" pointerEvents="box-none">
         { !isDesktopWeb && (
-          <View className="px-2">
+          <View style={{position: "relative", top: 0, width: "100%", zIndex: 2}} pointerEvents="box-none">
             <Header />
           </View>
         )}
         {/* <View  /> */}
         { (setList.length > 0) && (
-          <View
-            style={{ marginTop: isDesktopWeb ? 90 : 30 }}
-          >
+          <View style={{position: "absolute"}} pointerEvents="box-none">
             <SetSelector sets={setList} />
           </View>
           

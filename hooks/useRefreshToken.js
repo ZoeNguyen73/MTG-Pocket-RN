@@ -3,6 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useAuthContext } from "../context/AuthProvider";
 import handleGlobalError from "../utils/ErrorHandler";
+import storage from "../utils/Storage";
+
 import axios from "../api/axios";
 
 const useRefreshToken = () => {
@@ -12,7 +14,7 @@ const useRefreshToken = () => {
   useEffect(() => {
     const getRefreshToken = async () => {
       try {
-        const token = await AsyncStorage.getItem("refreshToken");
+        const token = await storage.getItem("refreshToken");
         refreshTokenRef.current = token;
       } catch (error) {
         handleGlobalError(error);
@@ -24,6 +26,7 @@ const useRefreshToken = () => {
 
   const refresh = async () => {
     const refreshToken = refreshTokenRef.current;
+    console.log("[useRefreshToken] refresh function triggers with token: " + refreshToken);
     const response = await axios.post(
       "/auth/refresh",
       { refreshToken }

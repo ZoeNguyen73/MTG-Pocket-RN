@@ -21,7 +21,7 @@ import { images } from "../../constants";
 const Register = () => {
   const { theme } = useThemeContext();
   const { handleError } = useErrorHandler();
-  const { isDesktopWeb } = useDeviceLayout();
+  const { isDesktopWeb, width } = useDeviceLayout();
 
   const { auth, logOut, isLoggedIn, isLoading } = useAuthContext();
   
@@ -171,15 +171,15 @@ const Register = () => {
             className="w-full justify-center px-8 my-14 lg:max-w-screen-sm"
           >
             <Text 
-              className="font-serif-bold text-5xl lg:text-6xl
-              text-dark-mauve tracking-wider"
+              className={`font-serif-bold ${width < 400 ? "text-4xl" : "text-5xl"}
+              text-dark-mauve tracking-wider`}
             >
               Sign Up to{"\n"}
               MTG Pocket
             </Text>
 
             <View className="mt-2">
-              <Text className="font-sans-light text-lg lg:text-xl text-light-grey1 dark:text-dark-grey2 tracking-wide">
+              <Text className={`${width < 400 ? "text-sm" : "text-lg"} font-sans-light text-light-grey1 dark:text-dark-grey2 tracking-wide`}>
                 Get started for free with your email
               </Text>
             </View>
@@ -256,7 +256,7 @@ const Register = () => {
                 />
 
                 <View className="justify-center gap-2 pt-5 flex-row">
-                  <Text className="font-sans-bold text-light-text dark:text-dark-text font-sans tracking-wide">
+                  <Text className="font-sans-bold text-dark-text font-sans tracking-wide">
                     Already have an account?
                   </Text>
                   <Link

@@ -340,12 +340,14 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
               style={{
                 backgroundColor: "rgba(249, 226, 175, 0.7)",
                 borderColor: "#00000020",
-                maxHeight: containerHeight * 2,
+                maxHeight: containerHeight * 2.1,
               }}
             >
-              <View className="flex-row flex-wrap w-full gap-2 items-center mb-2 flex-1">
+              <View 
+                className="flex-row flex-wrap w-full gap-2 items-center mb-2 flex-1 mb-3"
+              >
                 <Text
-                  className="font-sans-bold text-base text-light-text tracking-wider flex-1"
+                  className="font-sans-bold text-base text-light-text tracking-wider flex-1 leading-tight"
                 >
                   {set.details?.name}
                 </Text>
@@ -543,7 +545,7 @@ const SetSelector = ({ sets }) => {
   const [ enlargedCardHighlight, setEnlargedCardHighlight ] = useState(false);
   const [ activeSetTopCards, setActiveSetTopCards ] = useState([]);
   
-  const { isDesktopWeb, height, width } = useDeviceLayout();
+  const { isDesktopWeb, height, width, isMobileWeb } = useDeviceLayout();
 
 
   // Keep latest sets (with details) in a ref so the viewability handler
@@ -653,7 +655,7 @@ const SetSelector = ({ sets }) => {
   const listData = setDetailsLoaded ? setsWithDetails : stableSets;
   
   return (
-    <View className="h-screen w-screen" style={{ position: "absolute"}}>
+    <View className="h-screen w-screen" style={{ position: "absolute", paddingTop: isDesktopWeb ? 90 : isMobileWeb ? 100 : 130 }}>
       <Text
         className={`text-center font-serif-bold tracking-wider
           ${ isDesktopWeb ? "text-light-teal text-4xl mb-2" : width >= 415 ? "text-dark-teal text-3xl mb-5" : "text-dark-teal text-2xl mb-5"}`

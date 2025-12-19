@@ -1,21 +1,25 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Modal, Pressable, Platform } from "react-native";
 import { useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 
 import { useAuthContext } from "../context/AuthProvider";
 import { useThemeContext } from "../context/ThemeProvider";
+import useDeviceLayout from "../hooks/useDeviceLayout";
 
 import tailwindConfig from "../tailwind.config";
 
 import Avatar from "./Avatar/Avatar";
 import Button from "./CustomButton/CustomButton";
+import LoadingSpinner from "./LoadingSpinner";
 
 const AccountSettings = () => {
   const { auth, logOut } = useAuthContext();
   const { theme } = useThemeContext();
+  const { width } = useDeviceLayout();
 
   const [ showConfirmPopup, setShowConfirmPopup ] = useState(false);
+  const [ isProcessing, setIsProcessing ] = useState(false);
 
   const iconColor = theme === "dark"
     ? tailwindConfig.theme.extend.colors.dark.text
@@ -23,8 +27,16 @@ const AccountSettings = () => {
   const lightYellow = tailwindConfig.theme.extend.colors.light.yellow;
 
   const handleLogOut = async () => {
-    await logOut();
-    router.replace("/")
+    try {
+      setIsProcessing(true);
+      await logOut();
+      router.replace("/")
+    } catch (error) {
+      console.error()
+    } finally {
+      setIsProcessing(false);
+    }
+    
   };
 
   return (
@@ -41,7 +53,7 @@ const AccountSettings = () => {
         <Avatar 
           avatarName={auth?.avatar || "Planeswalker_1"}
           withoutBorder={true}
-          size="small"
+          size={width < 400 ? "extra small" : "small"}
         />
 
         <View className="flex-column grow"> 
@@ -52,7 +64,7 @@ const AccountSettings = () => {
           )}
           
           { !auth?.username && (
-            <Text className="font-serif-bold text-xl text-dark-text tracking-wider">
+            <Text className={`{${width < 400 ? "text-sm" : "text-base"} font-serif-bold text-dark-text tracking-wider`}>
               Unnamed Planeswalker
             </Text>
           )}
@@ -77,7 +89,7 @@ const AccountSettings = () => {
             className="justify-center items-center w-[30px] h-[30px]"
             style={{
               borderRadius: 15,
-              backgroundColor: lightYellow,
+              backgroundColor: "#FFFFFF80",
               marginRight: 5,
             }}
             onPress={() => router.push("/log-in")}
@@ -87,52 +99,74 @@ const AccountSettings = () => {
         )}
 
         {/* Log out confirmation Popup */}
-        { showConfirmPopup && (
-          <View
+        <Modal
+          visible={showConfirmPopup}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowConfirmPopup(false)}
+        >
+          {/* Backdrop */}
+          <Pressable
+            onPress={() => setShowConfirmPopup(false)}
             style={{
-              position: "absolute",
-              top: "300%",
-              left: "50%",
-              transform: [{ translateX: -150 }, { translateY: -100 }],
-              width: 300,
-              height: 150,
-              backgroundColor: "rgba(203, 166, 247, 0.95)",
-              borderRadius: 10,
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.55)",
               justifyContent: "center",
               alignItems: "center",
-              elevation: 5,
-              shadowColor: "black",
-              shadowOffset: { width: 0, height: 5 },
-              shadowOpacity: 0.2,
-              shadowRadius: 5,
-              borderBottomWidth: 6,
-              borderTopWidth: 1,
-              borderLeftWidth: 1,
-              borderRightWidth: 1,
-              borderColor: "black",
-              zIndex: 100,
+              // RN web sometimes benefits from this
+              ...(Platform.OS === "web" ? { cursor: "default" } : null),
             }}
           >
-            <Text className="font-mono-bold text-lg text-light-text tracking-wider">
-              Confirm to Log Out?
-            </Text>
+            {/* Stop backdrop press from closing when tapping the popup */}
+            <Pressable
+              onPress={(e) => e.stopPropagation?.()}
+              style={{
+                width: 300,
+                minHeight: 150,
+                backgroundColor: "rgba(203, 166, 247, 0.95)",
+                borderRadius: 12,
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 16,
 
-            <View className="flex-row gap-3 mt-3">
-              <Button 
-                title="Cancel"
-                handlePress={() => setShowConfirmPopup(false)}
-                variant="small-secondary"
-              />
-              <Button 
-                title="Confirm"
-                handlePress={handleLogOut}
-                variant="small-primary"
-              />
-            </View>
-          </View>
-        )}
+                // shadows
+                shadowColor: "black",
+                shadowOffset: { width: 0, height: 5 },
+                shadowOpacity: 0.2,
+                shadowRadius: 5,
+                elevation: 10,
+
+                // border
+                borderBottomWidth: 6,
+                borderTopWidth: 1,
+                borderLeftWidth: 1,
+                borderRightWidth: 1,
+                borderColor: "black",
+              }}
+            >
+              <Text className="font-mono-bold text-lg text-light-text tracking-wider">
+                Confirm to Log Out?
+              </Text>
+
+              <View className="flex-row gap-3 mt-3">
+                <Button
+                  title="Cancel"
+                  handlePress={() => setShowConfirmPopup(false)}
+                  variant="small-secondary"
+                />
+                <Button
+                  title="Confirm"
+                  handlePress={handleLogOut}
+                  variant="small-primary"
+                />
+              </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
         
       </View>
+
+      {isProcessing && (<LoadingSpinner />)}
     </View>
   )
 

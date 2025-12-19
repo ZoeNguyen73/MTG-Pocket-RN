@@ -3,12 +3,15 @@ import { useState, useEffect } from "react";
 
 import CardCollectionDisplay from "./CardCollectionDisplay";
 
+import useDeviceLayout from "../../hooks/useDeviceLayout";
+
 import { soundManager } from "../../utils/SoundManager";
 
 const CardCollection = ({ cards, headerHeight, listWidth, updateFavourite, showFavourites }) => {
-  const { width } = useWindowDimensions();
+  // const { width } = useWindowDimensions();
   const [ filteredCards, setFilteredCards ] = useState([]);
   const isWeb = Platform.OS === "web";
+  const { isDesktopWeb, width } = useDeviceLayout();
 
   useEffect(() => {
     // filter to show only favourites
@@ -23,7 +26,7 @@ const CardCollection = ({ cards, headerHeight, listWidth, updateFavourite, showF
     soundManager.playSfx("happy-pop-1");
   };
 
-  if (isWeb) {
+  if (isDesktopWeb) {
     return (
         <FlatList 
           data={showFavourites ? filteredCards : cards}
@@ -78,7 +81,6 @@ const CardCollection = ({ cards, headerHeight, listWidth, updateFavourite, showF
         <View
           style={{
             height: headerHeight + 10,
-            width: "100%"
           }}
         />
       }
@@ -93,9 +95,10 @@ const CardCollection = ({ cards, headerHeight, listWidth, updateFavourite, showF
       columnWrapperStyle={{
         flex: "row",
         justifyContent: "space-between",
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingTop: 10,
+        paddingLeft: 8,
+        paddingRight: 8,
+        paddingTop: 8,
+        maxWidth: width,
       }}
       renderItem={({item}) => {
         return (

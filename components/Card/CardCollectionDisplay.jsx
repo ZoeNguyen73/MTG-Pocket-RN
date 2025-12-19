@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet, Platform, TouchableOpacity, Text } from "react-native";
+import { View, Image, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -16,6 +16,7 @@ import { useErrorHandler } from "../../context/ErrorHandlerProvider";
 import { useAuthContext } from "../../context/AuthProvider";
 
 import { getFonts } from "../../utils/FontFamily";
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 const START_DEFAULT = { x: 0.5, y: 0 };
 const END_DEFAULT = { x: 0.5, y: 1 };
@@ -68,6 +69,10 @@ const CardCollectionDisplay = ({
   const duration = 300;
 
   const imgUri = "image_jpg_normal";
+  const cardWidth = maxWidth;
+  const cardHeight = cardWidth * 680 /488;
+
+  const { isDesktopWeb } = useDeviceLayout();
 
   const triggerFavouriteToggle = async () => {
     try {
@@ -101,7 +106,7 @@ const CardCollectionDisplay = ({
 
   return (
     <>
-      { Platform.OS !== "web" && (
+      { !isDesktopWeb && (
         <View
           style={[
             styles.shadowContainer,
@@ -123,8 +128,8 @@ const CardCollectionDisplay = ({
               { shadow && (
                 <View 
                   style={{
-                    width: "100%",
-                    height: "100%",
+                    width: cardWidth,
+                    height: cardHeight,
                     borderRadius: maxWidth ? maxWidth * 0.07 : 15,
                     backgroundColor: "rgba(0, 0, 0, 0.1)",
                     zIndex: -1,
@@ -150,8 +155,8 @@ const CardCollectionDisplay = ({
                   source={{ uri: frontCardFace[imgUri] }}
                   resizeMode="contain"
                   style={{
-                    width: shadow ? "98%" : "100%",
-                    height: shadow ? "98%" : "100%",
+                    width: cardWidth,
+                    height: cardHeight,
                     borderRadius: maxWidth ? maxWidth * 0.07 : 16,
                   }}
                 />
@@ -227,7 +232,7 @@ const CardCollectionDisplay = ({
         </View>
       )}
 
-      { Platform.OS === "web" && (
+      { isDesktopWeb && (
         <Animated.View 
           style={[
             styles.shadowContainer,

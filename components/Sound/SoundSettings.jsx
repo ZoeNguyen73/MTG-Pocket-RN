@@ -75,22 +75,11 @@ const SoundSettings = () => {
     if (newVol < 0) newVol = 0;
     if (newVol > 1) newVol = 1;
 
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/sounds/shine-8.mp3"),
-        { isLooping: false }
-      );
-      soundRef.current = sound;
-      await sound.setVolumeAsync(newVol);
-      await sound.playAsync();
-    } catch (error) {
-      console.error("Error playing sound:", error);
-    }
+    if (newVol === sfxVolume) return;
 
-    if (newVol !== sfxVolume) {
-      setSfxVolume(newVol);
-      soundManager.setSoundEffectsVolume(newVol);
-    }
+    setSfxVolume(newVol);
+    soundManager.setSoundEffectsVolume(newVol);
+    soundManager.playSfx("shine-8", {newVol});
   };
 
   return (
@@ -138,7 +127,7 @@ const SoundSettings = () => {
       )}
 
       { bgMusicPlaying && (
-        <View style={{ position: "relative", zIndex: 9999 }} className="mt-5">
+        <View style={{ position: "relative", zIndex: 99 }} className="mt-5">
           <View>
             <Text className="font-sans-light-italic text-sm text-dark-text tracking-wide">
               Choose another track
@@ -154,7 +143,7 @@ const SoundSettings = () => {
             setItems={setBgMusicOptions}
             multiple={false}
             onChangeValue={handleChangeMusicOption}
-            zIndex={9999}
+            zIndex={99}
             zIndexInverse={1000}
             style={{ 
               backgroundColor: lightBackground,
@@ -166,13 +155,13 @@ const SoundSettings = () => {
               minHeight: 28,
               borderRadius: 14,
               position: "relative",
-              zIndex: 9999,
+              zIndex: 99,
             }}
             listMode="SCROLLVIEW"
             dropDownContainerStyle={{ 
               backgroundColor: lightBackground,
               position: "absolute",
-              zIndex: 9999,
+              zIndex: 99,
               elevation: 9999, // harmless on web, helps on Android too
             }}
             textStyle={{

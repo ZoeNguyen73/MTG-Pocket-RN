@@ -19,6 +19,8 @@ import Button from "../CustomButton/CustomButton";
 import tailwindConfig from "../../tailwind.config";
 import { soundManager } from "../../utils/SoundManager";
 
+import useDeviceLayout from "../../hooks/useDeviceLayout";
+
 const PRICE_HIGHLIGHT_THRESHOLD = 5;
 
 const zoomIn = {
@@ -80,7 +82,7 @@ const ZoomOutText = ({ content, backgroundColor, textStyle, counter }) => {
   );
 };
 
-const Summary = ({ totalValue, topCard }) => {
+const Summary = ({ totalValue, topCard, cardWidth, cardHeight }) => {
   const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {
@@ -100,7 +102,7 @@ const Summary = ({ totalValue, topCard }) => {
         alignItems: "center"
       }}
     >
-      <View className="position-relative h-[50vh] w-9/12">
+      <View className="position-relative w-9/12" style={{ height: cardHeight * 1.1 }}>
         <View 
           className="w-full h-full rounded-3xl py-5"
           style={{
@@ -126,7 +128,7 @@ const Summary = ({ totalValue, topCard }) => {
               <View className="position-relative">
                 <CardDisplay 
                   card={topCard}
-                  maxWidth={200}
+                  maxWidth={cardWidth * 0.6}
                   sparklesOn={true}
                 />
                 <View
@@ -203,6 +205,10 @@ const CardSwiper = ({ cards, setCode }) => {
       { translateY: entryTranslateY.value },
     ],
   }));
+
+  const { width } = useDeviceLayout();
+  const cardMaxWidth = Math.min(width * 0.7, 290);
+  const cardMaxHeight = (cardMaxWidth / 488) * 680
 
   useEffect(() => {
     // entry animation for the 1st card
@@ -329,12 +335,19 @@ const CardSwiper = ({ cards, setCode }) => {
     >
       { !swipedAllCards && (
         <>
-          <View style={{ justifyContent: "center", alignItems: "center", marginTop: "40", marginBottom: "20" }}>
+          <View
+            className="mt-16" 
+            style={{ 
+              justifyContent: "center", 
+              alignItems: "center", 
+            }}
+          >
             <View className="mt-2 justify-center items-center">
               <Text className="text-light-yellow font-sans tracking-wide">
                 Total pack value:
               </Text>
             </View>
+
             <View 
               className="mt-1 rounded-full min-h-[45px] min-w-[200px] justify-center items-center"
               style={{
@@ -354,11 +367,10 @@ const CardSwiper = ({ cards, setCode }) => {
                   {`USD ${totalValue}`}
                 </Text>
               </View>
-              
             </View>
           </View>
           
-          <View className="flex-1 mt-5" style={{ position: "relative", overflow: "visible" }}>
+          <View className="flex-1 mt-5" style={{ position: "relative", overflow: "visible", maxHeight: cardMaxHeight * 1.3}}>
             
             <View className="flex-row px-10 items-center">
             { counter <= cards.length && cards[counter - 1].is_new && (
@@ -387,7 +399,9 @@ const CardSwiper = ({ cards, setCode }) => {
                       elevation: 5,
                     }}
                   >
-                    <Text className="text-left text-base tracking-wide text-dark-text font-sans-semibold">
+                    <Text 
+                      className={`text-left tracking-wide text-dark-text font-sans-semibold text-base`}
+                    >
                       {`USD ${cards[counter - 1 ].final_price}`}
                     </Text>
                   </View>
@@ -404,7 +418,6 @@ const CardSwiper = ({ cards, setCode }) => {
             </View>
 
             <View 
-              className="mt-8 mb-8"
               style={{
                 flex: 1,
                 alignItems: "center",
@@ -428,7 +441,7 @@ const CardSwiper = ({ cards, setCode }) => {
                 >
                   <CardDisplay
                     card={nextCard}
-                    maxWidth={290} // same as 1st card
+                    maxWidth={cardMaxWidth} // same as 1st card
                     enableFlip={false}   // no flip on preview
                     sparklesOn={false}   // no sparkles on preview
                     priceThreshold={null}
@@ -448,7 +461,7 @@ const CardSwiper = ({ cards, setCode }) => {
                     sparklesOn={true}
                     enableFlip={true}
                     priceThreshold={PRICE_HIGHLIGHT_THRESHOLD}
-                    maxWidth={290}
+                    maxWidth={cardMaxWidth}
                   />
                 </Animated.View>
               </GestureDetector>
@@ -456,22 +469,7 @@ const CardSwiper = ({ cards, setCode }) => {
 
           </View>
 
-          {/* Sparkle Burst Animation */}
-          {/* <LottieView
-            ref={burstRef}
-            source={require("../../assets/lottie-files/fireworks_shortened.json")} // Provide the Lottie JSON file as a prop
-            autoPlay={false} // Do not autoplay
-            loop={false} // Play the animation only once
-            speed={1.5}
-            style={{
-              position: "absolute",
-              width: "130%",
-              height: "130%",
-              zIndex: 1,
-            }}
-          /> */}
-
-          <View className="flex-row-reverse justify-start border border-transparent h-[25vh] my-1 px-12">
+          <View className="flex-row-reverse justify-start border border-transparent min-h-[10vh] my-1 px-12">
             
             <Text className="text-dark-text font-sans tracking-wide">
               {` / ${cards.length} cards`}
@@ -492,6 +490,8 @@ const CardSwiper = ({ cards, setCode }) => {
           <Summary 
             totalValue={totalValue}
             topCard={topCard}
+            cardWidth={cardMaxWidth}
+            cardHeight={cardMaxHeight}
           />
           <Button 
             title="Open Another Pack"

@@ -43,7 +43,7 @@ const Header = () => {
         >
           <View className="flex-row flex-nowrap gap-2.5 items-center mx-4">
             <Text 
-              className={`${ width < 415 ? "text-sm" : "text-base"} flex-1 font-sans text-dark-text tracking-wide`} 
+              className={`${ width < 415 ? "text-xs" : "text-sm"} flex-1 font-sans text-dark-text tracking-wide`} 
               style={{ fontFamily: fonts.sans }}
             >
               Log in to save cards to your collection
