@@ -1,4 +1,4 @@
-import { Platform, ImageBackground, View } from "react-native";
+import { ImageBackground, View } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,6 +10,7 @@ import { images } from "../../../constants";
 import { useAuthContext } from "../../../context/AuthProvider";
 import { useErrorHandler } from "../../../context/ErrorHandlerProvider";
 import { useThemeContext } from "../../../context/ThemeProvider";
+import useDeviceLayout from "../../../hooks/useDeviceLayout";
 
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import CardSwiper from "../../../components/Card/CardSwiper";
@@ -24,7 +25,7 @@ const PlayBoosterPackOpening = () => {
 
   const axiosPrivate = useAxiosPrivate();
 
-  const isWeb = Platform.OS === "web";
+  const { isDesktopWeb } = useDeviceLayout();
 
   useEffect(() => {
     // get cards
@@ -50,24 +51,24 @@ const PlayBoosterPackOpening = () => {
 
   return (
     <ImageBackground
-      source={ isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_10}
+      source={ isDesktopWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_10}
       className="flex-1 w-full"
       resizeMode="cover"
       style={{
         overflow: "hidden",
       }}
     >
-      {isWeb && (
+      {isDesktopWeb && (
         <View className="absolute inset-0 bg-black/75" />
       )}
 
       <SafeAreaView className="h-screen justify-center">
   
-        { cards.length > 0 && Platform.OS !== "web" && (
+        { cards.length > 0 && !isDesktopWeb && (
           <CardSwiper cards={cards} setCode={setCode}/>
         )}
 
-        { cards.length > 0 && Platform.OS === "web" && (
+        { cards.length > 0 && isDesktopWeb && (
           <CardFlipperWeb cards={cards} setCode={setCode}/>
         )}
   

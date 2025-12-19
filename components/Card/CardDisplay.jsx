@@ -13,6 +13,8 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 import Sparkles from "../Sparkles";
 
+import useDeviceLayout from "../../hooks/useDeviceLayout";
+
 const START_DEFAULT = { x: 0.5, y: 0 };
 const END_DEFAULT = { x: 0.5, y: 1 };
 
@@ -51,6 +53,7 @@ const CardDisplay = ({
   const backCardFace = card.card_faces.length > 1 ? card.card_faces[1] : card.card_faces[0];
   const { finish } = card;
   const shouldHighlight = index === null || isFirstCard;
+  const { isDesktopWeb } = useDeviceLayout();
 
   const isFlipped = useSharedValue(false);
   const duration = 500;
@@ -143,7 +146,7 @@ const CardDisplay = ({
 
   return (
     <>
-      { Platform.OS !== "web" && (
+      { !isDesktopWeb && (
         <View
           key={card.swiperKey ?? card._id}
           style={[
@@ -163,7 +166,7 @@ const CardDisplay = ({
               width: "100%",  
               borderRadius: maxWidth ? maxWidth * 0.07 : 15,
               overflow: "visible",
-              position: "relative"
+              position: "relative",
             }}
           >
             { shadow && (
@@ -199,8 +202,8 @@ const CardDisplay = ({
                 contentFit="contain"
                 cachePolicy="memory"
                 style={{
-                  width: shadow ? "98%" : "100%",
-                  height: shadow ? "98%" : "100%",
+                  width: maxWidth,
+                  aspectRatio: 488 / 680,
                   borderRadius: maxWidth ? maxWidth * 0.07 : 15,
                 }}
               />
@@ -338,7 +341,7 @@ const CardDisplay = ({
         </View>
       )}
 
-      { Platform.OS === "web" && (
+      { isDesktopWeb && (
       <View
         style={[
           {

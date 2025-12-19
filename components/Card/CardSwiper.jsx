@@ -329,12 +329,19 @@ const CardSwiper = ({ cards, setCode }) => {
     >
       { !swipedAllCards && (
         <>
-          <View style={{ justifyContent: "center", alignItems: "center", marginTop: "40", marginBottom: "20" }}>
+          <View
+            className="mt-16" 
+            style={{ 
+              justifyContent: "center", 
+              alignItems: "center", 
+            }}
+          >
             <View className="mt-2 justify-center items-center">
               <Text className="text-light-yellow font-sans tracking-wide">
                 Total pack value:
               </Text>
             </View>
+
             <View 
               className="mt-1 rounded-full min-h-[45px] min-w-[200px] justify-center items-center"
               style={{
@@ -354,7 +361,6 @@ const CardSwiper = ({ cards, setCode }) => {
                   {`USD ${totalValue}`}
                 </Text>
               </View>
-              
             </View>
           </View>
           
