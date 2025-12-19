@@ -8,7 +8,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useAuthContext } from "../../context/AuthProvider";
 import { useThemeContext } from "../../context/ThemeProvider";
 import { useErrorHandler } from "../../context/ErrorHandlerProvider";
-import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import tailwindConfig from "../../tailwind.config";
 import { getFonts } from "../../utils/FontFamily";
@@ -18,7 +17,8 @@ import { images, avatars } from "../../constants";
 import Button from "../../components/CustomButton/CustomButton";
 import FormField from "../../components/CustomForm/FormField";
 import Avatar from "../../components/Avatar/Avatar";
-import LoadingSpinner from "../../components/LoadingSpinner";
+
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 const LogIn = () => {
   const { auth, logIn, isLoggedIn, isLoading, logOut} = useAuthContext();
@@ -28,7 +28,7 @@ const LogIn = () => {
   const iconColor = tailwindConfig.theme.extend.colors.dark.text;
   const fonts = getFonts();
 
-  const { isDesktopWeb } = useDeviceLayout();
+  const { isDesktopWeb, width } = useDeviceLayout();
 
   const [form, setForm] = useState({
     username: "",
@@ -172,7 +172,7 @@ const LogIn = () => {
                 >
                   <View className="flex-row gap-2 items-center">
                     <Text 
-                      className="text-dark-text font-serif-bold text-4xl tracking-wider"
+                      className={`${width < 400 ? "text-2xl" : "text-3xl"} text-dark-text font-serif-bold text-4xl tracking-wider`}
                       style={{ fontFamily: fonts.serifBold }}
                     >
                       Welcome Back!
@@ -208,16 +208,16 @@ const LogIn = () => {
                     isLoading={isSubmitting}
                   />
 
-                  <View className="justify-center gap-2 pt-5 flex-row mt-1 mb-5">
+                  <View className="justify-center gap-1 pt-5 flex-row mt-1 mb-5">
                     <Text 
-                      className="text-sm text-dark-text font-sans tracking-wide"
+                      className={`${width < 400 ? "text-xs" : "text-sm"} text-dark-text font-sans tracking-wide`}
                       style={{ fontFamily: fonts.sans }}
                     >
                       Don't have an account?
                     </Text>
                     <Link
                       href="/register"
-                      className="text-sm font-sans-bold text-light-links dark:text-dark-links tracking-wide"
+                      className={`${width < 400 ? "text-xs" : "text-sm"} font-sans-bold text-light-links dark:text-dark-links tracking-wide`}
                       style={{ fontFamily: fonts.sansBold }}
                     > 
                       Register for free
@@ -252,7 +252,7 @@ const LogIn = () => {
                 
                 <View className="flex-row gap-2 items-center justify-center">
                   <Text 
-                    className="text-dark-text font-serif-bold text-4xl tracking-wider"
+                    className={`text-4xl text-dark-text font-serif-bold tracking-wider`}
                     style={{ fontFamily: fonts.serifBold }}
                   >
                     Welcome Back!

@@ -218,8 +218,8 @@ const CardDisplay = ({
                 style={[
                   { 
                     // position: "absolute",
-                    width: "100%", 
-                    height: "100%",
+                    width: maxWidth, 
+                    aspectRatio: 488 / 680,
                     zIndex: 1,  
                     backfaceVisibility: "hidden" 
                   }, 
@@ -232,8 +232,8 @@ const CardDisplay = ({
                   contentFit="contain"
                   cachePolicy="memory"
                   style={{
-                    width: "100%",
-                    height: "100%",
+                    width: maxWidth, 
+                    aspectRatio: 488 / 680,
                     borderRadius: maxWidth ? maxWidth * 0.07 : 15,
                   }}
                 />
