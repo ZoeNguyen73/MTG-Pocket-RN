@@ -9,6 +9,7 @@ import { SvgUri } from "react-native-svg";
 import { useAuthContext } from "../../context/AuthProvider";
 import { useErrorHandler } from "../../context/ErrorHandlerProvider";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import { images } from "../../constants";
 import tailwindConfig from "../../tailwind.config";
@@ -102,6 +103,9 @@ const StickyHeader = ({
   handleChangeSetOption,
   showFavourites,
   setShowFavourites,
+  isDesktopWeb,
+  isNative,
+  screenWidth,
 }) => {
   const lightYellow = tailwindConfig.theme.extend.colors.light.yellow;
   return (
@@ -119,10 +123,12 @@ const StickyHeader = ({
         alignItems: "center"
       }}
     >
-      <View>
+      <View className={`${(isNative || isDesktopWeb) ? "mt-16" : "mt-8"}`}>
         <Text 
-          className="mt-16 text-center font-serif-semibold tracking-wide text-light-yellow text-3xl"
-          style={{ fontFamily: fonts.serifSemibold }}
+          className="text-center font-serif-semibold tracking-wide text-light-yellow text-3xl"
+          style={{ 
+            fontFamily: fonts.serifSemibold,
+          }}
         >
           My Cards
         </Text>
@@ -130,18 +136,22 @@ const StickyHeader = ({
 
       <View className="pl-6 pr-6 mt-5 flex-row gap-3 items-end" style={{ height: 32, width: width }}>
         <View className="flex-row gap-1">
-          <MaterialCommunityIcons name="cards-outline" size={22} color="white" />
+          <MaterialCommunityIcons name="cards-outline" size={screenWidth < 400 ? 15 : 20 } color="white" />
           <Text 
-            className="font-sans-semibold tracking-wide text-dark-text"
+            className={`font-sans-semibold tracking-wide text-dark-text
+              ${screenWidth < 400 ? "text-xs" : "text-sm"}
+            `}
             style={{ fontFamily: fonts.sansSemibold }}
           >
             {cardCount}
           </Text>
         </View>
         <View className="flex-row justify-center pr-5">
-          <Feather name="dollar-sign" size={22} color="white" />
+          <Feather name="dollar-sign" size={screenWidth < 400 ? 15 : 20 } color="white" />
           <Text 
-            className="font-sans-semibold tracking-wide text-dark-text"
+            className={`font-sans-semibold tracking-wide text-dark-text
+              ${screenWidth < 400 ? "text-xs" : "text-sm"}
+            `}
             style={{ fontFamily: fonts.sansSemibold }}
           >
             {totalValue.toFixed(2)}
@@ -152,7 +162,9 @@ const StickyHeader = ({
 
         </View>
         <Text
-          className="font-sans-semibold tracking-wide text-dark-text text-right"
+          className={`font-sans-semibold tracking-wide text-dark-text text-right
+            ${screenWidth < 400 ? "text-xs" : "text-sm"}
+          `}
           style={{ fontFamily: fonts.sans }}
         >
           Show Favourites
@@ -161,7 +173,7 @@ const StickyHeader = ({
           style={{
             justifyContent: "center", 
             alignItems: "center",
-            height: 25 
+            height: 15 
           }}
         >
           
@@ -416,9 +428,8 @@ const Collection = () => {
   const [ filteredCardList, setFilteredCardList ] = useState([]);
   const [ showFavourites, setShowFavourites ] = useState(false);
 
-  
-  const isWeb = Platform.OS === "web";
-  const headerHeight = Platform.OS === "web" ? 210 : 190;
+  const { isDesktopWeb, isNative, width } = useDeviceLayout();
+  const headerHeight = isDesktopWeb ? 210 : 190;
   
   const sortIconMapping = {
     "time": "clock-outline",
@@ -534,16 +545,14 @@ const Collection = () => {
 
   return (
     <ImageBackground
-      source={isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_5}
+      source={images.background_lowryn_eclipsed}
       className="flex-1"
       resizeMode="cover"
       style={{
         overflow: "hidden",
       }}
     >
-      {isWeb && (
-        <View className="absolute inset-0 bg-black/75" />
-      )}
+      <View className="absolute inset-0 bg-black/75" />
 
       { auth?.username && !isLoading && cardList.length > 0 && (
         <View 
@@ -551,7 +560,7 @@ const Collection = () => {
         >
           <StickyHeader 
             height={headerHeight}
-            width={ isWeb ? "80%" : "100%"} 
+            width={ isDesktopWeb ? "80%" : "100%"} 
             cardCount={cardList.length} 
             totalValue={totalValue}
             setOptions={setOptions}
@@ -560,14 +569,17 @@ const Collection = () => {
             setSelectedSet={setSelectedSet}
             handleChangeSetOption={handleChangeSetOption}
             showFavourites={showFavourites}
-            setShowFavourites={setShowFavourites} 
+            setShowFavourites={setShowFavourites}
+            isNative={isNative}
+            isDesktopWeb={isDesktopWeb}
+            screenWidth={width} 
           />
           <CardCollection 
             cards={selectedSet === "all" ? cardList : filteredCardList } 
             headerHeight={headerHeight}
             updateFavourite={updateFavourite}
             showFavourites={showFavourites}
-            listWidth={ isWeb ? "80%" : "100%" } 
+            listWidth={ isDesktopWeb ? "80%" : "100%" } 
           />
           <SortButton 
             sortType={sortType}
