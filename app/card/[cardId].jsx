@@ -1,4 +1,4 @@
-import { ImageBackground, FlatList, useWindowDimensions, View, Text, Modal, TouchableOpacity, ScrollView, Platform } from "react-native";
+import { ImageBackground, FlatList, View, Text, Modal, TouchableOpacity, ScrollView } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,10 +14,11 @@ import tailwindConfig from "../../tailwind.config";
 
 import { useErrorHandler } from "../../context/ErrorHandlerProvider";
 import { getFonts } from "../../utils/FontFamily";
+import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import CardDisplay from "../../components/Card/CardDetailsDisplay";
 import SmallCardDisplay from "../../components/Card/SmallCardDisplay";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import Button from "../../components/CustomButton/CustomButton";
 
 import { images } from "../../constants";
@@ -37,6 +38,7 @@ const MoreInfoModal = ({
   relatedCards,
   set,
   direction = "up",
+  screenWidth,
 }) => {
 
   const lightTeal = tailwindConfig.theme.extend.colors.light.teal;
@@ -89,7 +91,7 @@ const MoreInfoModal = ({
           <View className="flex-row justify-between">
             <View className="flex-1 flex-column">
               <Text
-                className="text-3xl tracking-wide text-light-yellow"
+                className={`${screenWidth < 400 ? "text-xl" : "text-3xl"} tracking-wide text-light-yellow`}
                 style={{ fontFamily: fonts.serifSemibold}}
               >
                 {cardName} 
@@ -129,7 +131,7 @@ const MoreInfoModal = ({
                   }}
                 >
                   <Text
-                    className="text-base tracking-wide text-dark-text"
+                    className={`${screenWidth < 400 ? "text-xs" : "text-base"} tracking-wide text-dark-text`}
                     style={{ fontFamily: fonts.sansItalic}}
                   >
                     {rarity}
@@ -155,7 +157,7 @@ const MoreInfoModal = ({
                   }}
                 >
                   <Text
-                    className="text-left text-base tracking-wide text-dark-text font-sans-semibold"
+                    className={`text-left ${screenWidth < 400 ? "text-xs" : "text-base"} tracking-wide text-dark-text font-sans-semibold`}
                   >
                     {finish}
                   </Text>
@@ -180,7 +182,7 @@ const MoreInfoModal = ({
                   }}
                 >
                   <Text
-                    className="text-left text-base tracking-wide text-light-text font-sans-semibold"
+                    className={`text-left ${screenWidth < 400 ? "text-xs" : "text-base"} tracking-wide text-light-text font-sans-semibold`}
                   >
                     {`USD ${finalPrice}`}
                   </Text>
@@ -219,21 +221,21 @@ const MoreInfoModal = ({
 
           <View className="flex-row gap-2 mt-5">
             <Text 
-              className="text-xl tracking-wide text-dark-text"
+              className={`${screenWidth < 400 ? "text-sm" : "text-xl"} tracking-wide text-dark-text`}
               style={{ fontFamily: fonts.sansSemibold}}
             >
               Quantity Owned:
             </Text>
             <Text 
-              className="text-xl tracking-wide text-dark-text"
+              className={`${screenWidth < 400 ? "text-sm" : "text-xl"} tracking-wide text-dark-text`}
               style={{ fontFamily: fonts.sansSemibold}}
             >
               {quantity}
             </Text>      
           </View>
-          <View className="mt-5">
+          <View className="mt-3">
             <Text
-              className="text-xl tracking-wide text-dark-text"
+              className={`${screenWidth < 400 ? "text-sm" : "text-xl"} tracking-wide text-dark-text`}
               style={{ fontFamily: fonts.sansSemibold}}
             >
               Other Variants:
@@ -267,7 +269,7 @@ const MoreInfoModal = ({
                     <SmallCardDisplay 
                       key={index}
                       card={card}
-                      maxWidth={140}
+                      maxWidth={screenWidth > 600 ? 140 : screenWidth / 4}
                       isGreyscale={!card.is_owned}
                       label={ card.is_owned ? "owned" : "not owned"}
                     />
@@ -331,9 +333,8 @@ const CardDetailsPage = () => {
   const [ modalVisible, setModalVisible ] = useState(true);
   const { cardId } = useLocalSearchParams();
   const handleError = useErrorHandler();
-  const { width, height } = useWindowDimensions();
 
-  const isWeb = Platform.OS === "web";
+  const { isDesktopWeb, width, height } = useDeviceLayout();
   
   const zoomIn = {
     0: { scale: 0.6, translateY: -0.4 * height },
@@ -357,10 +358,10 @@ const CardDetailsPage = () => {
 
   const animation = (modalVisible) => {
     if (modalVisible) {
-      if (isWeb) return collapse;
+      if (isDesktopWeb) return collapse;
       return zoomOut;
     } else {
-      if (isWeb) return expand;
+      if (isDesktopWeb) return expand;
       return zoomIn;
     }
   };
@@ -393,14 +394,14 @@ const CardDetailsPage = () => {
 
   return (
     <ImageBackground
-      source={isWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_3}
+      source={isDesktopWeb ? images.background_lowryn_eclipsed : images.dark_background_vertical_3}
       className="flex-1"
       resizeMode="cover"
       style={{
         overflow: "hidden",
       }}
     >
-      {isWeb && (
+      {isDesktopWeb && (
         <View className="absolute inset-0 bg-black/75" />
       )}
 
@@ -412,11 +413,11 @@ const CardDetailsPage = () => {
             animation={ animation(modalVisible) }
             duration={300}
             style={{
-              height: isWeb ? "80%" : "auto",
-              width: isWeb ? 450 : width,
+              height: isDesktopWeb ? "80%" : "auto",
+              width: isDesktopWeb ? 450 : (0.8 * width),
             }}
           >
-            { !isWeb && (
+            { !isDesktopWeb && (
               <CardDisplay 
                 card={card.card_id}
                 enableFlip={ modalVisible ? false : true }
@@ -424,7 +425,7 @@ const CardDetailsPage = () => {
               />
             )}
 
-            { isWeb && (
+            { isDesktopWeb && (
               <CardDisplay 
                 card={card.card_id}
                 enableFlip={ modalVisible ? false : true }
@@ -446,10 +447,11 @@ const CardDetailsPage = () => {
             isFavourite={card.is_favourite}
             relatedCards={card.related_cards}
             set={card.card_id.set_id}
-            direction={isWeb ? "right" : "up"}
+            direction={isDesktopWeb ? "right" : "up"}
+            screenWidth={width}
           />
 
-          { !modalVisible && !isWeb && (
+          { !modalVisible && !isDesktopWeb && (
             <TouchableOpacity
               onPress={() => handleModalVisibilityChange(true)}
               style={{
@@ -467,7 +469,7 @@ const CardDetailsPage = () => {
             </TouchableOpacity>
           )}
 
-          { !modalVisible && isWeb && (
+          { !modalVisible && isDesktopWeb && (
             <TouchableOpacity
               onPress={() => handleModalVisibilityChange(true)}
               style={{

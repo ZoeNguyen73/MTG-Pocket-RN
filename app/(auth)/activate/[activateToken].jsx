@@ -13,7 +13,7 @@ import { useAuthContext } from "../../../context/AuthProvider";
 import { useErrorHandler } from "../../../context/ErrorHandlerProvider";
 
 import Button from "../../../components/CustomButton/CustomButton";
-import LoadingSpinner from "../../../components/LoadingSpinner";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import MessageBox from "../../../components/MessageBox";
 import AvatarList from "../../../components/Avatar/AvatarList";
 
