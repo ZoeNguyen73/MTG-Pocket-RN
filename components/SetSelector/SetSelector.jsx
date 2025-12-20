@@ -602,7 +602,7 @@ const SetSelector = ({ sets }) => {
 
         setSetDetailsLoaded(false);
 
-        await devDelay(10000);
+        await devDelay(3000);
 
         const updatedSets = await Promise.all(
           sets.map(async (set) => {
