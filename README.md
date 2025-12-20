@@ -126,9 +126,13 @@ _Desktop Web_
 
 _Mobile_
 
-| Pack opening                                                    | Collection                                                          | User & Settings                                                  |
-| --------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| ![Pack](./assets/screenshots/MTGPocket-mobile-pack-opening.gif) | ![Collection](./assets/screenshots/MTGPocket-mobile-collection.gif) | ![User](./assets/screenshots/MTGPocket-mobile-user-settings.gif) |
+| Pack opening                                                    | Collection                                                          |
+| --------------------------------------------------------------- | ------------------------------------------------------------------- |
+| ![Pack](./assets/screenshots/MTGPocket-mobile-pack-opening.gif) | ![Collection](./assets/screenshots/MTGPocket-mobile-collection.gif) |
+
+| User & Settings                                                  |
+| ---------------------------------------------------------------- |
+| ![User](./assets/screenshots/MTGPocket-mobile-user-settings.gif) |
 
 ---
 
