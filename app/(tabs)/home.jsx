@@ -29,7 +29,8 @@ const Home = () => {
       className="flex-1 w-full"
       resizeMode="cover"
       style={{
-        overflow: "hidden",
+        flex: 1,
+        width: "100%"
       }}
     >
       <View className="absolute inset-0 bg-black/75" pointerEvents="none" />

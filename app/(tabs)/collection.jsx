@@ -551,7 +551,8 @@ const Collection = () => {
       className="flex-1"
       resizeMode="cover"
       style={{
-        overflow: "hidden",
+        flex: 1,
+        width: "100%"
       }}
     >
       <View className="absolute inset-0 bg-black/75" />

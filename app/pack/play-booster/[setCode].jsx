@@ -55,7 +55,8 @@ const PlayBoosterPackOpening = () => {
       className="flex-1 w-full"
       resizeMode="cover"
       style={{
-        overflow: "hidden",
+        flex: 1,
+        width: "100%"
       }}
     >
       {isDesktopWeb && (

@@ -398,7 +398,8 @@ const CardDetailsPage = () => {
       className="flex-1"
       resizeMode="cover"
       style={{
-        overflow: "hidden",
+        flex: 1,
+        width: "100%"
       }}
     >
       {isDesktopWeb && (
