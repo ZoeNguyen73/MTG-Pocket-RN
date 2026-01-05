@@ -6,8 +6,8 @@ import { useAuthContext } from "../../context/AuthProvider";
 import useDeviceLayout from "../../hooks/useDeviceLayout";
 
 import Header from "../../components/Header";
-import SetSelector from "../../components/SetSelector/SetSelector";
-import generateSetListData from "../../components/SetSelector/setList";
+import PackSelector from "../../components/PackSelector/PackSelector";
+import generateSetListData from "../../components/PackSelector/setList";
 
 import { images } from "../../constants";
 
@@ -44,7 +44,7 @@ const Home = () => {
         {/* <View  /> */}
         { (setList.length > 0) && (
           <View style={{position: "absolute"}} pointerEvents="box-none">
-            <SetSelector sets={setList} />
+            <PackSelector sets={setList} />
           </View>
           
         )}

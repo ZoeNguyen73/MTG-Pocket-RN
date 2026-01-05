@@ -324,7 +324,7 @@ const CardDisplay = ({
             
             )}
             {/* only the 1st card in the view can have sparkles animation - preventing the underneath cards from having animation */}
-            { (priceThreshold !== null && card.final_price >= priceThreshold)
+            { (priceThreshold !== null && card.final_price && card.final_price >= priceThreshold)
               && shouldHighlight
               && ( 
                 <Sparkles /> 

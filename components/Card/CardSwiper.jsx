@@ -161,7 +161,7 @@ const Summary = ({ totalValue, topCard, cardWidth, cardHeight }) => {
   );
 };
 
-const CardSwiper = ({ cards, setCode }) => {
+const CardSwiper = ({ cards, setCode, packType }) => {
   const firstCardPrice = cards[0].final_price || "0" ;
   const [ counter, setCounter ] = useState(1);
   const [ totalValue, setTotalValue ] = useState(parseFloat(firstCardPrice).toFixed(2));
@@ -185,7 +185,7 @@ const CardSwiper = ({ cards, setCode }) => {
 
   const SCREEN_WIDTH = Dimensions.get("window").width;
   const SWIPE_DURATION = 220;
-  const SWIPE_THRESHOLD = 80;
+  const SWIPE_THRESHOLD = 50;
 
   // Reanimated shared values for the swipe animation
   const translateX = useSharedValue(0);
@@ -479,6 +479,14 @@ const CardSwiper = ({ cards, setCode }) => {
             >
               {counter}
             </Text>
+            <View className="flex-1"/>
+            {/* for trouble-shooting only */}
+            <View>
+              <Text className="text-white font-sans text-xs tracking-wide">
+                {currentCard.note} //
+                {currentCard.finish}
+                </Text>
+            </View>
             
           </View>
         </>
@@ -493,11 +501,14 @@ const CardSwiper = ({ cards, setCode }) => {
             cardWidth={cardMaxWidth}
             cardHeight={cardMaxHeight}
           />
-          <Button 
-            title="Open Another Pack"
-            containerStyles={"mt-5 mb-5"}
-            handlePress={() => router.replace(`/pack/play-booster/${setCode}`)}
-          />
+          { packType && (
+            <Button 
+              title="Open Another Pack"
+              containerStyles={"mt-5 mb-5"}
+              handlePress={() => router.replace(`/pack/${packType}/${setCode}`)}
+            />
+          )}
+          
           <Button 
             variant="secondary"
             title="Back to Home"

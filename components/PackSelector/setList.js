@@ -12,7 +12,7 @@ const SET_LIST_CODE = [
   "tla"
 ];
 
-const generateSetListData = () => {
+const generateSetListData = (reverseChrono = true) => {
   const arr = [];
   for (let i = 0; i < SET_LIST_CODE.length; i++) {
     const code = SET_LIST_CODE[i];
@@ -22,7 +22,12 @@ const generateSetListData = () => {
       play_booster_image: setData.play_booster,
       collector_booster_image: setData.collector_booster,
     };
-    arr.push(set);
+    if (reverseChrono) {
+      arr.unshift(set);
+    } else {
+      arr.push(set);
+    }
+    
   }
 
   return arr;

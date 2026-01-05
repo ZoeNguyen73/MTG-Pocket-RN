@@ -19,6 +19,9 @@ const PackOpeningLayout = () => {
         <Stack.Screen 
           name="play-booster/[setCode]"
         />
+        <Stack.Screen 
+          name="collector-booster/[setCode]"
+        />
       </Stack>
       <StatusBar 
         // backgroundColor={`${ theme === "dark" ? darkBackgroundColor : lightBackgroundColor }`} 

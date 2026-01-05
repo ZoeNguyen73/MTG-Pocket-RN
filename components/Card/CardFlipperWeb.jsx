@@ -23,7 +23,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
   const isFlipped = useSharedValue(false);
   const scale = useSharedValue(1); // Scale value for hover animation
   const duration = 500;
-  const priceHightlight = parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD;
+  const priceHightlight = card.final_price ? parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD : true;
   const isTopCard = cardIndex === topCardIndex;
 
   const handleFlipCard = () => {
@@ -131,7 +131,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
           className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[40%] py-1 px-2`} 
           style={{zIndex: 3, position: "absolute", right: "30%", bottom:"-5%"}}>
           <Text className="text-xs font-sans-semibold text-center">
-            {`$ ${(parseFloat(card.final_price)).toFixed(2)}`}
+            {card.final_price ? `$ ${(parseFloat(card.final_price)).toFixed(2)}` : "no market price"}
           </Text>
         </View>
 
@@ -147,7 +147,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
         <CardDisplay card={card} maxWidth={width} shadow={false} />
       </Animated.View>
       
-      { isFlipped.value && parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD && (
+      { isFlipped.value && card.final_price && parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD && (
         <View
           style={{
             position: "absolute",
@@ -171,7 +171,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
   );
 };
 
-const CardFlipperWeb = ({ cards, setCode }) => {
+const CardFlipperWeb = ({ cards, setCode, packType }) => {
   const [ autoFlipIndex, setAutoFlipIndex ] = useState(-1);
   const [ totalValue, setTotalValue ] = useState(0);
   const [ topCardIndex, setTopCardIndex ] = useState(-1);
@@ -288,7 +288,7 @@ const CardFlipperWeb = ({ cards, setCode }) => {
             <FlipCard
               key={index} 
               card={card}
-              width={180}
+              width={160}
               autoFlip={autoFlipIndex === index}
               handleFlip={handleFlip}
               cardIndex={index}
@@ -311,11 +311,14 @@ const CardFlipperWeb = ({ cards, setCode }) => {
 
       { flippedAll && (
         <View className="flex-row gap-3 mt-5 mb-5">
-          <Button 
-            title="Open Another Pack"
-            handlePress={() => router.replace(`/pack/play-booster/${setCode}`)}
-            variant="small-primary"
-          />
+          { packType && (
+            <Button 
+              title="Open Another Pack"
+              handlePress={() => router.replace(`/pack/${packType}/${setCode}`)}
+              variant="small-primary"
+            />
+          )}
+          
           <Button 
             variant="small-secondary"
             title="Back to Home"
