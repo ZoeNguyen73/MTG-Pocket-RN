@@ -118,6 +118,29 @@ const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight })
                 width: "auto",
               }}
             />
+
+            { pack.price && (
+              <View
+                className="rounded-xl justify-center items-center bg-dark-grey2/85"
+                  style={{
+                    position: "absolute", // Position on top of the image
+                    top: "28%",
+                    right: "50%",
+                    transform: [{ translateX: 0.48 * cardWidth }],
+                    height: 30,
+                    width: 0.96 *cardWidth,
+                    elevation: 4, // Shadow for Android
+                    shadowColor: "#000", // Shadow color
+                    shadowOffset: { width: 0, height: 2 }, // Offset
+                    shadowOpacity: 0.6, // Shadow opacity
+                    shadowRadius: 4, // Blur radius
+                  }}
+              >
+                <Text className="text-base font-sans-semibold tracking-wide">
+                  {`USD ${pack.price}`}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         )}
         
@@ -243,7 +266,8 @@ const PackCardWeb = ({pack, updateHoveredPackId, index, cardHeight, cardWidth}) 
           }}
         />
       )}
-
+      
+      
       <Image 
         source={pack.image}
         resizeMode="contain"
@@ -252,13 +276,36 @@ const PackCardWeb = ({pack, updateHoveredPackId, index, cardHeight, cardWidth}) 
           width: "auto",
         }}
       />
+
+      { pack.price && (
+        <View
+          className="rounded-lg justify-center items-center bg-dark-grey2/90"
+            style={{
+              position: "absolute", // Position on top of the image
+              top: "10%",
+              right: "1%",
+              height: 20,
+              width: 75,
+              elevation: 2, // Shadow for Android
+              shadowColor: "#000", // Shadow color
+              shadowOffset: { width: 0, height: 2 }, // Offset
+              shadowOpacity: 0.3, // Shadow opacity
+              shadowRadius: 4, // Blur radius
+            }}
+        >
+          <Text className="text-xs font-sans-semibold tracking-wide">
+            {`USD ${pack.price}`}
+          </Text>
+        </View>
+      )}
+
       { isHovered && (
         <TouchableOpacity
           className="rounded-full justify-center items-center bg-light-yellow"
           style={{
             position: "absolute", // Position on top of the image
-            top: "80%", // Move to 50% of the parent height
-            left: "50%", // Move to 50% of the parent width
+            top: "80%",
+            left: "50%",
             transform: [{ translateX: -40 }, { translateY: -20 }], // Center it perfectly
             height: 30,
             width: 80,
@@ -599,10 +646,11 @@ const PackSelector = ({ sets }) => {
         for await (const set of sets) {
           const response = await axios.get(`/sets/${set.code}?top-cards=true`);
           const data = response.data;
-          const { _id, scryfall_id, name, icon_svg_uri } = data;
+          const { _id, scryfall_id, name, icon_svg_uri, pack_prices } = data;
 
           const packTypes = [ "play_booster", "collector_booster"];
           for (const type of packTypes) {
+            const matchingPack = pack_prices.filter(p => p.booster_type === type)[0];
             const pack = {
               pack_id: `${set.code}-${type}`,
               set_code: set.code,
@@ -612,6 +660,7 @@ const PackSelector = ({ sets }) => {
               set_icon_svg_uri: icon_svg_uri,
               pack_type: type,
               image: set[`${type}_image`],
+              price: matchingPack && matchingPack.price ? matchingPack.price : null,
             };
 
             const rawTopCards = data.top_cards?.[type]?.cards && data.top_cards?.[type].cards?.length
@@ -682,7 +731,7 @@ const PackSelector = ({ sets }) => {
     <View className="h-screen w-screen" style={{ position: "absolute", paddingTop: isDesktopWeb ? 90 : isMobileWeb ? 100 : 130 }}>
       <Text
         className={`text-center font-serif-bold tracking-wider
-          ${ isDesktopWeb ? "text-light-teal text-4xl mb-2" : width >= 415 ? "text-dark-teal text-3xl mb-5" : "text-dark-teal text-2xl mb-5"}`
+          ${ isDesktopWeb ? "text-dark-teal text-4xl mb-2" : width >= 415 ? "text-dark-teal text-3xl mb-5" : "text-dark-teal text-2xl mb-5"}`
         }
         style={{
           textShadowColor: "#00000080",
