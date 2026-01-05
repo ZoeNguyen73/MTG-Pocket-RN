@@ -1,15 +1,15 @@
 import { sets } from "../../constants";
 
 const SET_LIST_CODE = [
-  "fdn",
-  "dsk",
-  "mb2",
   "blb",
-  "mh3",
-  "ltr",
-  "clb",
-  "one",
-  "lci",
+  "dsk",
+  "fdn",
+  "dft",
+  "tdm",
+  "fin",
+  "eoe",
+  "spm",
+  "tla"
 ];
 
 const generateSetListData = () => {
@@ -19,7 +19,8 @@ const generateSetListData = () => {
     const setData = sets[code];
     const set = {
       code,
-      play_booster_image: setData.play_booster
+      play_booster_image: setData.play_booster,
+      collector_booster_image: setData.collector_booster,
     };
     arr.push(set);
   }
