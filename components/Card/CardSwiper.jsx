@@ -15,6 +15,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
+import FinishChip from "../FinishChip";
 
 import tailwindConfig from "../../tailwind.config";
 import { soundManager } from "../../utils/SoundManager";
@@ -125,6 +126,14 @@ const Summary = ({ totalValue, topCard, cardWidth, cardHeight }) => {
               Top card:
             </Text>
             <View style={{ maxWidth: "80%" }}>
+              <View className="mb-1 w-fit">
+                <FinishChip 
+                  text={topCard.special_foil_finishes.length ? topCard.special_foil_finishes[0] : topCard.finish}
+                  size="xs"
+                  style="light"
+                />
+              </View>
+              
               <View className="position-relative">
                 <CardDisplay 
                   card={topCard}
@@ -482,10 +491,10 @@ const CardSwiper = ({ cards, setCode, packType }) => {
             <View className="flex-1"/>
             {/* for trouble-shooting only */}
             <View>
-              <Text className="text-white font-sans text-xs tracking-wide">
-                {currentCard.note} //
-                {currentCard.finish}
-                </Text>
+              <FinishChip 
+                text={currentCard.special_foil_finishes.length ? currentCard.special_foil_finishes[0] : currentCard.finish}
+                size="xs"
+              />
             </View>
             
           </View>
