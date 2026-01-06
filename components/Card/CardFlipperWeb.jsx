@@ -142,7 +142,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
             </View>
             <View className="flex-1"/>
             <View 
-              className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[40%] py-1 px-2`} 
+              className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[50%] py-1 px-2`} 
             >  
               <Text className="text-xs font-sans-semibold text-center">
                 {card.final_price ? `$ ${(parseFloat(card.final_price)).toFixed(2)}` : "no market price"}
@@ -153,8 +153,8 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
         
         { !card.special_foil_finishes.length && (
           <View 
-            className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[40%] py-1 px-2`} 
-            style={{zIndex: 3, position: "absolute", right: "30%", bottom:"-5%"}}>
+            className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[50%] py-1 px-2`} 
+            style={{zIndex: 3, position: "absolute", right: "25%", bottom:"-5%"}}>
             <Text className="text-xs font-sans-semibold text-center">
               {card.final_price ? `$ ${(parseFloat(card.final_price)).toFixed(2)}` : "no market price"}
             </Text>
@@ -197,7 +197,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
   );
 };
 
-const CardFlipperWeb = ({ cards, setCode, packType }) => {
+const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
   const [ autoFlipIndex, setAutoFlipIndex ] = useState(-1);
   const [ totalValue, setTotalValue ] = useState(0);
   const [ topCardIndex, setTopCardIndex ] = useState(-1);
@@ -274,6 +274,9 @@ const CardFlipperWeb = ({ cards, setCode, packType }) => {
               </Text>
             </View>
           </View>
+          <Text className={`${totalValue-packPrice < 0 ? "text-light-red" : "text-light-green"} font-sans tracking-wider text-sm h-[14px]`}>
+            {`${totalValue-packPrice < 0 ? "Loss" : "Profit"}: ${totalValue-packPrice < 0 ? "-" : ""}$${Math.abs(parseFloat(totalValue - packPrice).toFixed(2))} ${totalValue-packPrice < 0 ? "🤡" : "🤑"}`}
+          </Text>
         </View>
 
         <View className="flex-1"/>
@@ -302,6 +305,7 @@ const CardFlipperWeb = ({ cards, setCode, packType }) => {
               </Text>
             </View>
           </View>
+          <View className="h-[14px]"/>
         </View>
       </View>
       

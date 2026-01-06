@@ -21,6 +21,7 @@ const PackOpening = () => {
   const { handleError } = useErrorHandler();
   const { setCode, packType } = useLocalSearchParams();
   const [ cards, setCards ] = useState([]);
+  const [ packPrice, setPackPrice ] = useState(null);
   const [ isLoading, setIsLoading ] = useState(false);
 
   const axiosPrivate = useAxiosPrivate();
@@ -39,6 +40,7 @@ const PackOpening = () => {
           response = await axios.post(`/packs/open/set/${setCode}/type/${packType}`);
         }
         setCards(response.data.cards);
+        setPackPrice(response.data.pack_price);
       } catch (error) {
         await handleError(error);
       } finally {
@@ -66,11 +68,11 @@ const PackOpening = () => {
       <SafeAreaView className="h-screen justify-center">
   
         { cards.length > 0 && !isDesktopWeb && (
-          <CardSwiper cards={cards} setCode={setCode} packType={packType}/>
+          <CardSwiper cards={cards} setCode={setCode} packType={packType} packPrice={packPrice}/>
         )}
 
         { cards.length > 0 && isDesktopWeb && (
-          <CardFlipperWeb cards={cards} setCode={setCode} packType={packType}/>
+          <CardFlipperWeb cards={cards} setCode={setCode} packType={packType} packPrice={packPrice}/>
         )}
   
         {isLoading && <LoadingSpinner />}

@@ -83,8 +83,9 @@ const ZoomOutText = ({ content, backgroundColor, textStyle, counter }) => {
   );
 };
 
-const Summary = ({ totalValue, topCard, cardWidth, cardHeight }) => {
+const Summary = ({ totalValue, topCard, cardWidth, cardHeight, packPrice }) => {
   const [animationKey, setAnimationKey] = useState(0);
+  const profit = parseFloat(totalValue - packPrice).toFixed(2);
 
   useEffect(() => {
     // Trigger a re-render of the Animatable.View to animate the component
@@ -113,15 +114,23 @@ const Summary = ({ totalValue, topCard, cardWidth, cardHeight }) => {
           }}
         >
           <View className="flex-column justify-center items-center gap-2">
-            <Text className="text-center font-sans-semibold tracking-wide text-light-text">
-              Total Pack Value:
+            
+            <View className="flex-column justify-center">
+              <Text className="text-center font-sans-semibold tracking-wide text-light-text">
+                Total Pack Value:
+              </Text>
+              <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
+                {`USD ${totalValue}`}
+              </Text>
+            </View>
+
+            <Text className={`text-sm text-center font-sans tracking-wide ${profit < 0 ? "text-light-red" : "text-light-green"}`}>
+              {`${profit < 0 ? "Loss" : "Profit"}: ${profit < 0 ? "-" : ""}$${Math.abs(profit)} ${profit < 0 ? "🤡" : "🤑"}`}
             </Text>
-            <Text className="text-center font-sans-bold text-3xl tracking-wider text-light-dark-yellow">
-              {`USD ${totalValue}`}
-            </Text>
+            
           </View>
 
-          <View className="flex-column justify-center items-center gap-2 mt-5">
+          <View className="flex-column justify-center items-center mt-3">
             <Text className="text-center font-sans-semibold tracking-wide text-light-text">
               Top card:
             </Text>
@@ -170,7 +179,7 @@ const Summary = ({ totalValue, topCard, cardWidth, cardHeight }) => {
   );
 };
 
-const CardSwiper = ({ cards, setCode, packType }) => {
+const CardSwiper = ({ cards, setCode, packType, packPrice }) => {
   const firstCardPrice = cards[0].final_price || "0" ;
   const [ counter, setCounter ] = useState(1);
   const [ totalValue, setTotalValue ] = useState(parseFloat(firstCardPrice).toFixed(2));
@@ -509,6 +518,7 @@ const CardSwiper = ({ cards, setCode, packType }) => {
             topCard={topCard}
             cardWidth={cardMaxWidth}
             cardHeight={cardMaxHeight}
+            packPrice={packPrice}
           />
           { packType && (
             <Button 
