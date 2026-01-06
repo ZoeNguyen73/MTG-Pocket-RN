@@ -140,6 +140,7 @@ const Summary = ({ totalValue, topCard, cardWidth, cardHeight, packPrice }) => {
                   text={topCard.special_foil_finishes.length ? topCard.special_foil_finishes[0] : topCard.finish}
                   size="xs"
                   style="light"
+                  shortened={false}
                 />
               </View>
               
@@ -503,6 +504,7 @@ const CardSwiper = ({ cards, setCode, packType, packPrice }) => {
               <FinishChip 
                 text={currentCard.special_foil_finishes.length ? currentCard.special_foil_finishes[0] : currentCard.finish}
                 size="xs"
+                shortened={false}
               />
             </View>
             

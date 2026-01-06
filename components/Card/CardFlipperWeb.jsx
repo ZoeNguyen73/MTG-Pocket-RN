@@ -115,11 +115,11 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
         </TouchableOpacity>
       </Animated.View>
 
-      { flippedAll && isTopCard && (
+      {/* { flippedAll && isTopCard && (
         <View style={{position: "absolute", zIndex: 50, height: "100%", width: "100%"}}>
           <Sparkles /> 
         </View>
-      )}
+      )} */}
 
       {/* Card front */}
       <Animated.View 
@@ -170,7 +170,13 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
             </Text>
           </View>
         )}
-        <CardDisplay card={card} maxWidth={width} shadow={false} />
+        <CardDisplay 
+          card={card} 
+          maxWidth={width} 
+          shadow={false} 
+          animateFoil={false} 
+          enableFlip={true}
+        />
       </Animated.View>
       
       { isFlipped.value && card.final_price && parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD && (

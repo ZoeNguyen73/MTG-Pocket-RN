@@ -1,4 +1,4 @@
-import { ImageBackground, View } from "react-native";
+import { ImageBackground, View, Text } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -11,10 +11,12 @@ import { useAuthContext } from "../../../context/AuthProvider";
 import { useErrorHandler } from "../../../context/ErrorHandlerProvider";
 import { useThemeContext } from "../../../context/ThemeProvider";
 import useDeviceLayout from "../../../hooks/useDeviceLayout";
+import refreshApp from "../../../utils/RefreshApp";
 
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import CardSwiper from "../../../components/Card/CardSwiper";
 import CardFlipperWeb from "../../../components/Card/CardFlipperWeb";
+import Button from "../../../components/CustomButton/CustomButton";
 
 const PackOpening = () => {
   const { isLoggedIn } = useAuthContext();
@@ -66,12 +68,24 @@ const PackOpening = () => {
       )}
 
       <SafeAreaView className="h-screen justify-center">
-  
-        { cards.length > 0 && !isDesktopWeb && (
+        { cards.length === 0 && !isLoading && (
+          <View className="flex-col gap-6 max-w-[300px]">
+            <Text className="text-base font-sans-semibold tracking-wider text-dark-text">
+              Oops, an error has occurred...
+            </Text>
+            <Button 
+              title="Refresh"
+              handlePress={() => refreshApp()}
+              variant="primary"
+            />
+          </View>
+        )}
+
+        { cards.length > 0 && !isDesktopWeb && !isLoading && (
           <CardSwiper cards={cards} setCode={setCode} packType={packType} packPrice={packPrice}/>
         )}
 
-        { cards.length > 0 && isDesktopWeb && (
+        { cards.length > 0 && isDesktopWeb && !isLoading && (
           <CardFlipperWeb cards={cards} setCode={setCode} packType={packType} packPrice={packPrice}/>
         )}
   

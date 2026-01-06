@@ -16,10 +16,11 @@ import { useErrorHandler } from "../../context/ErrorHandlerProvider";
 import { getFonts } from "../../utils/FontFamily";
 import useDeviceLayout from "../../hooks/useDeviceLayout";
 
-import CardDisplay from "../../components/Card/CardDetailsDisplay";
+import CardDisplay from "../../components/Card/CardDisplay";
 import SmallCardDisplay from "../../components/Card/SmallCardDisplay";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import Button from "../../components/CustomButton/CustomButton";
+import FinishChip from "../../components/FinishChip";
 
 import { images } from "../../constants";
 
@@ -33,6 +34,7 @@ const MoreInfoModal = ({
   cardName,
   rarity,
   finish,
+  specialFoilFinish,
   finalPrice,
   isFavourite,
   relatedCards,
@@ -96,7 +98,7 @@ const MoreInfoModal = ({
               >
                 {cardName} 
               </Text>
-              <View className="flex-row gap-1 mt-1">
+              <View className="flex-row gap-1 mt-1 items-center">
                 <SvgXml
                   xml={iconXml
                     .replace(/fill=(["'])(?:(?=(\\?))\2.)*?\1/g, `fill="white"`)}
@@ -109,7 +111,13 @@ const MoreInfoModal = ({
                 >
                   {set.name}
                 </Text>
+                <FinishChip 
+                  text={specialFoilFinish ? specialFoilFinish : finish }
+                  size="xs"
+                  shortened={false}
+                />
               </View>
+              
               <View className="flex-row items-center gap-2 mt-3">
                 <View
                   style={{
@@ -141,31 +149,6 @@ const MoreInfoModal = ({
                 <View
                   style={{
                     borderRadius: 999, // rounded-full
-                    backgroundColor: lightTeal, // light-teal
-                    justifyContent: "center",
-                    alignItems: "center",
-                    paddingHorizontal: 10, // px-3
-                    paddingVertical: 2, // py-1
-                    shadowColor: "#000",
-                    shadowOffset: {
-                      width: 0,
-                      height: 2,
-                    },
-                    shadowOpacity: 0.5,
-                    shadowRadius: 3.84,
-                    elevation: 5,
-                  }}
-                >
-                  <Text
-                    className={`text-left ${screenWidth < 400 ? "text-xs" : "text-base"} tracking-wide text-dark-text font-sans-semibold`}
-                  >
-                    {finish}
-                  </Text>
-                </View>
-
-                <View
-                  style={{
-                    borderRadius: 999, // rounded-full
                     backgroundColor: lightYellow, // light-teal
                     justifyContent: "center",
                     alignItems: "center",
@@ -184,7 +167,7 @@ const MoreInfoModal = ({
                   <Text
                     className={`text-left ${screenWidth < 400 ? "text-xs" : "text-base"} tracking-wide text-light-text font-sans-semibold`}
                   >
-                    {`USD ${finalPrice}`}
+                    {finalPrice ? `USD ${finalPrice}` : "no market price"}
                   </Text>
                 </View>
 
@@ -373,6 +356,7 @@ const CardDetailsPage = () => {
         const response = await axios.get(`/user-cards/${cardId}`);
         const cardData = response.data;
         cardData.card_id.finish = cardData.finish;
+        cardData.card_id.special_foil_finish = cardData.special_foil_finish;
         setCard(cardData); 
       } catch (error) {
         await handleError(error);
@@ -421,7 +405,7 @@ const CardDetailsPage = () => {
             { !isDesktopWeb && (
               <CardDisplay 
                 card={card.card_id}
-                enableFlip={ modalVisible ? false : true }
+                enableFlip={ modalVisible && !isDesktopWeb ? false : true }
                 maxWidth={0.8 * width}
               />
             )}
@@ -429,7 +413,7 @@ const CardDetailsPage = () => {
             { isDesktopWeb && (
               <CardDisplay 
                 card={card.card_id}
-                enableFlip={ modalVisible ? false : true }
+                enableFlip={ true }
                 maxWidth={240}
               />
             )}
@@ -444,6 +428,7 @@ const CardDetailsPage = () => {
             cardName={card.card_id.card_faces[0].name}
             rarity={card.card_id.rarity}
             finish={card.finish}
+            specialFoilFinish={card.special_foil_finish}
             finalPrice={card.final_price}
             isFavourite={card.is_favourite}
             relatedCards={card.related_cards}

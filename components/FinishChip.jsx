@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import useDeviceLayout from "../hooks/useDeviceLayout";
 
-const FinishChip = ({ text, size="sm", style="dark" }) => {
+const FinishChip = ({ text, size="sm", style="dark", shortened=true }) => {
   const { isDesktopWeb } = useDeviceLayout();
 
   const mobileContainerStyle = size === "xs"
@@ -39,7 +39,7 @@ const FinishChip = ({ text, size="sm", style="dark" }) => {
     textColor = style === "dark" ? "text-dark-text" : "text-light-text";
   }
 
-  const finalText = isDesktopWeb
+  const finalText = shortened
     ? formattedTexts[text]
     : formattedTexts[text] + " Foil";
 

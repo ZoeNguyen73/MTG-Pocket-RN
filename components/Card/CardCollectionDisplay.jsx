@@ -221,7 +221,7 @@ const CardCollectionDisplay = ({
                       className="text-center font-sans-semibold text-xs"
                       style={{ color: "#FFFFFF", fontFamily: fonts.sansSemibold }}
                     >
-                      {`$ ${finalPrice}`}
+                      { finalPrice ? `$${finalPrice}` : `no price`}
                     </Text>
                   </View>
                 </View>
@@ -364,7 +364,7 @@ const CardCollectionDisplay = ({
                   className="text-center font-sans-semibold text-xs"
                   style={{ color: "#FFFFFF", fontFamily: fonts.sansSemibold }}
                 >
-                  {`$ ${finalPrice}`}
+                  { finalPrice ? `$${finalPrice}` : `no price`}
                 </Text>
               </View>
             </View>
