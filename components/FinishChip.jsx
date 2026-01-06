@@ -18,8 +18,8 @@ const FinishChip = ({ text, size="sm", style="dark" }) => {
   let textColor = style === "dark" ? "text-dark-rosewater" : "text-dark-text";
   
   const formattedTexts = {
-    "nonfoil": "Non Foil",
-    "foil": "Foil",
+    "nonfoil": "Non",
+    "foil": "",
     "etched": "Etched",
     "textured": "Textured",
     "halofoil": "Halo",

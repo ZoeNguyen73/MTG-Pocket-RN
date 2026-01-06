@@ -17,10 +17,7 @@ const PackOpeningLayout = () => {
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen 
-          name="play-booster/[setCode]"
-        />
-        <Stack.Screen 
-          name="collector-booster/[setCode]"
+          name="[packType]/[setCode]"
         />
       </Stack>
       <StatusBar 

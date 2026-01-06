@@ -16,10 +16,10 @@ import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import CardSwiper from "../../../components/Card/CardSwiper";
 import CardFlipperWeb from "../../../components/Card/CardFlipperWeb";
 
-const PlayBoosterPackOpening = () => {
+const PackOpening = () => {
   const { isLoggedIn } = useAuthContext();
   const { handleError } = useErrorHandler();
-  const { setCode } = useLocalSearchParams();
+  const { setCode, packType } = useLocalSearchParams();
   const [ cards, setCards ] = useState([]);
   const [ isLoading, setIsLoading ] = useState(false);
 
@@ -34,9 +34,9 @@ const PlayBoosterPackOpening = () => {
       setIsLoading(true);
       try {
         if (isLoggedIn) {
-          response = await axiosPrivate.post(`/packs/open/set/${setCode}/type/play-booster`);
+          response = await axiosPrivate.post(`/packs/open/set/${setCode}/type/${packType}`);
         } else {
-          response = await axios.post(`/packs/open/set/${setCode}/type/play-booster`);
+          response = await axios.post(`/packs/open/set/${setCode}/type/${packType}`);
         }
         setCards(response.data.cards);
       } catch (error) {
@@ -66,11 +66,11 @@ const PlayBoosterPackOpening = () => {
       <SafeAreaView className="h-screen justify-center">
   
         { cards.length > 0 && !isDesktopWeb && (
-          <CardSwiper cards={cards} setCode={setCode} packType={"play-booster"}/>
+          <CardSwiper cards={cards} setCode={setCode} packType={packType}/>
         )}
 
         { cards.length > 0 && isDesktopWeb && (
-          <CardFlipperWeb cards={cards} setCode={setCode} packType={"play-booster"}/>
+          <CardFlipperWeb cards={cards} setCode={setCode} packType={packType}/>
         )}
   
         {isLoading && <LoadingSpinner />}
@@ -81,4 +81,4 @@ const PlayBoosterPackOpening = () => {
 
 };
 
-export default PlayBoosterPackOpening;
+export default PackOpening;
