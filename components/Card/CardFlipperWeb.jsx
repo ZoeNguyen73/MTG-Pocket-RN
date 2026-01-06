@@ -14,6 +14,7 @@ import { soundManager } from "../../utils/SoundManager";
 
 import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
+import FinishChip from "../FinishChip";
 
 import Sparkles from "../Sparkles";
 
@@ -127,14 +128,39 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
           frontCardAnimatedStyle
         ]}
       >
-        <View 
-          className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[40%] py-1 px-2`} 
-          style={{zIndex: 3, position: "absolute", right: "30%", bottom:"-5%"}}>
-          <Text className="text-xs font-sans-semibold text-center">
-            {card.final_price ? `$ ${(parseFloat(card.final_price)).toFixed(2)}` : "no market price"}
-          </Text>
-        </View>
-
+        { card.special_foil_finishes.length > 0 && (
+          <View 
+            className="flex-row w-full"
+            style={{zIndex: 3, position: "absolute", bottom:"-5%"}}
+          >
+            <View 
+              className="w-[40%]"
+            >
+              <FinishChip 
+                text={card.special_foil_finishes.length ? card.special_foil_finishes[0] : card.finish}
+              />
+            </View>
+            <View className="flex-1"/>
+            <View 
+              className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[40%] py-1 px-2`} 
+            >  
+              <Text className="text-xs font-sans-semibold text-center">
+                {card.final_price ? `$ ${(parseFloat(card.final_price)).toFixed(2)}` : "no market price"}
+              </Text>
+            </View>
+          </View>
+        )}
+        
+        { !card.special_foil_finishes.length && (
+          <View 
+            className={`${priceHightlight ? "bg-light-yellow" : "bg-white/70"} rounded-full w-[40%] py-1 px-2`} 
+            style={{zIndex: 3, position: "absolute", right: "30%", bottom:"-5%"}}>
+            <Text className="text-xs font-sans-semibold text-center">
+              {card.final_price ? `$ ${(parseFloat(card.final_price)).toFixed(2)}` : "no market price"}
+            </Text>
+          </View>
+        )}
+      
         { card.is_new && (
           <View 
             className={`bg-light-blue rounded-full w-[40%] py-1 px-2`} 
