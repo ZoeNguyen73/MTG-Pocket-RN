@@ -1,5 +1,5 @@
-import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch, Platform, Pressable} from "react-native";
-import { useState, useEffect } from "react";
+import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch, Pressable, TextInput, Platform} from "react-native";
+import { useState, useEffect, useMemo } from "react";
 import { router, Link } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
@@ -29,7 +29,6 @@ const SetSelectionDropdown = ({
   setSetOptions, 
   selectedSet,
   setSelectedSet,
-  handleChangeSetOption 
 }) => {
 
   const lightText = tailwindConfig.theme.extend.colors.light.text;
@@ -49,7 +48,6 @@ const SetSelectionDropdown = ({
       setValue={setSelectedSet}
       setItems={setSetOptions}
       multiple={false}
-      onChangeValue={handleChangeSetOption}
       style={{ 
         backgroundColor: lightBackground,
         borderWidth: 0,
@@ -102,12 +100,16 @@ const StickyHeader = ({
   setSetOptions,
   selectedSet,
   setSelectedSet,
-  handleChangeSetOption,
   showFavourites,
-  handleChangeShowFavourites,
+  setShowFavourites,
   isDesktopWeb,
   isNative,
   screenWidth,
+  searchInput,
+  setSearchInput,
+  commitSearch,
+  clearSearch,
+  searchQuery,
 }) => {
   const lightYellow = tailwindConfig.theme.extend.colors.light.yellow;
   return (
@@ -137,7 +139,7 @@ const StickyHeader = ({
       </View>
 
       <View className="pl-6 pr-6 mt-5 flex-row gap-3 items-end" style={{ height: 32, width: width }}>
-        <View className="flex-row gap-1">
+        <View className="flex-row justify-center gap-1 items-center">
           <MaterialCommunityIcons name="cards-outline" size={screenWidth < 400 ? 15 : 20 } color="white" />
           <Text 
             className={`font-sans-semibold tracking-wide text-dark-text
@@ -148,8 +150,8 @@ const StickyHeader = ({
             {cardCount}
           </Text>
         </View>
-        <View className="flex-row justify-center pr-5">
-          <Feather name="dollar-sign" size={screenWidth < 400 ? 15 : 20 } color="white" />
+        <View className="flex-row justify-center pr-5 items-center">
+          <Feather name="dollar-sign" size={screenWidth < 400 ? 13 : 17 } color="white" />
           <Text 
             className={`font-sans-semibold tracking-wide text-dark-text
               ${screenWidth < 400 ? "text-xs" : "text-sm"}
@@ -159,10 +161,71 @@ const StickyHeader = ({
             {totalValue.toFixed(2)}
           </Text>
         </View>
+        
+        {/* search bar */}
+        {isDesktopWeb && (
+          <View className="flex-1 pr-5">
+            <View className="flex-row gap-2 items-center">
+              <TextInput
+                className="font-sans-light text-dark-text tracking-wide text-sm bg-dark-surface" 
+                value={searchInput}
+                onChangeText={setSearchInput}
+                placeholder="Search..."
+                style={{
+                  flex: 1,
+                  height: 20,
+                  borderRadius: 10,
+                  paddingHorizontal: 5,
+                }}
+                returnKeyType="search"
+                onSubmitEditing={commitSearch}
+                onKeyPress={(e) => {
+                  if (isDesktopWeb && e?.nativeEvent?.key === "Enter") {
+                    commitSearch();
+                  }
+                }}
+              />
 
-        <View className="flex-1">
+              <Pressable
+                onPress={commitSearch}
+                style={{
+                  height: 20,
+                  paddingHorizontal: 5,
+                  borderRadius: 10,
+                  backgroundColor: "rgba(253, 253, 253, 0.8)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text className="text-light-text text-sm font-sans">
+                  Search
+                </Text>
+              </Pressable>
 
-        </View>
+              {!!searchQuery && (
+                <Pressable
+                  onPress={clearSearch}
+                  style={{
+                    height: 20,
+                    paddingHorizontal: 5,
+                    borderRadius: 10,
+                    backgroundColor: "rgba(255,255,255,0.18)",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text className="text-dark-text text-sm font-sans">
+                    Clear
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          </View>
+        )}
+
+        {!isDesktopWeb && (<View className="flex-1"/>)}
+
+        {/* favourite toggle */}
         <Text
           className={`font-sans-semibold tracking-wide text-dark-text text-right
             ${screenWidth < 400 ? "text-xs" : "text-sm"}
@@ -183,13 +246,76 @@ const StickyHeader = ({
             trackColor={{ false: '#767577', true: lightYellow }}
             thumbColor={showFavourites? '#f5dd4b' : '#f4f3f4'}
             ios_backgroundColor="#3e3e3e"
-            onValueChange={() => handleChangeShowFavourites()}
+            onValueChange={() => setShowFavourites(prev => !prev)}
             value={showFavourites}
             style={{ height: 15, width: 40}}
           />
         </View>
 
       </View>
+
+      {!isDesktopWeb && (
+        <View className="px-6 py-2 w-full">
+          <View className="flex-row gap-2 items-center">
+            <TextInput
+              className="font-sans-light text-dark-text tracking-wide text-sm bg-dark-surface" 
+              value={searchInput}
+              onChangeText={setSearchInput}
+              placeholder="Search..."
+              style={{
+                flex: 1,
+                height: 32,
+                borderRadius: 16,
+                paddingVertical: 2,
+                paddingLeft: 10,
+                backgroundColor: "rgba(255,255,255,0.12)",
+                color: "white",           // ✅ IMPORTANT: makes typed text visible on native
+                fontFamily: fonts.sans,   // optional but recommended for consistency
+                fontSize: 14,
+              }}
+              returnKeyType="search"
+              onSubmitEditing={commitSearch}
+            />
+
+            <Pressable
+              onPress={commitSearch}
+              style={{
+                height: 20,
+                paddingHorizontal: 5,
+                borderRadius: 10,
+                backgroundColor: "rgba(253, 253, 253, 0.8)",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text 
+                className="text-light-text text-sm font-sans"
+                style={{ fontFamily: fonts.sans}}
+              >
+                Search
+              </Text>
+            </Pressable>
+
+            {!!searchQuery && (
+              <Pressable
+                onPress={clearSearch}
+                style={{
+                  height: 20,
+                  paddingHorizontal: 5,
+                  borderRadius: 10,
+                  backgroundColor: "rgba(255,255,255,0.18)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text className="text-dark-text text-sm font-sans" style={{ fontFamily: fonts.sans}}>
+                  Clear
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+      )}
 
       <View className="pl-6 pr-6 mt-2 flex-row gap-3 items-end" style={{ height: 32, width: width }}>
         <View className="flex-1 justify-center">
@@ -199,7 +325,6 @@ const StickyHeader = ({
               setSetOptions={setSetOptions} 
               selectedSet={selectedSet}
               setSelectedSet={setSelectedSet}
-              handleChangeSetOption={handleChangeSetOption} 
             />
           )}
         </View>
@@ -218,48 +343,63 @@ const SortOptionsModal = ({
   handleChangeSorting,
 }) => {
 
-  const [currentSortType, setCurrentSortType] = useState(sortType);
-  const [currentSortDirection, setCurrentSortDirection] = useState(sortDirection);
-  const [ isLoading, setIsLoading ] = useState(false);
+  // const [currentSortType, setCurrentSortType] = useState(sortType);
+  // const [currentSortDirection, setCurrentSortDirection] = useState(sortDirection);
 
   const darkYellow = tailwindConfig.theme.extend.colors.light["dark-yellow"];
 
-  const handleUIUpdate = (selectedSortType, selectedSortDirection) => {
-    if (selectedSortType !== currentSortType) {
-      setCurrentSortType(selectedSortType);
-    } else {
-      setCurrentSortDirection(selectedSortDirection);
-    }
-  };
+  // const handleUIUpdate = (selectedSortType, selectedSortDirection) => {
+  //   if (selectedSortType !== currentSortType) {
+  //     setCurrentSortType(selectedSortType);
+  //   } else {
+  //     setCurrentSortDirection(selectedSortDirection);
+  //   }
+  // };
 
-  const handleSortAndCloseModal = (selectedSortType, selectedSortDirection) => {
+  // const handleSortAndCloseModal = (selectedSortType, selectedSortDirection) => {
+  //   handleChangeSorting({
+  //     sortType: selectedSortType,
+  //     sortDirection: selectedSortDirection,
+  //   });
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     setModalVisible(false);
+  //   }, 10); // Slight delay for user to see the change before closing
+  // };
+  
+  // const handleChangeSortOption = async (selectedSortType) => {
+  //   setIsLoading(true);
+  //   let selectedSortDirection = currentSortDirection;
+  //   if (selectedSortType === currentSortType) {
+  //     selectedSortDirection = currentSortDirection === "asc" ? "desc" : "asc";
+  //   }
+  //   handleUIUpdate(selectedSortType, selectedSortDirection);
+  //   setTimeout(() => handleSortAndCloseModal(selectedSortType, selectedSortDirection), 20);
+  // };
+
+  // useEffect(() => {
+  //   // Keep the state in sync with props when modal opens
+  //   if (modalVisible) {
+  //     setCurrentSortType(sortType);
+  //     setCurrentSortDirection(sortDirection);
+  //   }
+  // }, [modalVisible, sortType, sortDirection]);
+
+  const handleChangeSortOption = (selectedSortType) => {
+    const nextDirection =
+      selectedSortType === sortType
+        ? sortDirection === "asc"
+          ? "desc"
+          : "asc"
+        : sortDirection; // keep direction when switching type (or set default if you prefer)
+
     handleChangeSorting({
       sortType: selectedSortType,
-      sortDirection: selectedSortDirection,
+      sortDirection: nextDirection,
     });
-    setTimeout(() => {
-      setIsLoading(false);
-      setModalVisible(false);
-    }, 10); // Slight delay for user to see the change before closing
-  };
-  
-  const handleChangeSortOption = async (selectedSortType) => {
-    setIsLoading(true);
-    let selectedSortDirection = currentSortDirection;
-    if (selectedSortType === currentSortType) {
-      selectedSortDirection = currentSortDirection === "asc" ? "desc" : "asc";
-    }
-    handleUIUpdate(selectedSortType, selectedSortDirection);
-    setTimeout(() => handleSortAndCloseModal(selectedSortType, selectedSortDirection), 20);
-  };
 
-  useEffect(() => {
-    // Keep the state in sync with props when modal opens
-    if (modalVisible) {
-      setCurrentSortType(sortType);
-      setCurrentSortDirection(sortDirection);
-    }
-  }, [modalVisible, sortType, sortDirection]);
+    setModalVisible(false);
+  };
 
   return (
     <Modal 
@@ -289,9 +429,9 @@ const SortOptionsModal = ({
             >
               Sort by
             </Text>
-            {isLoading && (
+            {/* {isLoading && (
               <SmallLoadingSpinner />
-            )}
+            )} */}
             <View className="flex-1"></View>
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
@@ -317,15 +457,15 @@ const SortOptionsModal = ({
                 key={key}
                 className="flex-row justify-end w-[100%] gap-2 items-center pr-5 pt-2 pb-2"
                 style={{ 
-                  backgroundColor: currentSortType === key ? tailwindConfig.theme.extend.colors.dark.yellow : "transparent",
+                  backgroundColor: sortType === key ? tailwindConfig.theme.extend.colors.dark.yellow : "transparent",
                   borderRadius: 8 
                 }}
                 onPress={() => handleChangeSortOption(key)}
               >
                 <Text className="text-lg tracking-wide"
                   style={{
-                    fontFamily: currentSortType === key ? fonts.sansBold : fonts.sans,
-                    color: currentSortType === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text
+                    fontFamily: sortType === key ? fonts.sansBold : fonts.sans,
+                    color: sortType === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text
                   }}
                 >
                   {key}
@@ -334,15 +474,15 @@ const SortOptionsModal = ({
                   name={sortIconMapping[key]} 
                   size={25} 
                   // color={typeRef.current === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text}
-                  color={currentSortType === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text}
+                  color={sortType === key ? darkYellow : tailwindConfig.theme.extend.colors.light.text}
                 />
-                { currentSortType === key && currentSortDirection === "asc" && (
+                { sortType === key && sortDirection === "asc" && (
                   <Feather name="arrow-up" size={25} color="black"/>
                 )}
-                { currentSortType === key && currentSortDirection === "desc" && (
+                { sortType === key && sortDirection === "desc" && (
                   <Feather name="arrow-down" size={25} color="black"/>
                 )}
-                { currentSortType !== key && (
+                { sortType !== key && (
                   <View style={{ width: 25 }}/>
                 )}
               </TouchableOpacity>
@@ -425,6 +565,9 @@ const Collection = () => {
   const [ fullCardList, setFullCardList ] = useState([]);
   const [ filteredCardList, setFilteredCardList ] = useState([]);
 
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [ totalValue, setTotalValue ] = useState(0);
   const [ isLoading, setIsLoading ] = useState(false);
   const [ setOptions, setSetOptions ] = useState([{ value: "all", label: "All Sets"}]);
@@ -436,7 +579,7 @@ const Collection = () => {
   const [ currentCardIndex, setCurrentCardIndex ] = useState(null);
 
   const { isDesktopWeb, isNative, width } = useDeviceLayout();
-  const headerHeight = isDesktopWeb ? 210 : 190;
+  const headerHeight = isDesktopWeb ? 210 : 240;
   
   const sortIconMapping = {
     "time": "clock-outline",
@@ -484,9 +627,12 @@ const Collection = () => {
         rawCardData.sort((a, b) => {
           return Date.parse(b.latest_add_time) - Date.parse(a.latest_add_time);
         });
+
+        // console.log("sample 1st card: " + JSON.stringify(rawCardData[0]));
+
         // initialize the card list
         setFullCardList(rawCardData);
-        setFilteredCardList(rawCardData);
+        // setFilteredCardList(rawCardData);
         setSetOptions([{ value: "all", label: "All Sets" }, ...formattedOptions]);
         setTotalValue(totalPrice);
       } catch (error) {
@@ -501,6 +647,28 @@ const Collection = () => {
     }
     
   }, [auth?.username]);
+
+  const commitSearch = () => {
+    setSearchQuery(searchInput);
+    // optional: reset slideshow index
+    setCurrentCardIndex(0);
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    setSearchQuery("");
+  };
+
+  const matchesSearch = (userCard, query) => {
+    if (!query) return true;
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    console.log("query: " + q);
+    const name = userCard?.card_id?.card_faces?.[0]?.name?.toLowerCase?.() ?? "";
+    const typeLine = userCard?.card_id?.card_faces?.[0]?.type_line?.toLowerCase?.() ?? "";
+    return name.includes(q) || typeLine.includes(q);
+    // return name.includes(q);
+  };
 
   const toPriceNumber = (value) => {
     if (value === null || value === undefined) return null;
@@ -569,6 +737,48 @@ const Collection = () => {
 
     return sortedCardList;
   };
+
+  const sortCards = (list, { sortType, sortDirection }) => {
+    const arr = list.slice();
+
+    if (sortType === "time") {
+      arr.sort((a, b) =>
+        sortDirection === "desc"
+          ? Date.parse(b.latest_add_time) - Date.parse(a.latest_add_time)
+          : Date.parse(a.latest_add_time) - Date.parse(b.latest_add_time)
+      );
+    }
+
+    if (sortType === "alphabetical") {
+      arr.sort((a, b) => {
+        const an = (a.card_id?.card_faces?.[0]?.name ?? "").toLowerCase();
+        const bn = (b.card_id?.card_faces?.[0]?.name ?? "").toLowerCase();
+        return sortDirection === "desc" ? bn.localeCompare(an) : an.localeCompare(bn);
+      });
+    }
+
+    if (sortType === "quantity") {
+      arr.sort((a, b) =>
+        sortDirection === "desc" ? b.quantity - a.quantity : a.quantity - b.quantity
+      );
+    }
+
+    if (sortType === "price") {
+      arr.sort((a, b) => {
+        const pa = toPriceNumber(a.final_price);
+        const pb = toPriceNumber(b.final_price);
+
+        // invalid last
+        if (pa === null && pb === null) return 0;
+        if (pa === null) return 1;
+        if (pb === null) return -1;
+
+        return sortDirection === "desc" ? pb - pa : pa - pb;
+      });
+    }
+
+    return arr;
+  };
   
   const updateFilterCardList = ({
     selectedSortType = null, // null if no change to current logic
@@ -636,10 +846,29 @@ const Collection = () => {
 
   };
 
-  const handleChangeSetOption = () => {
-    // console.log(`handleChangeSetOption with selectedSet ${selectedSet}`);
-    updateFilterCardList({ selectedSortType: null, selectedSortDirection: null, showFav: null, selectedSetOption: selectedSet});
-  };
+  const displayedCards = useMemo(() => {
+    let list = fullCardList;
+
+    // filter by set
+    if (selectedSet !== "all") {
+      list = list.filter((c) => c.card_id?.set_id?.code === selectedSet);
+    }
+
+    // filter: favourites
+    if (showFavourites) {
+      list = list.filter((c) => c.is_favourite);
+    }
+
+    // filter: search (committed query)
+    if (searchQuery.trim()) {
+      list = list.filter((c) => matchesSearch(c, searchQuery));
+    }
+
+    // sort
+    list = sortCards(list, { sortType, sortDirection });
+
+    return list;
+  }, [fullCardList, selectedSet, showFavourites, searchQuery, sortType, sortDirection]);
 
   const handleChangeShowFavourites = () => {
     // console.log(`handleChangeShowFavourites from ${showFavourites} to ${!showFavourites}`);
@@ -647,8 +876,8 @@ const Collection = () => {
   };
 
   const handleChangeSorting = ({ sortType, sortDirection }) => {
-    // console.log(`handleChangeSorting to sortType ${sortType} and sortDirection ${sortDirection}`);
-    updateFilterCardList({ selectedSortType: sortType, selectedSortDirection: sortDirection, showFav: null, selectedSetOption: null});
+    setSortType(sortType);
+    setSortDirection(sortDirection);
   };
 
   const startSlideshow = (index) => {
@@ -679,15 +908,13 @@ const Collection = () => {
       setFullCardList((prev) =>
         prev.map((card) => card._id === id ? {...card, is_favourite: !card.is_favourite} : card)
       );
-      setFilteredCardList((prev) =>
-        prev.map((card) => card._id === id ? {...card, is_favourite: !card.is_favourite} : card)
-      );
-
     } catch (error) {
       await handleError(error);
     }
     
   };
+
+  
 
   return (
     <ImageBackground
@@ -701,7 +928,7 @@ const Collection = () => {
     >
       <View className="absolute inset-0 bg-black/75" />
 
-      { auth?.username && !isLoading && filteredCardList.length > 0 && (
+      { auth?.username && !isLoading && (
         <View 
           className="h-screen justify-center"
         >
@@ -714,20 +941,26 @@ const Collection = () => {
             setSetOptions={setSetOptions}
             selectedSet={selectedSet}
             setSelectedSet={setSelectedSet}
-            handleChangeSetOption={handleChangeSetOption}
-            handleChangeShowFavourites={handleChangeShowFavourites}
+            setShowFavourites={setShowFavourites}
             showFavourites={showFavourites}
             isNative={isNative}
             isDesktopWeb={isDesktopWeb}
             screenWidth={width} 
+            searchInput={searchInput}
+            setSearchInput={setSearchInput}
+            commitSearch={commitSearch}
+            clearSearch={clearSearch}
+            searchQuery={searchQuery}
           />
+
           <CardCollection 
-            cards={filteredCardList} 
+            cards={displayedCards} 
             headerHeight={headerHeight}
             updateFavourite={updateFavourite}
             listWidth={ isDesktopWeb ? "80%" : "100%" }
             startSlideshowDesktop={startSlideshow} 
           />
+
           <SortButton 
             sortType={sortType}
             sortIconName={sortIconMapping[sortType]}
@@ -740,7 +973,7 @@ const Collection = () => {
         </View>
       )}
 
-      { auth?.username && !isLoading && filteredCardList.length === 0 && (
+      {/* { auth?.username && !isLoading && displayedCards.length === 0 && (
         <View
           className="w-[100%] h-[100%] justify-center items-center"
         >
@@ -754,7 +987,7 @@ const Collection = () => {
           />
         </View>
         
-      )}
+      )} */}
 
       {/* Enlarged slideshow on desktopweb */}
       { isDesktopWeb && showSlideshow && (
@@ -804,7 +1037,7 @@ const Collection = () => {
               <TouchableOpacity
                 onPress={() => setCurrentCardIndex(prev => {
                   if (prev === 0) {
-                    return filteredCardList.length - 1;
+                    return displayedCards.length - 1;
                   } else {
                     return prev - 1;
                   }
@@ -826,19 +1059,19 @@ const Collection = () => {
               </TouchableOpacity>
               <CardSlideshow 
                 card={{
-                  finish: filteredCardList[currentCardIndex].finish,
-                  special_foil_finish: filteredCardList[currentCardIndex].special_foil_finish,
-                  quantity: filteredCardList[currentCardIndex].quantity,
-                  final_price: filteredCardList[currentCardIndex].final_price,
-                  is_favourite: filteredCardList[currentCardIndex].is_favourite,
-                  ...filteredCardList[currentCardIndex].card_id
+                  finish: displayedCards[currentCardIndex].finish,
+                  special_foil_finish: displayedCards[currentCardIndex].special_foil_finish,
+                  quantity: displayedCards[currentCardIndex].quantity,
+                  final_price: displayedCards[currentCardIndex].final_price,
+                  is_favourite: displayedCards[currentCardIndex].is_favourite,
+                  ...displayedCards[currentCardIndex].card_id
                 }}
-                userCardId={filteredCardList[currentCardIndex]._id}
+                userCardId={displayedCards[currentCardIndex]._id}
                 updateFavourite={updateFavourite}
               />
               <TouchableOpacity
                 onPress={() => setCurrentCardIndex(prev => {
-                  if (prev === filteredCardList.length - 1) {
+                  if (prev === displayedCards.length - 1) {
                     return 0;
                   } else {
                     return prev + 1;

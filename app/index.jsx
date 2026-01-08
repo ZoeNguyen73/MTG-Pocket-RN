@@ -1,13 +1,14 @@
 import { StatusBar } from "expo-status-bar";
-import { ImageBackground, View, Image, Text, useWindowDimensions, Platform } from "react-native";
+import { ImageBackground, View, Image, Text, Platform } from "react-native";
 import { router, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { useThemeContext } from "../context/ThemeProvider";
+import { useAuthContext } from "../context/AuthProvider";
+import useDeviceLayout from "../hooks/useDeviceLayout";
 
-import tailwindConfig from "../tailwind.config";
 import { getBreakpoint } from "../utils/Breakpoints";
 import { getFonts } from "../utils/FontFamily";
 import { soundManager } from "../utils/SoundManager";
@@ -15,16 +16,15 @@ import { soundManager } from "../utils/SoundManager";
 import { logos, images } from "../constants";
 
 import Button from "../components/CustomButton/CustomButton";
+import Avatar from "../components/Avatar/Avatar";
 
 const fonts = getFonts();
 
 const App = () => {
   const { theme } = useThemeContext();
-  const { width, height } = useWindowDimensions();
+  const { width } = useDeviceLayout();
+  const { auth } = useAuthContext();
   const breakpoint = getBreakpoint(width);
-
-  const lightBackgroundColor = tailwindConfig.theme.extend.colors.light.background;
-  const darkBackgroundColor = tailwindConfig.theme.extend.colors.dark.background;
 
   useEffect(() => {
     const playBgMusic = async () => {
@@ -88,7 +88,7 @@ const App = () => {
                 />
               </View>
 
-              <View className="flex-column justify-center items-center pl-4 mb-10">
+              <View className="flex-column justify-center items-center pl-4 mb-7">
                 <Text 
                   className="text-text font-serif-bold text-4xl"
                   style={{
@@ -101,6 +101,28 @@ const App = () => {
                 </Text>
               </View>
 
+              { auth?.username && (
+                <View className="flex-col items-center">
+                  <View className="flex-row gap-1">
+                    <Text className="text-xl font-sans-semibold tracking-wider">
+                      Welcome back,
+                    </Text>
+                    <Text className="text-xl font-sans-bold tracking-wider text-indigo-800">
+                      {auth.username}
+                    </Text>
+                    <Text className="text-xl font-sans-semibold tracking-wider">
+                      !
+                    </Text>
+                  </View>
+
+                  <Avatar 
+                    avatarName={auth.avatar}
+                    size="small"
+                  />
+                </View>
+                
+              )}
+
               <Button 
                 title="Get Started"
                 handlePress={handleGetStarted}
@@ -108,8 +130,22 @@ const App = () => {
                 icon
               />
 
-              <Link href="/log-in" style={{padding: 5, fontFamily: fonts.sans}}>Go to Log in</Link>
-              <Link href="/register" style={{padding: 5, fontFamily: fonts.sans}}>Go to Register</Link>
+              { !auth?.username && (
+                <View>
+                  <Link 
+                    href="/log-in" 
+                    style={{
+                      padding: 5, 
+                      fontFamily: fonts.sans,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Go to Log in
+                  </Link>
+                  <Link href="/register" style={{padding: 5, fontFamily: fonts.sans}}>Go to Register</Link>
+                </View>
+              )}
+              
             </LinearGradient>
             
           </View>
