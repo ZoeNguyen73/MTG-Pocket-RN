@@ -131,18 +131,20 @@ const App = () => {
               />
 
               { !auth?.username && (
-                <View>
-                  <Link 
-                    href="/log-in" 
-                    style={{
-                      padding: 5, 
-                      fontFamily: fonts.sans,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Go to Log in
+                <View className="flex-row gap-8">
+                  <Link href="/log-in" >
+                    <Text className="font-sans-semibold tracking-wide text-lg hover:underline hover:text-light-links">
+                      Log in
+                    </Text>
                   </Link>
-                  <Link href="/register" style={{padding: 5, fontFamily: fonts.sans}}>Go to Register</Link>
+                  <Text className="font-sans-semibold tracking-wide text-lg">
+                    |
+                  </Text>
+                  <Link href="/register">
+                    <Text className="font-sans-semibold tracking-wide text-lg hover:underline hover:text-light-links">
+                      Register
+                    </Text>
+                  </Link>
                 </View>
               )}
               
