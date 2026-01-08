@@ -1,4 +1,4 @@
-import { View, Text, Platform, Image, TouchableOpacity } from "react-native";
+import { View, Text, Platform, Image, TouchableOpacity, Pressable } from "react-native";
 import { useState, useEffect } from "react";
 import Animated, {
   interpolate,
@@ -16,16 +16,13 @@ import CardDisplay from "./CardDisplay";
 import Button from "../CustomButton/CustomButton";
 import FinishChip from "../FinishChip";
 
-import Sparkles from "../Sparkles";
-
 const PRICE_HIGHLIGHT_THRESHOLD = 5;
 
-const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, topCardIndex }) => {
+const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, handleShowEnlargedCard }) => {
   const isFlipped = useSharedValue(false);
   const scale = useSharedValue(1); // Scale value for hover animation
   const duration = 500;
   const priceHightlight = card.final_price ? parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD : true;
-  const isTopCard = cardIndex === topCardIndex;
 
   const handleFlipCard = () => {
     console.log("handleFlipCard triggered with cardIndex: " + cardIndex);
@@ -115,12 +112,6 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
         </TouchableOpacity>
       </Animated.View>
 
-      {/* { flippedAll && isTopCard && (
-        <View style={{position: "absolute", zIndex: 50, height: "100%", width: "100%"}}>
-          <Sparkles /> 
-        </View>
-      )} */}
-
       {/* Card front */}
       <Animated.View 
         style={[
@@ -170,13 +161,23 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
             </Text>
           </View>
         )}
-        <CardDisplay 
-          card={card} 
-          maxWidth={width} 
-          shadow={false} 
-          animateFoil={false} 
-          enableFlip={true}
-        />
+
+        <TouchableOpacity
+          onPress={() => {
+            if (flippedAll) {
+              handleShowEnlargedCard(cardIndex);
+            }
+          }}
+        >
+          <CardDisplay 
+            card={card} 
+            maxWidth={width} 
+            shadow={false} 
+            animateFoil={false} 
+            enableFlip={true}
+          />
+        </TouchableOpacity>
+        
       </Animated.View>
       
       { isFlipped.value && card.final_price && parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD && (
@@ -203,6 +204,44 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, to
   );
 };
 
+const EnlargedCardOverlay = ({ card, handleHideEnlargedCard }) => {
+  return (
+    <View
+      style={{
+        position: "absolute",
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 99999,
+        elevation: 99999, // for android
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+      pointerEvents="auto" // ensure touches don't leak to underlying UI on web
+    >
+      {/* Backdrop: blocks all interaction */}
+      <Pressable
+        onPress={() => handleHideEnlargedCard()}
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: "rgba(0,0,0,0.75)",
+        }}
+      />
+      <CardDisplay 
+        card={card} 
+        maxWidth={300} 
+        animateFoil={true} 
+        enableFlip={true}
+      />
+    </View>
+  )
+};
+
 const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
   const [ autoFlipIndex, setAutoFlipIndex ] = useState(-1);
   const [ totalValue, setTotalValue ] = useState(0);
@@ -210,11 +249,23 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
   const [ flippedAll, setFlippedAll ] = useState(false);
   const [ flipCount, setFlipCount ] = useState(0);
   const [ disableFlipAllButton, setDisableFlipAllButton ] = useState(false);
+  const [ enlargedCard, setEnlargedCard ] = useState(null);
+  const [ showEnlargedCard, setShowEnlargedCard ] = useState(false);
 
   const sounds = {
     bloop: "paper-collect-3",
     highlight: "charming-twinkle",
     summary: "magical-twinkle",
+  };
+
+  const handleHideEnlargedCard = () => {
+    setEnlargedCard(null);
+    setShowEnlargedCard(false);
+  };
+
+  const handleShowEnlargedCard = (index) => {
+    setEnlargedCard(cards[index]);
+    setShowEnlargedCard(true);
   };
 
   const flipAllCards = () => {
@@ -253,9 +304,9 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
   }
 
   return (
-    <View className="mt-24 h-screen items-center">
+    <View className="h-screen items-center">
       
-      <View className="flex-row w-[500px] justify-center items-center">
+      <View className="mt-12 flex-row w-[500px] justify-center items-center">
         <View className="flex-column justify-center items-center gap-2">
           <Text className="text-center font-sans-semibold tracking-wide text-light-text dark:text-dark-text">
             Total Pack Value:
@@ -330,6 +381,7 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
               cardIndex={index}
               flippedAll={flippedAll}
               topCardIndex={topCardIndex}
+              handleShowEnlargedCard={handleShowEnlargedCard}
             />
           ))}
         </View>
@@ -361,6 +413,13 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
             handlePress={() => router.replace(`/home`)}
           />
         </View>
+      )}
+
+      { flippedAll && showEnlargedCard && (
+        <EnlargedCardOverlay 
+          card={enlargedCard}
+          handleHideEnlargedCard={handleHideEnlargedCard}
+        />
       )}
 
     </View>

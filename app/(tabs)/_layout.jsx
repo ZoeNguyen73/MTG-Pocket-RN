@@ -139,7 +139,7 @@ const CustomTabBar = ({
           </View>
 
           <View className="flex-2">
-            <Text className="text-lg text-center font-serif-bold text-light-yellow dark:text-dark-yellow tracking-wider">
+            <Text className="text-lg text-center font-serif-bold text-light-yellow dark:text-dark-rosewater tracking-wider">
               Magic: the Gathering Pocket
             </Text>
           </View>
