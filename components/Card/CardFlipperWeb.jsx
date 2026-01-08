@@ -9,6 +9,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { router } from "expo-router";
 
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { useAuthContext } from "../../context/AuthProvider";
+import { useErrorHandler } from "../../context/ErrorHandlerProvider";
+
 import { images } from "../../constants";
 import { soundManager } from "../../utils/SoundManager";
 
@@ -25,7 +29,7 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, ha
   const priceHightlight = card.final_price ? parseFloat(card.final_price) >= PRICE_HIGHLIGHT_THRESHOLD : true;
 
   const handleFlipCard = () => {
-    console.log("handleFlipCard triggered with cardIndex: " + cardIndex);
+    // console.log("handleFlipCard triggered with cardIndex: " + cardIndex);
     isFlipped.value = true;
     handleFlip(cardIndex);
   };
@@ -204,7 +208,9 @@ const FlipCard = ({ cardIndex, card, width, autoFlip, handleFlip, flippedAll, ha
   );
 };
 
-const EnlargedCardOverlay = ({ card, handleHideEnlargedCard }) => {
+const EnlargedCardOverlay = ({ isAuth, card, handleHideEnlargedCard, handleUpdateFavourite }) => {
+  const [isFavourite, setIsFavourite] = useState(card.is_favourite);
+
   return (
     <View
       style={{
@@ -232,6 +238,50 @@ const EnlargedCardOverlay = ({ card, handleHideEnlargedCard }) => {
           backgroundColor: "rgba(0,0,0,0.75)",
         }}
       />
+      { isAuth && !isFavourite && (
+        <TouchableOpacity
+          onPress={() => {
+            handleUpdateFavourite(card.user_card_id);
+            setIsFavourite(prev => !prev);
+          }}
+          style={{
+            height: 30,
+            paddingHorizontal: 10,
+            paddingVertical: 3,
+            borderRadius: 15,
+            backgroundColor: "rgba(166, 173, 200, 0.8)",
+            marginBottom: 10,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text className="text-sm font-sans-semibold text-light-text">
+            Add to Favourite
+          </Text>
+        </TouchableOpacity>
+      )}
+      { isAuth && isFavourite && (
+        <TouchableOpacity
+          onPress={() => {
+            handleUpdateFavourite(card.user_card_id);
+            setIsFavourite(prev => !prev);
+          }}
+          style={{
+            height: 30,
+            paddingHorizontal: 10,
+            paddingVertical: 3,
+            borderRadius: 15,
+            backgroundColor: "rgba(220, 138, 120, 1)",
+            marginBottom: 10,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text className="text-sm font-sans-semibold text-light-text">
+            Remove from Favourites
+          </Text>
+        </TouchableOpacity>
+      )}
       <CardDisplay 
         card={card} 
         maxWidth={300} 
@@ -251,6 +301,11 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
   const [ disableFlipAllButton, setDisableFlipAllButton ] = useState(false);
   const [ enlargedCard, setEnlargedCard ] = useState(null);
   const [ showEnlargedCard, setShowEnlargedCard ] = useState(false);
+  const [ cardList, setCardList ] = useState([...cards]);
+
+  const { auth } = useAuthContext();
+  const { handleError } = useErrorHandler();
+  const axiosPrivate = useAxiosPrivate();
 
   const sounds = {
     bloop: "paper-collect-3",
@@ -264,13 +319,35 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
   };
 
   const handleShowEnlargedCard = (index) => {
-    setEnlargedCard(cards[index]);
+    setEnlargedCard(cardList[index]);
     setShowEnlargedCard(true);
+  };
+
+  const handleUpdateFavourite = async (userCardId) => {
+    try {
+      soundManager.playSfx("happy-pop-1");
+      const target = cardList.find(card => card.user_card_id === userCardId);
+      if (!target) throw new Error("Card not found in local list.");
+      const is_favourite = target.is_favourite;
+      if (auth?.username && is_favourite) {
+        await axiosPrivate.put(`/users/${auth.username}/cards/favourites/remove/${userCardId}`);
+      } else if (auth?.username && !is_favourite) {
+        await axiosPrivate.put(`/users/${auth.username}/cards/favourites/add/${userCardId}`);
+      } else {
+        throw new Error("Missing authentication details. Please log in again.");
+      }
+
+      setCardList((prev) =>
+        prev.map((card) => card.user_card_id === userCardId ? {...card, is_favourite: !card.is_favourite} : card)
+      );
+    } catch (error) {
+      await handleError(error);
+    } 
   };
 
   const flipAllCards = () => {
     setDisableFlipAllButton(true);
-    cards.forEach((_, index) => {
+    cardList.forEach((_, index) => {
       setTimeout(() => {
         setAutoFlipIndex(index);
       }, index * 300);
@@ -279,7 +356,7 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
 
   const handleFlip = (cardIndex) => {
     soundManager.playSfx(sounds.bloop);
-    const card = cards[cardIndex];
+    const card = cardList[cardIndex];
     const price = card.final_price || 0;
 
     // if it is the first card that is flipped
@@ -287,7 +364,7 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
       setTopCardIndex(cardIndex);
 
     // if current card's price is higher than current top card
-    } else if (parseFloat(price) > parseFloat(cards[topCardIndex].final_price)) {
+    } else if (parseFloat(price) > parseFloat(cardList[topCardIndex].final_price)) {
       setTopCardIndex(cardIndex);
     }
 
@@ -297,7 +374,7 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
 
     setTotalValue(prev => (parseFloat(prev) + parseFloat(price)).toFixed(2));
     setFlipCount(prev => prev + 1);
-    if (flipCount === cards.length - 1) {
+    if (flipCount === cardList.length - 1) {
       setFlippedAll(true);
       setDisableFlipAllButton(true);
     }
@@ -358,7 +435,7 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
           >
             <View className="justify-center items-center flex-row gap-1">
               <Text className="text-dark-maroon font-sans-bold text-2xl tracking-wider">
-                {topCardIndex === -1 ? `USD 0.00` : `USD ${parseFloat(cards[topCardIndex].final_price)}`}
+                {topCardIndex === -1 ? `USD 0.00` : `USD ${parseFloat(cardList[topCardIndex].final_price)}`}
               </Text>
             </View>
           </View>
@@ -371,7 +448,7 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
           className="items-center justify-center flex-row flex-wrap gap-4 mt-5"
           style={{ marginLeft: 120, marginRight: 120 }}
         >
-          {cards.map((card, index) => (
+          {cardList.map((card, index) => (
             <FlipCard
               key={index} 
               card={card}
@@ -419,6 +496,8 @@ const CardFlipperWeb = ({ cards, setCode, packType, packPrice }) => {
         <EnlargedCardOverlay 
           card={enlargedCard}
           handleHideEnlargedCard={handleHideEnlargedCard}
+          handleUpdateFavourite={handleUpdateFavourite}
+          isAuth={auth?.username}
         />
       )}
 

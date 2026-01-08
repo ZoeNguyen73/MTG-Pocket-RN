@@ -894,7 +894,7 @@ const Collection = () => {
   const updateFavourite = async (id) => {
     try {
       soundManager.playSfx("happy-pop-1");
-     const target = fullCardList.find(card => card._id === id);
+      const target = fullCardList.find(card => card._id === id);
       if (!target) throw new Error("Card not found in local list.");
       const is_favourite = target.is_favourite;
       if (auth?.username && is_favourite) {
