@@ -1,16 +1,17 @@
 import { useAuthContext } from "../context/AuthProvider";
 import handleGlobalError from "../utils/ErrorHandler";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import storage from "../utils/Storage";
 
 export const useClearSession = () => {
   const { setAuth } = useAuthContext();
 
   const clearSession = async () => {
     try {
-      await AsyncStorage.removeItem("username");
-      await AsyncStorage.removeItem("accessToken");
-      await AsyncStorage.removeItem("refreshToken");
-      await AsyncStorage.removeItem("avatar");
+      await storage.removeItem("username");
+      await storage.removeItem("accessToken");
+      await storage.removeItem("refreshToken");
+      await storage.removeItem("avatar");
   
       setAuth({
         username: "",
