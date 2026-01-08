@@ -69,7 +69,7 @@ const PackOpening = () => {
 
       <SafeAreaView className="h-screen justify-center">
         { cards.length === 0 && !isLoading && (
-          <View className="flex-col gap-6 max-w-[300px]">
+          <View className="flex-col gap-6 justify-center items-center w-[100%]">
             <Text className="text-base font-sans-semibold tracking-wider text-dark-text">
               Oops, an error has occurred...
             </Text>
