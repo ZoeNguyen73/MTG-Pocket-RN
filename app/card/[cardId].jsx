@@ -315,7 +315,7 @@ const CardDetailsPage = () => {
   const [ isLoading, setIsLoading ] = useState(false);
   const [ modalVisible, setModalVisible ] = useState(true);
   const { cardId } = useLocalSearchParams();
-  const handleError = useErrorHandler();
+  const { handleError } = useErrorHandler();
 
   const { isDesktopWeb, width, height } = useDeviceLayout();
   

@@ -1,4 +1,4 @@
-import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch, Platform } from "react-native";
+import { ImageBackground, Text, View, TouchableOpacity, Modal, Switch, Platform, Pressable} from "react-native";
 import { useState, useEffect } from "react";
 import { router, Link } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -14,11 +14,13 @@ import useDeviceLayout from "../../hooks/useDeviceLayout";
 import { images } from "../../constants";
 import tailwindConfig from "../../tailwind.config";
 import { getFonts } from "../../utils/FontFamily";
+import { soundManager } from "../../utils/SoundManager";
 
 import Button from "../../components/CustomButton/CustomButton";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import CardCollection from "../../components/Card/CardCollection";
 import SmallLoadingSpinner from "../../components/SmallLoadingSpinner";
+import CardSlideshow from "../../components/Card/CardSlideshow";
 
 const fonts = getFonts();
 
@@ -102,7 +104,7 @@ const StickyHeader = ({
   setSelectedSet,
   handleChangeSetOption,
   showFavourites,
-  setShowFavourites,
+  handleChangeShowFavourites,
   isDesktopWeb,
   isNative,
   screenWidth,
@@ -181,7 +183,7 @@ const StickyHeader = ({
             trackColor={{ false: '#767577', true: lightYellow }}
             thumbColor={showFavourites? '#f5dd4b' : '#f4f3f4'}
             ios_backgroundColor="#3e3e3e"
-            onValueChange={() => setShowFavourites(!showFavourites)}
+            onValueChange={() => handleChangeShowFavourites()}
             value={showFavourites}
             style={{ height: 15, width: 40}}
           />
@@ -420,15 +422,18 @@ const Collection = () => {
   const { handleError } = useErrorHandler();
   const axiosPrivate = useAxiosPrivate();
 
-  const [ cardList, setCardList ] = useState([]);
+  const [ fullCardList, setFullCardList ] = useState([]);
+  const [ filteredCardList, setFilteredCardList ] = useState([]);
+
   const [ totalValue, setTotalValue ] = useState(0);
   const [ isLoading, setIsLoading ] = useState(false);
   const [ setOptions, setSetOptions ] = useState([{ value: "all", label: "All Sets"}]);
   const [ selectedSet, setSelectedSet ] = useState("all");
   const [ sortType, setSortType ] = useState("time");
   const [ sortDirection, setSortDirection ] = useState("desc");
-  const [ filteredCardList, setFilteredCardList ] = useState([]);
   const [ showFavourites, setShowFavourites ] = useState(false);
+  const [ showSlideshow, setShowSlideshow ] = useState(false);
+  const [ currentCardIndex, setCurrentCardIndex ] = useState(null);
 
   const { isDesktopWeb, isNative, width } = useDeviceLayout();
   const headerHeight = isDesktopWeb ? 210 : 190;
@@ -448,30 +453,41 @@ const Collection = () => {
         const response = await axiosPrivate.get(`/users/${auth.username}/cards`);
         let totalPrice = 0;
         const rawCardData = response.data.user_cards;
-        const sets = [];
-        const options = [];
+        const sets = {};
         for (const card of rawCardData) {
           const value = card.quantity * card.final_price;
           totalPrice += value;
           const setCode = card.card_id.set_id.code;
-          if (!sets.includes(setCode)) {
-            const option = {
+          const setName = card.card_id.set_id.name;
+          if (sets[setCode]) {
+            sets[setCode].cardCount += card.quantity;
+          } else {
+            sets[setCode] = {
               value: setCode,
-              label: card.card_id.set_id.name,
-              icon: () => <SvgUri width="20px" height="20px" uri={card.card_id.set_id.icon_svg_uri} />
+              label: setName,
+              icon: () => <SvgUri width="20px" height="20px" uri={card.card_id.set_id.icon_svg_uri} />,
+              cardCount: card.quantity
             }
-            options.push(option);
-            sets.push(setCode);
           }
         }
+
+        const optionsArr = Object.values(sets);
+        optionsArr.sort((a, b) => {
+          return a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1;
+        });
+
+        const formattedOptions = optionsArr.map((o) => { 
+          return { value: o.value, icon: o.icon, label: `${o.label} (${o.cardCount} cards)`}
+        });
 
         // by default, sort by latest_add_time in desc order
         rawCardData.sort((a, b) => {
           return Date.parse(b.latest_add_time) - Date.parse(a.latest_add_time);
         });
-
-        setCardList(rawCardData);
-        setSetOptions([{ value: "all", label: "All Sets"}, ...options]);
+        // initialize the card list
+        setFullCardList(rawCardData);
+        setFilteredCardList(rawCardData);
+        setSetOptions([{ value: "all", label: "All Sets" }, ...formattedOptions]);
         setTotalValue(totalPrice);
       } catch (error) {
         await handleError(error);
@@ -486,63 +502,191 @@ const Collection = () => {
     
   }, [auth?.username]);
 
-  const handleChangeSetOption = () => {
-    if (selectedSet !== "all") {
-      const filteredCards = cardList.filter((card) => card.card_id.set_id.code === selectedSet);
-      setFilteredCardList(filteredCards);
-    }
+  const toPriceNumber = (value) => {
+    if (value === null || value === undefined) return null;
+
+    if (typeof value === "number") return Number.isFinite(value) ? value : null;
+
+    const cleaned = String(value).replace(/[^0-9.\-]/g, "");
+    if (!cleaned) return null;
+
+    const num = Number(cleaned);
+    return Number.isFinite(num) ? num : null;
   };
 
-  const handleChangeSorting = ({ sortType, sortDirection }) => {
+  const sortCardList = ({ sortType, sortDirection }) => {
     let sortedCardList = [];
+    // console.log("sortCardList - sample card: " + JSON.stringify(fullCardList[0]));
     if (sortType === "time" && sortDirection === "desc") {
-      sortedCardList = cardList.slice().sort((a, b) => {
+      sortedCardList = fullCardList.slice().sort((a, b) => {
         return Date.parse(b.latest_add_time) - Date.parse(a.latest_add_time);
       });
     } else if (sortType === "time" && sortDirection === "asc") {
-      sortedCardList = cardList.slice().sort((a, b) => {
+      sortedCardList = fullCardList.slice().sort((a, b) => {
         return Date.parse(a.latest_add_time) - Date.parse(b.latest_add_time);
       });
     } else if (sortType === "alphabetical" && sortDirection === "desc") {
-      sortedCardList = cardList.slice().sort((a, b) => {
+      sortedCardList = fullCardList.slice().sort((a, b) => {
         return a.card_id.card_faces[0].name.toLowerCase() < b.card_id.card_faces[0].name.toLowerCase() ?  1 : -1;
       });
     } else if (sortType === "alphabetical" && sortDirection === "asc") {
-      sortedCardList = cardList.slice().sort((a, b) => {
+      sortedCardList = fullCardList.slice().sort((a, b) => {
         return a.card_id.card_faces[0].name.toLowerCase() < b.card_id.card_faces[0].name.toLowerCase() ?  -1 : 1;
       });
     } else if (sortType === "quantity" && sortDirection === "desc") {
-      sortedCardList = cardList.slice().sort((a, b) => {
+      sortedCardList = fullCardList.slice().sort((a, b) => {
         return b.quantity - a.quantity;
       });
     } else if (sortType === "quantity" && sortDirection === "asc") {
-      sortedCardList = cardList.slice().sort((a, b) => {
+      sortedCardList = fullCardList.slice().sort((a, b) => {
         return a.quantity - b.quantity;
       });
     } else if (sortType === "price" && sortDirection === "desc") {
-      sortedCardList = cardList.slice().sort((a, b) => {
-        return parseFloat(b.final_price) - parseFloat(a.final_price);
+      sortedCardList = fullCardList.slice().sort((a, b) => {
+        const pa = toPriceNumber(a.final_price);
+        const pb = toPriceNumber(b.final_price);
+
+        // Put invalid / missing prices last
+        if (pa === null && pb === null) return 0;
+        if (pa === null) return 1;
+        if (pb === null) return -1;
+
+        return pb - pa;
       });
     } else if (sortType === "price" && sortDirection === "asc") {
-      sortedCardList = cardList.slice().sort((a, b) => {
-        return parseFloat(a.final_price) - parseFloat(b.final_price);
+      sortedCardList = fullCardList.slice().sort((a, b) => {
+        const pa = toPriceNumber(a.final_price);
+        const pb = toPriceNumber(b.final_price);
+
+        // Put invalid / missing prices last
+        if (pa === null && pb === null) return 0;
+        if (pa === null) return 1;
+        if (pb === null) return -1;
+
+        return pa - pb;
       });
     }
 
-    if (selectedSet !== "all") {
-      const filteredCards = sortedCardList.filter((card) => card.card_id.set_id.code === selectedSet);
-      setFilteredCardList(filteredCards);
+    return sortedCardList;
+  };
+  
+  const updateFilterCardList = ({
+    selectedSortType = null, // null if no change to current logic
+    selectedSortDirection = null,
+    showFav = null,
+    selectedSetOption = null,
+  }) => {
+
+    const finalSortType = selectedSortType ? selectedSortType : sortType ;
+    const finalSortDirection = selectedSortDirection ? selectedSortDirection : sortDirection;
+    const needSort = finalSortDirection !== "desc" || finalSortType !== "time" || (finalSortType !== "time" && finalSortDirection !== "desc");
+
+    const needFilterFav = showFav !== null ? showFav : showFavourites;
+
+    const finalSelectedSet = selectedSetOption ? selectedSetOption : selectedSet;
+    const needFilterSet = finalSelectedSet !== "all";
+
+    let sortedCardList = null;
+    if (needSort) {
+      sortedCardList = sortCardList({ sortType: finalSortType, sortDirection: finalSortDirection });
     }
 
-    setCardList(sortedCardList);
-    setSortType(sortType);
-    setSortDirection(sortDirection); 
+    let filteredCardList = null;
+
+
+    if (needFilterFav) {
+      if (needFilterSet) {
+        if (needSort) {
+          filteredCardList = sortedCardList.filter((card) => card.card_id.set_id.code === finalSelectedSet && card.is_favourite);
+        } else {
+          filteredCardList = fullCardList.filter((card) => card.card_id.set_id.code === finalSelectedSet && card.is_favourite);
+        }
+      } else {
+        if (needSort) {
+          filteredCardList = sortedCardList.filter((card) => card.is_favourite);
+        } else {
+          filteredCardList = fullCardList.filter((card) => card.is_favourite);
+        }
+      }
+    } else {
+      if (needFilterSet) {
+        if (needSort) {
+          filteredCardList = sortedCardList.filter((card) => card.card_id.set_id.code === finalSelectedSet);
+        } else {
+          filteredCardList = fullCardList.filter((card) => card.card_id.set_id.code === finalSelectedSet);
+        }
+      } else {
+        if (needSort) {
+          filteredCardList = sortedCardList;
+        } else {
+          setFilteredCardList(fullCardList);
+          setSortType(finalSortType);
+          setSortDirection(finalSortDirection);
+          setShowFavourites(needFilterFav);
+          setSelectedSet(finalSelectedSet);
+          return; 
+        }
+      }
+    }
+
+    setFilteredCardList(filteredCardList);
+    setSortType(finalSortType);
+    setSortDirection(finalSortDirection);
+    setShowFavourites(needFilterFav);
 
   };
 
-  const updateFavourite = (id) => {
-    const index = cardList.findIndex(card => card._id === id);
-    cardList[index].is_favourite = !cardList[index].is_favourite;
+  const handleChangeSetOption = () => {
+    // console.log(`handleChangeSetOption with selectedSet ${selectedSet}`);
+    updateFilterCardList({ selectedSortType: null, selectedSortDirection: null, showFav: null, selectedSetOption: selectedSet});
+  };
+
+  const handleChangeShowFavourites = () => {
+    // console.log(`handleChangeShowFavourites from ${showFavourites} to ${!showFavourites}`);
+    updateFilterCardList({ selectedSortType: null, selectedSortDirection: null, showFav: !showFavourites, selectedSetOption: null});
+  };
+
+  const handleChangeSorting = ({ sortType, sortDirection }) => {
+    // console.log(`handleChangeSorting to sortType ${sortType} and sortDirection ${sortDirection}`);
+    updateFilterCardList({ selectedSortType: sortType, selectedSortDirection: sortDirection, showFav: null, selectedSetOption: null});
+  };
+
+  const startSlideshow = (index) => {
+    console.log("starting slideshow at index: " + index);
+    setCurrentCardIndex(index);
+    setShowSlideshow(true);
+  };
+
+  const stopSlideshow = () => {
+    setCurrentCardIndex(null);
+    setShowSlideshow(false);
+  };
+
+  const updateFavourite = async (id) => {
+    try {
+      soundManager.playSfx("happy-pop-1");
+     const target = fullCardList.find(card => card._id === id);
+      if (!target) throw new Error("Card not found in local list.");
+      const is_favourite = target.is_favourite;
+      if (auth?.username && is_favourite) {
+        await axiosPrivate.put(`/users/${auth.username}/cards/favourites/remove/${id}`);
+      } else if (auth?.username && !is_favourite) {
+        await axiosPrivate.put(`/users/${auth.username}/cards/favourites/add/${id}`);
+      } else {
+        throw new Error("Missing authentication details. Please log in again.");
+      }
+
+      setFullCardList((prev) =>
+        prev.map((card) => card._id === id ? {...card, is_favourite: !card.is_favourite} : card)
+      );
+      setFilteredCardList((prev) =>
+        prev.map((card) => card._id === id ? {...card, is_favourite: !card.is_favourite} : card)
+      );
+
+    } catch (error) {
+      await handleError(error);
+    }
+    
   };
 
   return (
@@ -557,32 +701,32 @@ const Collection = () => {
     >
       <View className="absolute inset-0 bg-black/75" />
 
-      { auth?.username && !isLoading && cardList.length > 0 && (
+      { auth?.username && !isLoading && filteredCardList.length > 0 && (
         <View 
           className="h-screen justify-center"
         >
           <StickyHeader 
             height={headerHeight}
             width={ isDesktopWeb ? "80%" : "100%"} 
-            cardCount={cardList.length} 
+            cardCount={fullCardList.length} 
             totalValue={totalValue}
             setOptions={setOptions}
             setSetOptions={setSetOptions}
             selectedSet={selectedSet}
             setSelectedSet={setSelectedSet}
             handleChangeSetOption={handleChangeSetOption}
+            handleChangeShowFavourites={handleChangeShowFavourites}
             showFavourites={showFavourites}
-            setShowFavourites={setShowFavourites}
             isNative={isNative}
             isDesktopWeb={isDesktopWeb}
             screenWidth={width} 
           />
           <CardCollection 
-            cards={selectedSet === "all" ? cardList : filteredCardList } 
+            cards={filteredCardList} 
             headerHeight={headerHeight}
             updateFavourite={updateFavourite}
-            showFavourites={showFavourites}
-            listWidth={ isDesktopWeb ? "80%" : "100%" } 
+            listWidth={ isDesktopWeb ? "80%" : "100%" }
+            startSlideshowDesktop={startSlideshow} 
           />
           <SortButton 
             sortType={sortType}
@@ -593,6 +737,130 @@ const Collection = () => {
             isDesktopWeb={isDesktopWeb}
             screenWidth={width}
           />
+        </View>
+      )}
+
+      { auth?.username && !isLoading && filteredCardList.length === 0 && (
+        <View
+          className="w-[100%] h-[100%] justify-center items-center"
+        >
+          <Text className="text-dark-text font-sans-bold text-xl tracking-wider mb-3">
+            No cards found
+          </Text>
+          <Button 
+            title="Back to Home"
+            variant="primary"
+            handlePress={() => router.push('/home')}
+          />
+        </View>
+        
+      )}
+
+      {/* Enlarged slideshow on desktopweb */}
+      { isDesktopWeb && showSlideshow && (
+        <View
+          style={{
+            position: "absolute",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.8)",
+            width: "100%",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+          }}
+        >
+          {/* Backdrop: clicking ANYWHERE outside closes */}
+          <Pressable
+            onPress={stopSlideshow}
+            style={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}
+          />
+
+          {/* Frame: clicking inside should NOT close */}
+          <Pressable
+            onPress={(e) => {
+              // prevents the backdrop from receiving the click on web
+              e?.stopPropagation?.();
+            }}
+            style={{
+              width: "80%",
+              maxWidth: 1000,
+              height: 600,
+              borderRadius: 12,
+              overflow: "hidden",
+            }}
+          >
+            <View
+              className="bg-dark-surface/95 flex-1 justify-center items-center cursor-default flex-row"
+            >
+
+              <TouchableOpacity
+                onPress={() => setCurrentCardIndex(prev => {
+                  if (prev === 0) {
+                    return filteredCardList.length - 1;
+                  } else {
+                    return prev - 1;
+                  }
+                })}
+                style={{
+                  height: 30,
+                  width: 30,
+                  borderRadius: 15,
+                  backgroundColor: "rgba(253, 253, 253, 0.5)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Feather 
+                  name={"chevron-left"}
+                  size={25}
+                  color="black"
+                />
+              </TouchableOpacity>
+              <CardSlideshow 
+                card={{
+                  finish: filteredCardList[currentCardIndex].finish,
+                  special_foil_finish: filteredCardList[currentCardIndex].special_foil_finish,
+                  quantity: filteredCardList[currentCardIndex].quantity,
+                  final_price: filteredCardList[currentCardIndex].final_price,
+                  is_favourite: filteredCardList[currentCardIndex].is_favourite,
+                  ...filteredCardList[currentCardIndex].card_id
+                }}
+                userCardId={filteredCardList[currentCardIndex]._id}
+                updateFavourite={updateFavourite}
+              />
+              <TouchableOpacity
+                onPress={() => setCurrentCardIndex(prev => {
+                  if (prev === filteredCardList.length - 1) {
+                    return 0;
+                  } else {
+                    return prev + 1;
+                  }
+                })}
+                style={{
+                  height: 30,
+                  width: 30,
+                  borderRadius: 15,
+                  backgroundColor: "rgba(253, 253, 253, 0.5)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Feather 
+                  name={"chevron-right"}
+                  size={25}
+                  color="black"
+                />
+              </TouchableOpacity>
+            </View>
+          </Pressable>
         </View>
       )}
 

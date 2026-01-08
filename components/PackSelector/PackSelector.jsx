@@ -320,7 +320,7 @@ const PackCardWeb = ({pack, updateHoveredPackId, index, cardHeight, cardWidth}) 
             soundManager.playSfx("game-bonus");
             timeoutRef.current = setTimeout(
               () => router.push(`/pack/${packType}/${pack.set_code}`),
-              1000
+              300
             );
           }}
         >
