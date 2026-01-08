@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, TouchableOpacity, FLatList } from "react-native";
+import { View, ScrollView, TouchableOpacity, FlatList } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from "react-native-reanimated";
 
 import CardDisplay from "./CardDisplay";

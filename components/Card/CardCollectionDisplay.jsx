@@ -11,10 +11,6 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { useErrorHandler } from "../../context/ErrorHandlerProvider";
-import { useAuthContext } from "../../context/AuthProvider";
-
 import { getFonts } from "../../utils/FontFamily";
 import useDeviceLayout from "../../hooks/useDeviceLayout";
 
@@ -48,16 +44,12 @@ const CardCollectionDisplay = ({
   shadow = false, 
   favourite, 
   id,
-  handleFavouriteToggle 
+  handleFavouriteToggle,
+  handleClickDesktop, 
 }) => {
   const frontCardFace = card.card_faces[0];
   const [ isFrontFacing, setIsFrontFacing ] = useState(true);
-  const [ isFavourite, setIsFavourite ] = useState(favourite);
   const [ isHovered, setIsHovered ] = useState(false);
-
-  const axiosPrivate = useAxiosPrivate();
-  const { handleError } = useErrorHandler();
-  const { auth } = useAuthContext();
 
   const [gradientOptions, setGradientOptions] = useState({
     colors: GRADIENT_COLORS,
@@ -65,6 +57,7 @@ const CardCollectionDisplay = ({
     start: START_DEFAULT,
     end: END_DEFAULT
   });
+
   const scale = useSharedValue(1); // Scale value for hover animation
   const duration = 300;
 
@@ -73,20 +66,6 @@ const CardCollectionDisplay = ({
   const cardHeight = cardWidth * 680 /488;
 
   const { isDesktopWeb } = useDeviceLayout();
-
-  const triggerFavouriteToggle = async () => {
-    try {
-      if (isFavourite) {
-        await axiosPrivate.put(`/users/${auth.username}/cards/favourites/remove/${id}`);
-      } else {
-        await axiosPrivate.put(`/users/${auth.username}/cards/favourites/add/${id}`);
-      }
-      handleFavouriteToggle();
-      setIsFavourite(!isFavourite);
-    } catch (error) {
-      await handleError(error);
-    }
-  };
 
   const handleMouseEnter = () => {
     scale.value = withTiming(1.5, { duration, easing: Easing.out(Easing.ease) });
@@ -180,12 +159,12 @@ const CardCollectionDisplay = ({
               {/* Favourite */}
               <TouchableOpacity 
                 style={styles.favourite}
-                onPress={() => triggerFavouriteToggle()}
+                onPress={() => handleFavouriteToggle()}
               >
-                { isFavourite && (
+                { favourite && (
                   <MaterialCommunityIcons name="heart" size={24} color="#dc8a78" />
                 )}
-                { !isFavourite && (
+                { !favourite && (
                   <MaterialCommunityIcons name="heart" size={24} color="rgba(156, 160, 176, 0.8)" />
                 )}
               </TouchableOpacity>
@@ -221,7 +200,7 @@ const CardCollectionDisplay = ({
                       className="text-center font-sans-semibold text-xs"
                       style={{ color: "#FFFFFF", fontFamily: fonts.sansSemibold }}
                     >
-                      {`$ ${finalPrice}`}
+                      { finalPrice ? `$${finalPrice}` : `no price`}
                     </Text>
                   </View>
                 </View>
@@ -272,7 +251,8 @@ const CardCollectionDisplay = ({
 
           <TouchableOpacity
             style={[{ height: "100%", width: "100%" }]}
-            onPress={() => router.push(`/card/${id}`)}
+            // onPress={() => router.push(`/card/${id}`)}
+            onPress={() => handleClickDesktop()}
           >
 
             {/* Linear gradient overlay for foil or etched finish*/}
@@ -322,12 +302,12 @@ const CardCollectionDisplay = ({
             onMouseLeave={handleMouseLeave}
           >
             <TouchableOpacity 
-              onPress={() => triggerFavouriteToggle()}
+              onPress={() => handleFavouriteToggle()}
             >
-              { isFavourite && (
+              { favourite && (
                 <MaterialCommunityIcons name="heart" size={30} color="#dc8a78" />
               )}
-              { !isFavourite && (
+              { !favourite && (
                 <MaterialCommunityIcons name="heart" size={30} color="rgba(156, 160, 176, 0.95)" />
               )}
             </TouchableOpacity>
@@ -364,7 +344,7 @@ const CardCollectionDisplay = ({
                   className="text-center font-sans-semibold text-xs"
                   style={{ color: "#FFFFFF", fontFamily: fonts.sansSemibold }}
                 >
-                  {`$ ${finalPrice}`}
+                  { finalPrice ? `$${finalPrice}` : `no price`}
                 </Text>
               </View>
             </View>

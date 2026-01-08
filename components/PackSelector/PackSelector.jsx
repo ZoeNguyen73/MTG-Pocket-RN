@@ -21,8 +21,9 @@ import useDeviceLayout from "../../hooks/useDeviceLayout";
 import { devDelay } from "../../utils/DevDelay";
 
 import Button from "../CustomButton/CustomButton";
-import CardHighlight from "./../Card/CardHighlight";
-import CardDisplay from "../Card/CardDisplay";
+import CardHighlight from "../Card/CardHighlight";
+// import CardDisplay from "../Card/CardDisplay";
+import CardDisplay from "../Card/CardDisplayRefactor";
 import LoadingSpinnerWithMessages from "../LoadingSpinner/LoadingSpinnerWithMessages";
 
 const zoomIn = {
@@ -37,8 +38,9 @@ const zoomOut = {
 
 const fonts = getFonts();
 
-const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => {
+const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight }) => {
   const [ selected, setSelected ] = useState(false);
+  const [ buttonDisabled, setButtonDisabled ] = useState(false);
   const timeoutRef = useRef(null);
 
   const cardWidth = Math.min(Math.floor(screenWidth / 2.3), 200);
@@ -47,7 +49,7 @@ const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => 
   // Reset the selected state when the card is swiped away
   useEffect(() => {
     
-    if (activeSetId !== set.code) {
+    if (activePackId !== pack.pack_id) {
       setSelected(false);
     }
 
@@ -59,7 +61,7 @@ const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => 
       }
     };
 
-  }, [activeSetId, set.code])
+  }, [activePackId, pack.pack_id])
   
 
   const handlePress = async () => {
@@ -68,35 +70,36 @@ const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => 
   };
 
   const handleConfirmation = async () => {
+    const packType = pack.pack_type.replace("_","-");
+    setButtonDisabled(true);
     soundManager.playSfx("game-bonus");
     timeoutRef.current = setTimeout(
-      () => router.push(`/pack/play-booster/${set.code}`),
-      1000
+      () => router.push(`/pack/${packType}/${pack.set_code}`),
+      300
     );
   };
 
   return (
     <Animatable.View
-      className={`${ lastSetId === set.code ? "mr-2" : ""}`}
-      animation={activeSetId === set.code ? zoomIn : zoomOut}
+      className={`${ lastPackId === pack.pack_id ? "mr-2" : ""}`}
+      animation={activePackId === pack.pack_id ? zoomIn : zoomOut}
       duration={500}
     >
       <View className="overflow-visible" style={{width: cardWidth, height: cardHeight}}>
 
         {/* Glowing Highlight */}
-        {activeSetId === set.code && (
+        {activePackId === pack.pack_id && (
           <View
             style={{
               position: "absolute",
-              left: "50%",
-              transform: [{ translateX: -0.4 * cardWidth }, { translateY: 0.1 * cardHeight }], // Center glow
+              transform: [{ translateX: 0.1 * cardWidth }, { translateY: 0.1 * cardHeight }], // Center glow
               width: "80%", // Width of the glow
               height: "60%", // Height of the glow
-              backgroundColor: "rgba(255, 215, 0, 0.01)", // Semi-transparent yellow
+              backgroundColor: "rgba(255, 215, 0, 0.3)", // Semi-transparent yellow
               borderRadius: cardWidth / 2, // Rounded edges for glow
               shadowColor: "yellow",
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.8,
+              shadowOffset: { width: 3, height: 10 },
+              shadowOpacity: 1,
               shadowRadius: cardWidth / 4, // Creates the "glow" effect
               elevation: cardWidth / 4, // Android shadow
               zIndex: -1, // Place glow behind the content
@@ -104,24 +107,47 @@ const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => 
           />
         )}
 
-        { activeSetId === set.code && (
+        { activePackId === pack.pack_id && (
           <TouchableOpacity
             onPress={handlePress}
           >
             <Image 
-              source={set.play_booster_image}
+              source={pack.image}
               resizeMode="contain"
               style={{
                 maxHeight: cardHeight,
                 width: "auto",
               }}
             />
+
+            { pack.price && (
+              <View
+                className="rounded-xl justify-center items-center bg-dark-grey2/85"
+                  style={{
+                    position: "absolute", // Position on top of the image
+                    top: "28%",
+                    right: "50%",
+                    transform: [{ translateX: 0.48 * cardWidth }],
+                    height: 30,
+                    width: 0.96 *cardWidth,
+                    elevation: 4, // Shadow for Android
+                    shadowColor: "#000", // Shadow color
+                    shadowOffset: { width: 0, height: 2 }, // Offset
+                    shadowOpacity: 0.6, // Shadow opacity
+                    shadowRadius: 4, // Blur radius
+                  }}
+              >
+                <Text className="text-base font-sans-semibold tracking-wide">
+                  {`USD ${pack.price}`}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         )}
         
-        { activeSetId !== set.code && (
+        { activePackId !== pack.pack_id && (
           <Image 
-            source={set.play_booster_image}
+            source={pack.image}
             resizeMode="contain"
             style={{
               maxHeight: cardHeight,
@@ -131,7 +157,7 @@ const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => 
         )}
 
         {/* Confirmation Popup */}
-        {selected && activeSetId === set.code && (
+        {selected && activePackId === pack.pack_id && (
           <View
             style={{
               position: "absolute",
@@ -164,13 +190,15 @@ const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => 
             </Text>
 
             <View className="flex-row gap-2 mt-3">
-              <Button 
+              <Button
+                isDisabled={buttonDisabled} 
                 title="Cancel"
                 handlePress={() => setSelected(false)}
                 variant={screenWidth < 415 ? "extra-small-secondary" : "small-secondary"}
               />
               <Button 
                 title="Confirm"
+                isDisabled={buttonDisabled} 
                 handlePress={handleConfirmation}
                 variant={screenWidth < 415 ? "extra-small-primary" : "small-primary"}
               />
@@ -183,15 +211,15 @@ const SetCard = ({ activeSetId, set, lastSetId, screenWidth, screenHeight }) => 
   )
 };
 
-const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => {
-  const [ isHovered, setIsHovered ] = useState(false);
+const PackCardWeb = ({pack, updateHoveredPackId, index, cardHeight, cardWidth}) => {
+  const [ isHovered, packIsHovered ] = useState(false);
   const handleMouseEnter = () => {
-    setIsHovered(true);
-    updateHoveredSetId(index);
+    packIsHovered(true);
+    updateHoveredPackId(index);
   };
   const handleMouseLeave = () => {
-    setIsHovered(false);
-    updateHoveredSetId(null);
+    packIsHovered(false);
+    updateHoveredPackId(null);
   };
   const timeoutRef = useRef(null);
 
@@ -205,6 +233,8 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
   const shadowHeight = 0.6 * cardHeight;
   const shadowWidth = 0.7 * cardWidth;
 
+  const packType = pack.pack_type.replace("_", "-");
+
   return (
     <View
       className={`justify-center overflow-visible pb-4`}
@@ -217,7 +247,6 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Text>{set.name}</Text>
       {/* Glowing Highlight */}
       {isHovered && (
         <View
@@ -238,22 +267,46 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
           }}
         />
       )}
-
+      
+      
       <Image 
-        source={set.play_booster_image}
+        source={pack.image}
         resizeMode="contain"
         style={{
           maxHeight: cardHeight,
           width: "auto",
         }}
       />
+
+      { pack.price && (
+        <View
+          className="rounded-lg justify-center items-center bg-dark-grey2/90"
+            style={{
+              position: "absolute", // Position on top of the image
+              top: "10%",
+              right: "1%",
+              height: 20,
+              width: 75,
+              elevation: 2, // Shadow for Android
+              shadowColor: "#000", // Shadow color
+              shadowOffset: { width: 0, height: 2 }, // Offset
+              shadowOpacity: 0.3, // Shadow opacity
+              shadowRadius: 4, // Blur radius
+            }}
+        >
+          <Text className="text-xs font-sans-semibold tracking-wide">
+            {`USD ${pack.price}`}
+          </Text>
+        </View>
+      )}
+
       { isHovered && (
         <TouchableOpacity
           className="rounded-full justify-center items-center bg-light-yellow"
           style={{
             position: "absolute", // Position on top of the image
-            top: "80%", // Move to 50% of the parent height
-            left: "50%", // Move to 50% of the parent width
+            top: "80%",
+            left: "50%",
             transform: [{ translateX: -40 }, { translateY: -20 }], // Center it perfectly
             height: 30,
             width: 80,
@@ -266,8 +319,8 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
           onPress={() => {
             soundManager.playSfx("game-bonus");
             timeoutRef.current = setTimeout(
-              () => router.push(`/pack/play-booster/${set.code}`),
-              1000
+              () => router.push(`/pack/${packType}/${pack.set_code}`),
+              300
             );
           }}
         >
@@ -284,45 +337,21 @@ const SetCardWeb = ({set, updateHoveredSetId, index, cardHeight, cardWidth}) => 
   )
 };
 
-const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHighlight, screenWidth, screenHeight, isDesktopWeb }) => {
-  const set = setList.filter(set => set.code === activeSetId)[0];
-  const [ topCards, setTopCards ] = useState([]);
+const PackDetails = ({ pack, activePackId, enlargeCardHighlight, screenWidth, screenHeight, isDesktopWeb }) => {
   const [animationKey, setAnimationKey] = useState(0);
 
   const containerHeight = Math.min(Math.floor(screenHeight / 6), 120);
   const containerWidth = screenWidth * 0.7;
 
   useEffect(() => {
-    const getTopCards = async () => {
-      const response = await axios.get(`/sets/${set.code}/top-cards`);
-      const cardData = response.data.top_cards;
-
-      if (cardData.length > 0) {
-        // reformat card data
-        const reformattedData = [];
-        for (let i = 0; i < cardData.length; i++) {
-          const card = cardData[i].card_id;
-          card.final_price = cardData[i].final_price;
-          card.finish = cardData[i].finish;
-          reformattedData.push(card);
-        }
-        setActiveSetTopCards(reformattedData);
-        setTopCards(reformattedData);
-      };
-    };
-
-    if (activeSetId) {
-      getTopCards();
-    }
-
     // Trigger a re-render of the Animatable.View to animate the component
     setAnimationKey((prevKey) => prevKey + 1);
 
-  }, [activeSetId]);
+  }, [activePackId]);
 
   return (
     <>
-      { set?.details && (
+      { pack && (
         <Animatable.View
           key={animationKey} // Use animationKey to reset the animation each time activeSetId changes
           animation={zoomIn}
@@ -351,21 +380,21 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
                 <Text
                   className="font-sans-bold text-base text-light-text tracking-wider flex-1 leading-tight"
                 >
-                  {set.details?.name}
+                  {pack.set_name}
                 </Text>
-                <SvgUri width="20px" height="20px" uri={set.details?.icon_svg_uri} />
+                <SvgUri width="20px" height="20px" uri={pack.set_icon_svg_uri} />
               </View>
 
               <View className="mb-1">
                 <Text
                   className={`${screenWidth < 415 ? "text-sm" : "text-base"} font-sans-light text-light-text tracking-wide`}
                 >
-                  Most popular cards from this set:
+                  Most popular cards from this pack:
                 </Text>
               </View>
               
               <CardHighlight 
-                cards={topCards}
+                cards={pack.top_cards}
                 containerWidth={containerWidth}
                 containerHeight={containerHeight * 0.9}
                 handleLongPress={enlargeCardHighlight}
@@ -397,9 +426,7 @@ const SetDetails = ({ setList, activeSetId, setActiveSetTopCards, enlargeCardHig
   )
 };
 
-const SetDetailsWeb = ({ sets, hoveredSetId }) => {
-  const set = sets[hoveredSetId];
-  const [ topCards, setTopCards ] = useState([]);
+const PackDetailsWeb = ({ pack, hoveredPackId }) => {
   const [animationKey, setAnimationKey] = useState(0);
 
   const backgroundColor = "rgba(249, 226, 175, 0.4)";
@@ -407,35 +434,16 @@ const SetDetailsWeb = ({ sets, hoveredSetId }) => {
   const { width, height } = useWindowDimensions();
 
   const containerHeight = Math.floor(0.35 * height);
-  const containerWidth = Math.floor(0.65 * width);
+  const containerWidth = Math.floor(0.85 * width);
 
   useEffect(() => {
     // Trigger a re-render of the Animatable.View to animate the component
     setAnimationKey((prevKey) => prevKey + 1);
-
-    const getTopCards = async () => {
-      const response = await axios.get(`/sets/${set.code}/top-cards`);
-      const cardData = response.data.top_cards;
-
-      if (cardData.length > 0) {
-        // reformat card data
-        const reformattedData = [];
-        for (let i = 0; i < cardData.length; i++) {
-          const card = cardData[i].card_id;
-          card.final_price = cardData[i].final_price;
-          card.finish = cardData[i].finish;
-          reformattedData.push(card);
-        }
-        setTopCards(reformattedData);
-      };
-    };
-
-    if (hoveredSetId) getTopCards();
-  }, [hoveredSetId]);
+  }, [hoveredPackId]);
 
   return (
     <>
-      { (hoveredSetId || hoveredSetId === 0) && (
+      { hoveredPackId && (
         <Animatable.View
           key={animationKey} // Use animationKey to reset the animation each time activeSetId changes
           animation={zoomIn}
@@ -499,25 +507,25 @@ const SetDetailsWeb = ({ sets, hoveredSetId }) => {
               <Text
                 className="font-sans-bold text-xl text-black tracking-wider"
               >
-                {set.details?.name}
+                {pack.set_name}
               </Text>
-              <SvgUri width="20px" height="20px" uri={set.details?.icon_svg_uri} />
+              <SvgUri width="20px" height="20px" uri={pack.set_icon_svg_uri} />
             </View>
 
             <View className="items-center">
               <Text
                 className="font-sans-light text-base tracking-wide mb-1 mt-2"
               >
-                Most popular cards from this set:
+                Most popular cards from this pack:
               </Text>
-              { topCards && topCards.length > 0 && (
+              { pack.top_cards && pack.top_cards?.length && (
                 <CardHighlight
-                  cards={topCards} 
+                  cards={pack.top_cards} 
                   containerWidth={containerWidth*0.9}
-                  containerHeight={containerHeight*0.8}
+                  containerHeight={containerHeight*0.5}
                 />
               )}
-              { (!topCards || topCards.length === 0) && (
+              { (!pack.top_cards || !pack.top_cards.length) && (
                 <Text className="mt-10 mb-5 text-lg font-sans-bold text-light-text text-center">
                   Loading...
                 </Text>
@@ -535,51 +543,77 @@ const SetDetailsWeb = ({ sets, hoveredSetId }) => {
   )
 };
 
-const SetSelector = ({ sets }) => {
-  const stableSets = useMemo(() => sets, [sets]);
+const PackSelector = ({ sets }) => {
 
-  const [ setsWithDetails, setSetsWithDetails ] = useState([]);
-  const [ activeSetId, setActiveSetId ] = useState(stableSets?.[0]?.code);
-  const [ lastSetId, setLastSetId ] = useState(null);
-  const [ setDetailsLoaded, setSetDetailsLoaded ] = useState(false);
+  const stablePacks = useMemo(() => {
+    const packs = [];
+    const packTypes = ["play_booster", "collector_booster"];
+    sets.forEach(set => {
+      packTypes.forEach(type => {
+        const pack = {
+          set_code: set.code,
+          pack_id: `${set.code}-${type}`,
+          pack_type: type,
+          image: set[`${type}_image`],
+        };
+        packs.push(pack);
+      })
+    })
+    return packs;
+  }, [sets]);
 
-  const [ hoveredSetId, setHoveredSetId ] = useState(null);
+  const [ packs, setPacks ] = useState([]);
+
+  const [ activePackId, setActivePackId ] = useState(stablePacks?.[0]?.pack_id);
+  const [ activePackTopCards, setActivePackTopCards ] = useState([]);
+  const [ lastPackId, setLastPackId ] = useState(null);
+
+  const [ packDetailsLoaded, setPackDetailsLoaded ] = useState(false);
+
+  const [ hoveredPackId, setHoveredPackId ] = useState(null);
+
   const [ enlargedCardHighlight, setEnlargedCardHighlight ] = useState(false);
-  const [ activeSetTopCards, setActiveSetTopCards ] = useState([]);
-  
-  const { isDesktopWeb, height, width, isMobileWeb } = useDeviceLayout();
 
+  const { isDesktopWeb, height, width, isMobileWeb } = useDeviceLayout();
 
   // Keep latest sets (with details) in a ref so the viewability handler
   // never needs to close over changing arrays.
-  const setsRef = useRef(setsWithDetails);
+  const packsRef = useRef(packs);
 
   useEffect(() => {
-    setsRef.current = setsWithDetails;
-  }, [setsWithDetails]);
+    packsRef.current = packs;
+  }, [packs]);
 
   // ----- Stable FlatList onViewableItemsChanged (fixes mobile web crash) -----
-  const viewableSetsChangesRef = useRef(null);
+  const viewablePacksChangesRef = useRef(null);
 
   useEffect(() => {
-    viewableSetsChangesRef.current = ({ viewableItems }) => {
-      const currentSets = setsRef.current || [];
-      if (!viewableItems?.length || !currentSets.length) return;
+    viewablePacksChangesRef.current = ({ viewableItems }) => {
+      const currentPacks = packsRef.current || [];
+      if (!viewableItems?.length || !currentPacks.length) return;
 
       const firstVisibleItem = viewableItems[0]?.item;
       const lastVisibleItem = viewableItems[viewableItems.length - 1]?.item;
-      const lastSetCode = currentSets[currentSets.length - 1]?.code;
+      const lastPackId = currentPacks[currentPacks.length - 1]?.pack_id;
 
-      if (lastVisibleItem?.code && lastVisibleItem.code === lastSetCode) {
-        setActiveSetId(lastVisibleItem.code);
-      } else if (firstVisibleItem?.code) {
-        setActiveSetId(firstVisibleItem.code);
+      if (lastVisibleItem?.pack_id && lastVisibleItem.pack_id === lastPackId) {
+        const pack_id = lastVisibleItem.pack_id;
+        const top_cards = lastVisibleItem.top_cards ? lastVisibleItem.top_cards : [];
+        console.log("[PackSelector] activePackId changed to: " + pack_id);
+        setActivePackId(pack_id);
+        setActivePackTopCards(top_cards);
+      } else if (firstVisibleItem?.pack_id) {
+        const pack_id = firstVisibleItem.pack_id;
+        const top_cards = firstVisibleItem.top_cards ? firstVisibleItem.top_cards : [];
+        console.log("[PackSelector] activePackId changed to: " + pack_id);
+        setActivePackId(pack_id);
+        setActivePackTopCards(top_cards);
       }
     };
   }, []);
 
   const stableOnViewableItemsChanged = useRef((info) => {
-    viewableSetsChangesRef.current?.(info);
+    viewablePacksChangesRef.current?.(info);
   }).current;
 
   // ----- Desktop web wheel scroll -----
@@ -588,47 +622,84 @@ const SetSelector = ({ sets }) => {
     event.currentTarget.scrollLeft += event.deltaY;
   };
 
-  const updateHoveredSetId = (index) => {
-    setHoveredSetId(index);
+  const updateHoveredPackId = (index) => {
+    if (index) {
+      setHoveredPackId(packs[index].pack_id);
+    } else {
+      setHoveredPackId(null);
+    }
+    
   };
 
   // ----- Fetch set details -----
   useEffect(() => {
     let cancelled = false;
 
-    const getSetDetails = async () => {
+    const getPackDetails = async () => {
 
       try {
 
-        setSetDetailsLoaded(false);
+        setPackDetailsLoaded(false);
 
-        await devDelay(3000);
+        // await devDelay(1000);
 
-        const updatedSets = await Promise.all(
-          sets.map(async (set) => {
-            const response = await axios.get(`/sets/${set.code}`);
-            return { ...set, details: response.data };
-          })
-        );
+        const updatedPacks = [];
+        for await (const set of sets) {
+          const response = await axios.get(`/sets/${set.code}?top-cards=true`);
+          const data = response.data;
+          const { _id, scryfall_id, name, icon_svg_uri, pack_prices } = data;
+
+          const packTypes = [ "play_booster", "collector_booster"];
+          for (const type of packTypes) {
+            const matchingPack = pack_prices.filter(p => p.booster_type === type)[0];
+            const pack = {
+              pack_id: `${set.code}-${type}`,
+              set_code: set.code,
+              set_id: _id,
+              set_scryfall_id: scryfall_id,
+              set_name: name,
+              set_icon_svg_uri: icon_svg_uri,
+              pack_type: type,
+              image: set[`${type}_image`],
+              price: matchingPack && matchingPack.price ? matchingPack.price : null,
+            };
+
+            const rawTopCards = data.top_cards?.[type]?.cards && data.top_cards?.[type].cards?.length
+              ? data.top_cards?.[type].cards
+              : [];
+            
+            const formattedTopCards = [];
+            for (const card of rawTopCards) {
+              const formattedCard = card.card_id;
+              formattedCard.final_price = card.final_price;
+              formattedCard.finish = card.finish;
+              formattedTopCards.push(formattedCard);
+            } 
+
+            pack.top_cards = formattedTopCards;
+
+            updatedPacks.push(pack);
+          }
+        }
 
         if (cancelled) return;
 
-        setSetsWithDetails(updatedSets);
-        setLastSetId(updatedSets[updatedSets.length - 1]?.code ?? null);
-        setSetDetailsLoaded(true);
+        setPacks(updatedPacks);
+        setLastPackId(packs[updatedPacks.length - 1]?.pack_id ?? null);
+        setPackDetailsLoaded(true);
 
       } catch (error) {
-        console.error("[SetSelector] Failed to get set details:", error);
-        if (!cancelled) setSetDetailsLoaded(false);
+        console.error("[PackSelector] Failed to get pack details:", error);
+        if (!cancelled) setPackDetailsLoaded(false);
       }
     };
 
     if (sets?.length) {
-      getSetDetails();
+      getPackDetails();
     } else {
-      setSetsWithDetails([]);
-      setLastSetId(null);
-      setSetDetailsLoaded(true);
+      setPacks([]);
+      setLastPackId(null);
+      setPackDetailsLoaded(true);
     }
 
     return () => {
@@ -637,32 +708,31 @@ const SetSelector = ({ sets }) => {
 
   }, [sets.map(s => s.code).join(",")]); // IMPORTANT: don't depend on the whole `sets` array if it is recreated often
 
-  // ----- Ensure activeSetId is valid when setsWithDetails changes -----
+  // ----- Ensure activePackId is valid when packschanges -----
   useEffect(() => {
-    if (!setsWithDetails?.length) return;
+    if (!packs.length) return;
 
-    // If activeSetId not set yet, set default
-    if (!activeSetId) {
-      setActiveSetId(setsWithDetails[0].code);
+    if (!activePackId) {
+      setActivePackId(packs[0].pack_id);
       return;
     }
 
-    // If current activeSetId no longer exists, reset
-    const stillExists = setsWithDetails.some((s) => s.code === activeSetId);
+    const stillExists = packs.some((p) => p.pack_id === activePackId);
     if (!stillExists) {
-      setActiveSetId(setsWithDetails[0].code);
+      setActivePackId(packs[0].pack_id);
     }
-  }, [setsWithDetails, activeSetId]);
+
+  }, [packs, activePackId]);
   
-  // Prefer rendering from the detailed list once loaded,
-  // but fall back to stableSets so UI isn't empty.
-  const listData = setDetailsLoaded ? setsWithDetails : stableSets;
+  // Prefer rendering from the detailed pack list once loaded,
+  // but fall back to stablePacks so UI isn't empty.
+  const packData = packDetailsLoaded ? packs : stablePacks;
   
   return (
     <View className="h-screen w-screen" style={{ position: "absolute", paddingTop: isDesktopWeb ? 90 : isMobileWeb ? 100 : 130 }}>
       <Text
         className={`text-center font-serif-bold tracking-wider
-          ${ isDesktopWeb ? "text-light-teal text-4xl mb-2" : width >= 415 ? "text-dark-teal text-3xl mb-5" : "text-dark-teal text-2xl mb-5"}`
+          ${ isDesktopWeb ? "text-dark-teal text-4xl mb-2" : width >= 415 ? "text-dark-teal text-3xl mb-5" : "text-dark-teal text-2xl mb-5"}`
         }
         style={{
           textShadowColor: "#00000080",
@@ -674,17 +744,17 @@ const SetSelector = ({ sets }) => {
       </Text> 
 
       {/* DESKTOP WEB */}  
-      { isDesktopWeb && setDetailsLoaded && (
+      { isDesktopWeb && packDetailsLoaded && (
         <View
           onWheel={handleWheelScroll}
           className="ml-16 mr-16 overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4 scrollbar-webkit"
         >
-          {listData.map((set, index) => (
-            <SetCardWeb 
-              key={index} 
+          {packData.map((pack, index) => (
+            <PackCardWeb 
+              key={pack.pack_id} 
               index={index} 
-              set={set} 
-              updateHoveredSetId={updateHoveredSetId}
+              pack={pack}
+              updateHoveredPackId={updateHoveredPackId}
               cardHeight={310}
               cardWidth={200}
             />
@@ -693,33 +763,35 @@ const SetSelector = ({ sets }) => {
         </View>
       )}
 
-      { isDesktopWeb && setDetailsLoaded && (
-        <SetDetailsWeb sets={listData} hoveredSetId={hoveredSetId}/>
+      { isDesktopWeb && packDetailsLoaded && (
+        <PackDetailsWeb 
+          pack={packs.filter(p => p.pack_id === hoveredPackId)[0]} 
+          hoveredPackId={hoveredPackId}
+        />
       )}
 
       {/* MOBILE (APP + MOBILE WEB) */}
-      { !isDesktopWeb && setDetailsLoaded && activeSetId && (
-        <SetDetails 
-          setList={listData} 
-          activeSetId={activeSetId} 
+      { !isDesktopWeb && packDetailsLoaded && activePackId && (
+        <PackDetails 
+          pack={packs.filter(p => p.pack_id === activePackId)[0]}
+          activePackId={activePackId} 
           enlargeCardHighlight={() => setEnlargedCardHighlight(true)}
-          setActiveSetTopCards={setActiveSetTopCards}
           screenWidth={width}
           screenHeight={height}
           isDesktopWeb={isDesktopWeb}
         />
       )}
 
-      { !isDesktopWeb && setDetailsLoaded && (
+      { !isDesktopWeb && packDetailsLoaded && (
         <View className="zIndex-10">
           <FlatList
-            data={listData}
-            keyExtractor={(item) => item.code}
+            data={packData}
+            keyExtractor={(item) => item.pack_id}
             renderItem={({ item }) => (
-              <SetCard 
-                activeSetId={activeSetId}
-                set={item}
-                lastSetId={lastSetId}
+              <PackCard 
+                activePackId={activePackId}
+                pack={item}
+                lastPackId={lastPackId}
                 screenWidth={width}
                 screenHeight={height}
               />
@@ -737,8 +809,8 @@ const SetSelector = ({ sets }) => {
 
       {/* Enlarged highlight overlay */}
       { !isDesktopWeb 
-        && setDetailsLoaded 
-        && activeSetId
+        && packDetailsLoaded 
+        && activePackId
         && enlargedCardHighlight 
         && (
           <View 
@@ -774,9 +846,9 @@ const SetSelector = ({ sets }) => {
                 maxHeight: 360,
               }}
             >
-              { activeSetTopCards.length > 0 && (
+              { activePackTopCards.length > 0 && (
                 <View className="pl-3 flex-row flex-nowrap gap-5 h-fit justify-center">
-                  {activeSetTopCards.map(card => (
+                  {activePackTopCards.map(card => (
                     <View
                       key={card._id}
                       className="flex-column justify-center items-center gap-1"
@@ -817,7 +889,7 @@ const SetSelector = ({ sets }) => {
           </View>
       )}
 
-      {!setDetailsLoaded && (
+      {!packDetailsLoaded && (
         <LoadingSpinnerWithMessages
           intervalMs={3500}
         />
@@ -829,4 +901,4 @@ const SetSelector = ({ sets }) => {
 
 };
 
-export default SetSelector;
+export default PackSelector;

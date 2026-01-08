@@ -1,9 +1,9 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState, useRef, useMemo } from "react";
 import { router } from "expo-router";
-import { Alert } from "react-native";
 
 import { useClearSession } from "../hooks/useClearSession";
 import handleGlobalError from "../utils/ErrorHandler";
+import SessionExpiredModal from "../components/Modals/SessionExpiredModal";
 
 const ErrorHandlerContext = createContext();
 
@@ -12,6 +12,23 @@ export const useErrorHandler = () => useContext(ErrorHandlerContext);
 export const ErrorHandlerProvider = ({ children }) => {
 
   const { clearSession } = useClearSession();
+
+  const [sessionExpiredVisible, setSessionExpiredVisible] = useState(false);
+
+  // store the latest proceed callback without re-rendering constantly
+  const proceedRef = useRef(null);
+
+  const showSessionExpired = (onProceed) => {
+    proceedRef.current = onProceed;
+    setSessionExpiredVisible(true);
+  };
+
+  const handleProceed = () => {
+    setSessionExpiredVisible(false);
+    const fn = proceedRef.current;
+    proceedRef.current = null;
+    fn?.();
+  };
 
   const handleError = async (error, handleFormError) => {
     if (error.response) console.log("error response received: " + JSON.stringify(error.response?.data));
@@ -25,15 +42,11 @@ export const ErrorHandlerProvider = ({ children }) => {
         && error.response.data.name === "TokenExpiredError"
       ) {
         console.log("Error Trigger: Refresh Token expired.");
-        Alert.alert("Session expired", "Please log in again to continue", [
-          {
-            text: "Proceed to log in",
-            onPress: () => {
-              clearSession();
-              router.push("/log-in");
-            }
-          }
-        ]);
+        showSessionExpired(() => {
+          if (sessionExpiredVisible) return;
+          clearSession();
+          router.replace("/log-in"); // replace is usually better than push here
+        });
       } else {
         handleGlobalError(error, handleFormError);
       }
@@ -44,9 +57,15 @@ export const ErrorHandlerProvider = ({ children }) => {
     }
   };
 
+  const value = useMemo(() => ({ handleError }), []);
+
   return (
-    <ErrorHandlerContext.Provider value={{ handleError }}>
+    <ErrorHandlerContext.Provider value={value}>
       { children }
+      <SessionExpiredModal
+        visible={sessionExpiredVisible}
+        onProceed={handleProceed}
+      />
     </ErrorHandlerContext.Provider>
   )
 
