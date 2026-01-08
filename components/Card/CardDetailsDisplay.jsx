@@ -405,6 +405,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 500,
+    borderWidth: 2,
+    borderColor: "red",
   },
 });
 

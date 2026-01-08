@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Platform, Pressable } from "react-native";
+import { View, Platform, Pressable, Text } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from "react-native-reanimated";
 
 import SmallCardDisplay from "./SmallCardDisplay";
@@ -30,13 +30,19 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
       { cardNo > 0 &&  isDesktopWeb && (
         <View className="flex-row flex-nowrap gap-1">
           {cards.map(card => (
-            <SmallCardDisplay 
-              key={card._id}  
-              card={card}
-              maxWidth={Math.min(Math.floor(containerWidth/8), Math.floor(cardHeight * (488/680)))}
-              // maxWidth={cardWidth}
-              shadow={false}
-            />
+            <View className="flex-col" key={card._id} >
+              <SmallCardDisplay 
+                card={card}
+                maxWidth={Math.min(Math.floor(containerWidth/8), Math.floor(cardHeight * (488/680)))}
+                // maxWidth={cardWidth}
+                shadow={false}
+              />
+              <View className="bg-light-yellow/50 rounded-lg mt-1">
+                <Text className="text-center text-xs font-sans-semibold text-light-text">
+                  {card.final_price ? `USD ${card.final_price}` : "no market price"}
+                </Text>
+              </View>
+            </View>
           ))}
         </View>
       )}
@@ -54,17 +60,25 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
             className="flex-row flex-nowrap gap-3"
           >
             { cards.map(card => (
-              <Pressable
-                onLongPress={handleLongPress}
-                delayLongPress={500} // Customize long press duration
-                key={card._id}               
-              >
-                <SmallCardDisplay  
-                  card={card}
-                  maxWidth={cardWidth}
-                  shadow={true}
-                />
-              </Pressable>
+              <View className="flex-col" key={card._id} >
+                <Pressable
+                  onLongPress={handleLongPress}
+                  delayLongPress={500} // Customize long press duration
+                  key={card._id}               
+                >
+                  <SmallCardDisplay  
+                    card={card}
+                    maxWidth={cardWidth}
+                    shadow={true}
+                  />
+                </Pressable>
+                <View className="bg-light-yellow rounded-lg">
+                  <Text className="text-center text-xs font-sans-semibold text-light-text">
+                    {card.final_price ? `$ ${card.final_price}` : "no market price"}
+                  </Text>
+                </View>
+              </View>
+              
             ))}
 
           </View>

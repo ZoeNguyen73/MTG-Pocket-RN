@@ -292,8 +292,6 @@ const CardDisplay = ({
                 right: 0,
                 bottom: 0,
                 borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-                zIndex: 10,
-                elevation: 10, // helps on Android
               }}
             />
           </>
@@ -321,8 +319,6 @@ const CardDisplay = ({
                 right: 0,
                 bottom: 0,
                 borderRadius: maxWidth ? maxWidth * 0.07 : 15,
-                zIndex: 10,
-                elevation: 10, // helps on Android
               }}
             />
           </>
