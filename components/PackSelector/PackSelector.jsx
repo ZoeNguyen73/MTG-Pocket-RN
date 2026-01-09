@@ -43,7 +43,7 @@ const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight })
   const [ buttonDisabled, setButtonDisabled ] = useState(false);
   const timeoutRef = useRef(null);
 
-  const cardHeight = screenHeight > 900 ? 400 : screenHeight > 800 ? 380 : screenHeight > 719 ? 280 : 250;
+  const cardHeight = screenHeight > 900 ? 400 : screenHeight > 800 ? 380 : screenHeight > 780 ? 350 : screenHeight > 719 ? 330 : 300;
   const cardWidth = Math.floor(cardHeight / 2);
 
   // Reset the selected state when the card is swiped away
@@ -162,11 +162,12 @@ const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight })
               position: "absolute",
               top: "80%",
               left: "50%",
-              transform: [{ translateX: screenWidth < 390 ? -0.55 * cardWidth : -0.5 * cardWidth}, { translateY: -0.4 * cardHeight }],
-              width: screenWidth < 390 ? cardWidth * 1.1 : cardWidth,
+              transform: [{ translateX: screenWidth < 400 ? -0.55 * cardWidth : -0.5 * cardWidth}, { translateY: -0.4 * cardHeight }],
+              width: screenWidth < 400 ? cardWidth * 1.1 : cardWidth,
               height: 110,
               backgroundColor: "rgba(203, 166, 247, 0.95)",
               borderRadius: 10,
+              flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
               elevation: 5,
@@ -182,13 +183,13 @@ const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight })
             }}
           >
             <Text 
-              className={`${screenWidth < 390 ? "text-xs" : "text-base"} font-mono-bold text-light-text tracking-wide`}
+              className={`${screenWidth < 400 ? "text-xs" : "text-base"} text-center font-mono-bold text-light-text tracking-wide`}
               style={{ fontFamily: fonts.monoBold }}
             >
               Open this pack?
             </Text>
 
-            <View className={`${screenWidth < 390 ? "flex-col-reverse gap-2" : "flex-row gap-1"} mt-3`}>
+            <View className={`${screenWidth < 400 ? "flex-col-reverse gap-2" : "flex-row gap-1"} mt-3`}>
               <Button
                 isDisabled={buttonDisabled} 
                 title="Cancel"
@@ -339,7 +340,7 @@ const PackCardWeb = ({pack, updateHoveredPackId, index, cardHeight, cardWidth}) 
 const PackDetails = ({ pack, activePackId, enlargeCardHighlight, screenWidth, screenHeight, isDesktopWeb, isNative }) => {
   const [animationKey, setAnimationKey] = useState(0);
 
-  const containerHeight = screenHeight > 900 ? 180 : screenHeight > 800 ? 150 : screenHeight > 719 ? 120 : 100;
+  const containerHeight = screenHeight > 900 ? 180 : screenHeight > 800 ? 150 : screenHeight > 780 ? 130 : screenHeight > 719 ? 120 : 100;
   const containerWidth = screenWidth * 0.7;
 
   useEffect(() => {
@@ -601,13 +602,13 @@ const PackSelector = ({ sets }) => {
       if (lastVisibleItem?.pack_id && lastVisibleItem.pack_id === lastPackId) {
         const pack_id = lastVisibleItem.pack_id;
         const top_cards = lastVisibleItem.top_cards ? lastVisibleItem.top_cards : [];
-        console.log("[PackSelector] activePackId changed to: " + pack_id);
+        // console.log("[PackSelector] activePackId changed to: " + pack_id);
         setActivePackId(pack_id);
         setActivePackTopCards(top_cards);
       } else if (firstVisibleItem?.pack_id) {
         const pack_id = firstVisibleItem.pack_id;
         const top_cards = firstVisibleItem.top_cards ? firstVisibleItem.top_cards : [];
-        console.log("[PackSelector] activePackId changed to: " + pack_id);
+        // console.log("[PackSelector] activePackId changed to: " + pack_id);
         setActivePackId(pack_id);
         setActivePackTopCards(top_cards);
       }

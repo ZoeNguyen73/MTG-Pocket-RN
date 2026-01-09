@@ -39,7 +39,7 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
               />
               <View className="bg-light-yellow/50 rounded-lg mt-1">
                 <Text className="text-center text-xs font-sans-semibold text-light-text">
-                  {card.final_price ? `USD ${card.final_price}` : "no market price"}
+                  {card.final_price ? `USD ${card.final_price}` : "no price"}
                 </Text>
               </View>
             </View>
@@ -74,7 +74,7 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
                 </Pressable>
                 <View className="bg-light-yellow rounded-lg">
                   <Text className="text-center text-xs font-sans-semibold text-light-text">
-                    {card.final_price ? `$ ${card.final_price}` : "no market price"}
+                    {card.final_price ? `$${parseFloat(card.final_price).toFixed(0)}` : "no price"}
                   </Text>
                 </View>
               </View>
