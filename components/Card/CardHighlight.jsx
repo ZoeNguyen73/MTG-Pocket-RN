@@ -4,13 +4,13 @@ import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } 
 
 import SmallCardDisplay from "./SmallCardDisplay";
 
-const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress, isDesktopWeb = true }) => {
+const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress, isDesktopWeb = true, isNative = false }) => {
   const cardNo = cards.length;
 
   // Shared value for horizontal translation
   const translateX = useSharedValue(0);
   const cardHeight = Math.min(Math.floor(680 / 488 * (containerWidth/3)), containerHeight);
-  const cardWidth = 488 / 680 * cardHeight;
+  const cardWidth = isNative ? 488 / 680 * cardHeight : 488 / 680 * cardHeight - 15;
 
   useEffect(() => {
     translateX.value = withSequence(
@@ -52,11 +52,11 @@ const CardHighlight = ({ cards, containerWidth, containerHeight, handleLongPress
           horizontal
           showsHorizontalScrollIndicator={false}
           style={[
-            { maxWidth: containerWidth, height: cardHeight }, 
+            { maxWidth: containerWidth, maxHeight: containerHeight * 1.15 }, 
             animatedStyle
           ]}
         >
-          <View
+          <View 
             className="flex-row flex-nowrap gap-3"
           >
             { cards.map(card => (
