@@ -2,6 +2,9 @@
 
 💻 **Live Demo:** [https://mtgpocket.netlify.app/](https://mtgpocket.netlify.app/)  
 📦 **Repository:** [BE](https://github.com/ZoeNguyen73/MTG-Pocket-Express) || [FE](https://github.com/ZoeNguyen73/MTG-Pocket-RN)
+> **Latest Update (9 Jan 2026):**  
+> Added Play & Collector Boosters, real-world pack rules, pack price/value tracking, plus new desktop web gallery/slideshow view in collection page.
+> [View full update log ↓](#project-updates)
 
 ---
 
@@ -27,6 +30,23 @@ The project combines my love for MTG with hands-on practice in **full-stack deve
 - 🎵 **Background music & sound effects** with persistent playback
 - 📱 **Cross-platform support** (mobile & web)
 - ⚡ **Fast navigation & smooth animations**
+
+---
+
+### 📝 Project Updates
+
+### 09-01-2026 — Pack simulation & desktop UX improvements
+**Gameplay / Features**
+- Added support for both **Play Boosters** and **Collector Boosters**
+- Implemented **pack rules** to better simulate real-world drop rates and slot behavior
+- Added tracking for **pack price** and **total pack value** upon opening
+
+**Desktop Web UX**
+- Pack opening UI now supports **zooming in** and **favouriting cards**
+- Collection UI now supports a **gallery / slideshow** view for detailed card browsing
+
+**Engineering**
+- Refactored key components (e.g. `PackSelector`, `CardDisplay`, `CardHighlight`) to reduce duplication and improve maintainability (DRY)
 
 ---
 
