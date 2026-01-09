@@ -104,7 +104,7 @@ const Summary = ({ totalValue, topCard, cardWidth, cardHeight, packPrice }) => {
         alignItems: "center"
       }}
     >
-      <View className="position-relative w-9/12" style={{ height: cardHeight * 1.1 }}>
+      <View className="position-relative w-9/12" style={{ height: cardHeight * 1.2 }}>
         <View 
           className="w-full h-full rounded-3xl py-5"
           style={{
@@ -113,7 +113,7 @@ const Summary = ({ totalValue, topCard, cardWidth, cardHeight, packPrice }) => {
             borderWidth: 7,
           }}
         >
-          <View className="flex-column justify-center items-center gap-2">
+          <View className="flex-column justify-center items-center">
             
             <View className="flex-column justify-center">
               <Text className="text-center font-sans-semibold tracking-wide text-light-text">
@@ -124,18 +124,18 @@ const Summary = ({ totalValue, topCard, cardWidth, cardHeight, packPrice }) => {
               </Text>
             </View>
 
-            <Text className={`text-sm text-center font-sans tracking-wide ${profit < 0 ? "text-light-red" : "text-light-green"}`}>
+            <Text className={`text-sm text-center font-sans tracking-wide ${profit < 0 ? "text-light-error" : "text-light-success"}`}>
               {`${profit < 0 ? "Loss" : "Profit"}: ${profit < 0 ? "-" : ""}$${Math.abs(profit)} ${profit < 0 ? "🤡" : "🤑"}`}
             </Text>
             
           </View>
 
           <View className="flex-column justify-center items-center mt-3">
-            <Text className="text-center font-sans-semibold tracking-wide text-light-text">
+            <Text className="text-center font-sans tracking-wide text-light-text">
               Top card:
             </Text>
             <View style={{ maxWidth: "80%" }}>
-              <View className="mb-1 w-fit">
+              <View className="mb-1 w-full justify-center">
                 <FinishChip 
                   text={topCard.special_foil_finishes.length ? topCard.special_foil_finishes[0] : topCard.finish}
                   size="xs"
@@ -355,7 +355,7 @@ const CardSwiper = ({ cards, setCode, packType, packPrice }) => {
       { !swipedAllCards && (
         <>
           <View
-            className="mt-16" 
+            className="mt-12" 
             style={{ 
               justifyContent: "center", 
               alignItems: "center", 
