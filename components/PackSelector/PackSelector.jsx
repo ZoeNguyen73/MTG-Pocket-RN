@@ -43,8 +43,8 @@ const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight })
   const [ buttonDisabled, setButtonDisabled ] = useState(false);
   const timeoutRef = useRef(null);
 
-  const cardWidth = Math.min(Math.floor(screenWidth / 2.3), 200);
-  const cardHeight = Math.floor(cardWidth * 2);
+  const cardHeight = screenHeight > 900 ? 400 : screenHeight > 800 ? 380 : screenHeight > 719 ? 280 : 250;
+  const cardWidth = Math.floor(cardHeight / 2);
 
   // Reset the selected state when the card is swiped away
   useEffect(() => {
@@ -125,9 +125,8 @@ const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight })
                 className="rounded-xl justify-center items-center bg-dark-grey2/85"
                   style={{
                     position: "absolute", // Position on top of the image
-                    top: "28%",
                     right: "50%",
-                    transform: [{ translateX: 0.48 * cardWidth }],
+                    transform: [{ translateX: 0.48 * cardWidth}, {translateY: 0.8 * cardHeight }],
                     height: 30,
                     width: 0.96 *cardWidth,
                     elevation: 4, // Shadow for Android
@@ -163,8 +162,8 @@ const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight })
               position: "absolute",
               top: "80%",
               left: "50%",
-              transform: [{ translateX: -0.5 * cardWidth}, { translateY: -0.4 * cardHeight }],
-              width: cardWidth,
+              transform: [{ translateX: screenWidth < 390 ? -0.55 * cardWidth : -0.5 * cardWidth}, { translateY: -0.4 * cardHeight }],
+              width: screenWidth < 390 ? cardWidth * 1.1 : cardWidth,
               height: 110,
               backgroundColor: "rgba(203, 166, 247, 0.95)",
               borderRadius: 10,
@@ -183,24 +182,24 @@ const PackCard = ({ activePackId, pack, lastPackId, screenWidth, screenHeight })
             }}
           >
             <Text 
-              className={`${screenWidth < 415 ? "text-sm" : "text-base"} font-mono-bold text-light-text tracking-wider`}
+              className={`${screenWidth < 390 ? "text-xs" : "text-base"} font-mono-bold text-light-text tracking-wide`}
               style={{ fontFamily: fonts.monoBold }}
             >
               Open this pack?
             </Text>
 
-            <View className="flex-row gap-2 mt-3">
+            <View className={`${screenWidth < 390 ? "flex-col-reverse gap-2" : "flex-row gap-1"} mt-3`}>
               <Button
                 isDisabled={buttonDisabled} 
                 title="Cancel"
                 handlePress={() => setSelected(false)}
-                variant={screenWidth < 415 ? "extra-small-secondary" : "small-secondary"}
+                variant={screenWidth < 400 ? "extra-small-secondary" : "small-secondary"}
               />
               <Button 
                 title="Confirm"
                 isDisabled={buttonDisabled} 
                 handlePress={handleConfirmation}
-                variant={screenWidth < 415 ? "extra-small-primary" : "small-primary"}
+                variant={screenWidth < 400 ? "extra-small-primary" : "small-primary"}
               />
             </View>
           </View>  
@@ -337,10 +336,10 @@ const PackCardWeb = ({pack, updateHoveredPackId, index, cardHeight, cardWidth}) 
   )
 };
 
-const PackDetails = ({ pack, activePackId, enlargeCardHighlight, screenWidth, screenHeight, isDesktopWeb }) => {
+const PackDetails = ({ pack, activePackId, enlargeCardHighlight, screenWidth, screenHeight, isDesktopWeb, isNative }) => {
   const [animationKey, setAnimationKey] = useState(0);
 
-  const containerHeight = Math.min(Math.floor(screenHeight / 6), 120);
+  const containerHeight = screenHeight > 900 ? 180 : screenHeight > 800 ? 150 : screenHeight > 719 ? 120 : 100;
   const containerWidth = screenWidth * 0.7;
 
   useEffect(() => {
@@ -374,20 +373,22 @@ const PackDetails = ({ pack, activePackId, enlargeCardHighlight, screenWidth, sc
                 maxHeight: containerHeight * 2.1,
               }}
             >
-              <View 
-                className="flex-row flex-wrap w-full gap-2 items-center mb-2 flex-1 mb-3"
-              >
+              <View className="flex-row flex-wrap w-full gap-2 items-center mb-2">
                 <Text
-                  className="font-sans-bold text-base text-light-text tracking-wider flex-1 leading-tight"
+                  className={`${containerHeight <= 150 ? "text-xs" : "text-base"} font-sans-bold text-light-text tracking-wider flex-1 leading-tight`}
                 >
                   {pack.set_name}
                 </Text>
-                <SvgUri width="20px" height="20px" uri={pack.set_icon_svg_uri} />
+                <SvgUri 
+                  width={containerHeight <= 150 ? "15px" : "20px"} 
+                  height={containerHeight <= 150 ? "15px" : "20px"}
+                  uri={pack.set_icon_svg_uri}
+                />
               </View>
 
-              <View className="mb-1">
+              <View className={`mb-2`}>
                 <Text
-                  className={`${screenWidth < 415 ? "text-sm" : "text-base"} font-sans-light text-light-text tracking-wide`}
+                  className={`${containerHeight <= 150 ? "text-xs" : "text-base"} font-sans-light text-light-text tracking-wide`}
                 >
                   Most popular cards from this pack:
                 </Text>
@@ -396,9 +397,10 @@ const PackDetails = ({ pack, activePackId, enlargeCardHighlight, screenWidth, sc
               <CardHighlight 
                 cards={pack.top_cards}
                 containerWidth={containerWidth}
-                containerHeight={containerHeight * 0.9}
+                containerHeight={containerHeight * 0.8}
                 handleLongPress={enlargeCardHighlight}
                 isDesktopWeb={isDesktopWeb}
+                isNative={isNative}
               />
               
             </View>
@@ -574,7 +576,7 @@ const PackSelector = ({ sets }) => {
 
   const [ enlargedCardHighlight, setEnlargedCardHighlight ] = useState(false);
 
-  const { isDesktopWeb, height, width, isMobileWeb } = useDeviceLayout();
+  const { isDesktopWeb, height, width, isMobileWeb, isNative } = useDeviceLayout();
 
   // Keep latest sets (with details) in a ref so the viewability handler
   // never needs to close over changing arrays.
@@ -747,7 +749,9 @@ const PackSelector = ({ sets }) => {
       { isDesktopWeb && packDetailsLoaded && (
         <View
           onWheel={handleWheelScroll}
-          className="ml-16 mr-16 overflow-x-auto overflow-y-hidden flex-row flex-nowrap mt-3 py-4 gap-4 scrollbar-webkit"
+          className={`ml-16 mr-16 overflow-x-auto overflow-y-hidden flex-row flex-nowrap py-4 gap-4 scrollbar-webkit
+            ${height > 900 ? "mt-8" : "mt-3"}
+            `}
         >
           {packData.map((pack, index) => (
             <PackCardWeb 
@@ -779,6 +783,7 @@ const PackSelector = ({ sets }) => {
           screenWidth={width}
           screenHeight={height}
           isDesktopWeb={isDesktopWeb}
+          isNative={isNative}
         />
       )}
 

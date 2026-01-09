@@ -127,7 +127,7 @@ const StickyHeader = ({
         alignItems: "center"
       }}
     >
-      <View className={`${(isNative || isDesktopWeb) ? "mt-16" : "mt-8"}`}>
+      <View className={`${(isNative || isDesktopWeb) ? "mt-16" : "mt-6"}`}>
         <Text 
           className="text-center font-serif-semibold tracking-wide text-light-yellow text-3xl"
           style={{ 
@@ -503,6 +503,7 @@ const SortButton = ({
   sortIconMapping ,
   handleChangeSorting,
   isDesktopWeb,
+  isNative,
   screenWidth,
 }) => {
   const [ modalVisible, setModalVisible ] = useState(false);
@@ -512,7 +513,7 @@ const SortButton = ({
         style={{
           position: "absolute",
           right: isDesktopWeb ? screenWidth / 8 : 20,
-          bottom: isDesktopWeb ? 50 : 150,
+          bottom: isDesktopWeb ? 50 : isNative ? 100 : 190,
           height: 40,
           width: 80,
           backgroundColor: "#FFFFFF",
@@ -779,72 +780,6 @@ const Collection = () => {
 
     return arr;
   };
-  
-  const updateFilterCardList = ({
-    selectedSortType = null, // null if no change to current logic
-    selectedSortDirection = null,
-    showFav = null,
-    selectedSetOption = null,
-  }) => {
-
-    const finalSortType = selectedSortType ? selectedSortType : sortType ;
-    const finalSortDirection = selectedSortDirection ? selectedSortDirection : sortDirection;
-    const needSort = finalSortDirection !== "desc" || finalSortType !== "time" || (finalSortType !== "time" && finalSortDirection !== "desc");
-
-    const needFilterFav = showFav !== null ? showFav : showFavourites;
-
-    const finalSelectedSet = selectedSetOption ? selectedSetOption : selectedSet;
-    const needFilterSet = finalSelectedSet !== "all";
-
-    let sortedCardList = null;
-    if (needSort) {
-      sortedCardList = sortCardList({ sortType: finalSortType, sortDirection: finalSortDirection });
-    }
-
-    let filteredCardList = null;
-
-
-    if (needFilterFav) {
-      if (needFilterSet) {
-        if (needSort) {
-          filteredCardList = sortedCardList.filter((card) => card.card_id.set_id.code === finalSelectedSet && card.is_favourite);
-        } else {
-          filteredCardList = fullCardList.filter((card) => card.card_id.set_id.code === finalSelectedSet && card.is_favourite);
-        }
-      } else {
-        if (needSort) {
-          filteredCardList = sortedCardList.filter((card) => card.is_favourite);
-        } else {
-          filteredCardList = fullCardList.filter((card) => card.is_favourite);
-        }
-      }
-    } else {
-      if (needFilterSet) {
-        if (needSort) {
-          filteredCardList = sortedCardList.filter((card) => card.card_id.set_id.code === finalSelectedSet);
-        } else {
-          filteredCardList = fullCardList.filter((card) => card.card_id.set_id.code === finalSelectedSet);
-        }
-      } else {
-        if (needSort) {
-          filteredCardList = sortedCardList;
-        } else {
-          setFilteredCardList(fullCardList);
-          setSortType(finalSortType);
-          setSortDirection(finalSortDirection);
-          setShowFavourites(needFilterFav);
-          setSelectedSet(finalSelectedSet);
-          return; 
-        }
-      }
-    }
-
-    setFilteredCardList(filteredCardList);
-    setSortType(finalSortType);
-    setSortDirection(finalSortDirection);
-    setShowFavourites(needFilterFav);
-
-  };
 
   const displayedCards = useMemo(() => {
     let list = fullCardList;
@@ -869,11 +804,6 @@ const Collection = () => {
 
     return list;
   }, [fullCardList, selectedSet, showFavourites, searchQuery, sortType, sortDirection]);
-
-  const handleChangeShowFavourites = () => {
-    // console.log(`handleChangeShowFavourites from ${showFavourites} to ${!showFavourites}`);
-    updateFilterCardList({ selectedSortType: null, selectedSortDirection: null, showFav: !showFavourites, selectedSetOption: null});
-  };
 
   const handleChangeSorting = ({ sortType, sortDirection }) => {
     setSortType(sortType);
@@ -913,8 +843,6 @@ const Collection = () => {
     }
     
   };
-
-  
 
   return (
     <ImageBackground
@@ -968,6 +896,7 @@ const Collection = () => {
             sortIconMapping={sortIconMapping}
             handleChangeSorting={handleChangeSorting}
             isDesktopWeb={isDesktopWeb}
+            isNative={isNative}
             screenWidth={width}
           />
         </View>
