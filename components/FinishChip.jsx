@@ -29,6 +29,7 @@ const FinishChip = ({ text, size="sm", style="dark", shortened=true }) => {
     "raisedfoil": "Raised",
     "neonink": "Neon Ink",
     "cosmicfoil": "Cosmic",
+    "manafoil": "Mana",
   };
 
   if (text === "nonfoil") {
